@@ -1,4 +1,3 @@
-import path from "node:path";
 import { themes as prismThemes } from "prism-react-renderer";
 import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
@@ -6,11 +5,10 @@ import {
   DEFAULT_LANGUAGE_CODE,
   SUPPORTED_LANGUAGES,
   SUPPORTED_LANGUAGE_CODES,
-} from "../src/lib/locales";
+} from "./src/lib/locales";
 
-const repoRoot = path.resolve(__dirname, "..");
-const docsRoot = path.join(repoRoot, "docs");
 const repoEditUrl = "https://github.com/bitsocialnet/bitsocial-web/tree/master";
+const showDocsGitMetadata = process.env.VERCEL !== "1";
 
 /** Docs live under /docs/; logo + title must link to the main site root, not useBaseUrl("/"). */
 const mainSiteOrigin = "https://bitsocial.net";
@@ -59,14 +57,23 @@ const config: Config = {
       "classic",
       {
         docs: {
-          path: docsRoot,
+          path: ".",
           routeBasePath: "/",
           sidebarPath: "./sidebars.ts",
           editUrl: repoEditUrl,
           breadcrumbs: false,
-          showLastUpdateTime: true,
+          showLastUpdateTime: showDocsGitMetadata,
           showLastUpdateAuthor: false,
-          exclude: ["**/*.template.json"],
+          exclude: [
+            ".docusaurus/**",
+            "build/**",
+            "dist/**",
+            "node_modules/**",
+            "src/**",
+            "static/**",
+            "agent-runs/**",
+            "**/*.template.json",
+          ],
         },
         blog: false,
         theme: {
