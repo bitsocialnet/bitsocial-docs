@@ -2,20 +2,20 @@
 
 Select checks from the changed behavior and remaining uncertainty. Reuse successful evidence for the same final state; rerun after relevant edits or failures. Explicit CI/release/user requirements still apply.
 
-| Change                                                | Appropriate checks                                                                                                      |
-| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Prose/comments/formatting only                        | Diff, references, relevant generators; no app build                                                                     |
-| AI workflow sources/configuration                     | `yarn ai-workflow:sync`, `yarn ai-workflow:check`, `yarn ai-workflow:test`; regenerate LLM indexes when context changed |
-| Isolated helper or script                             | Focused invocation/fixtures and syntax or type/lint checks for the affected code                                        |
-| Shared runtime, dependency, build, integration change | Focused affected checks plus the relevant build/type/lint checks below                                                  |
-| CSS/theme/layout only                                 | Affected routes/viewports/themes in selected browsers; build when imports, assets, or CSS processing changed            |
-| React state/effects/performance                       | Affected behavior and applicable React guidance; Doctor when diagnostics resolve a concrete concern                     |
+| Change                                                | Appropriate checks                                                                                           |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Prose/comments/formatting only                        | Diff, references, relevant generators; no app build                                                          |
+| AI workflow sources/configuration                     | `yarn ai-workflow:sync`, `yarn ai-workflow:check`, `yarn ai-workflow:test`                                   |
+| Isolated helper or script                             | Focused invocation/fixtures and syntax or type/lint checks for the affected code                             |
+| Shared runtime, dependency, build, integration change | Focused affected checks plus the relevant build/type/lint checks below                                       |
+| CSS/theme/layout only                                 | Affected routes/viewports/themes in selected browsers; build when imports, assets, or CSS processing changed |
+| React state/effects/performance                       | Affected behavior and applicable React guidance; Doctor when diagnostics resolve a concrete concern          |
 
 ## Project checks
 
-- `yarn build:verify` selects the affected workspace. For a known scope use `yarn build:about`, `yarn build:chain`, `yarn build:stats-monitor`, or `yarn docs:build:verify`.
-- `yarn build` intentionally runs the full production about/docs build, including all docs locales. Use it for release-wide validation or changes that warrant that scope.
-- `yarn lint`, `yarn typecheck`, and `yarn format:check` cover existing repository gates; for a narrow script edit use its focused syntax/fixture/format checks first.
+- `yarn build:verify` builds the English site and its Pagefind index.
+- `yarn build` runs the full production build that Vercel runs, including every locale and the Pagefind index. Use it for theme, i18n, or build configuration changes, or other changes that warrant that scope.
+- `yarn lint`, `yarn typecheck`, and `yarn format:check` cover existing repository gates; for a narrow script edit use its focused syntax/fixture/format checks first. Script and client-state tests run with `node --test scripts/__tests__/*.node-test.mjs`.
 - Manifest/lock changes require `corepack yarn install`, `yarn deps:check-pinned`, and `yarn deps:check-hardened`. `yarn knip` is advisory for dependencies/imports.
 - Docs translation checks are in [translations.md](translations.md); do not run the bulk translation writer for a focused docs change.
 
@@ -29,10 +29,8 @@ For performance work, compare the same flow with equivalent viewport, content, n
 
 ## Final evidence
 
-One agent owns heavy verification. Inspect active workloads and serialize installs, builds/full suites, Doctor, Android/Electron work, and browser profiling. Report commands/outcomes and specific limitations; missing data or a skipped engine is not a passing result. Tooling fixtures verify formats and mechanics, not end-to-end app discovery or model decision quality.
+One agent owns heavy verification. Inspect active workloads and serialize installs, builds/full suites, Doctor, and browser profiling. Report commands/outcomes and specific limitations; missing data or a skipped engine is not a passing result. Tooling fixtures verify formats and mechanics, not end-to-end app discovery or model decision quality.
 
 ## Automatic React checks
 
-`yarn agent:verify` runs the selected builds followed by `yarn doctor:check` and `yarn perf:check`. `perf:check` includes the collector compatibility and deliberate-regression selftest, so neither CI nor the agent verification path needs a separate `perf:test` pass. Profiling and Chromium browser tests use sandboxed system Chrome. Keep Chrome up to date. `yarn perf:install` checks for Chrome, and `yarn perf:install --force` explicitly installs or refreshes it system-wide. Hosted CI refreshes Chrome stable before profiling. Use target/scenario filters for focused reruns after the full relevant pass. Scenario budgets are explicit in `scripts/react-perf/config.mjs`; preserve evidence and fix a regression before considering a justified baseline change. Ordinary production builds omit Bippy; separate `build:profile:*` commands supply official React profiling instrumentation.
-
-The about `apps-search` scenario is paced by committed URL/input values for each character. Its passing result covers that committed-query sequence, not rapid-typing responsiveness. Use a separate fast-input reproduction when evaluating character loss or input responsiveness.
+`yarn agent:verify` runs the selected builds followed by `yarn doctor:check` and `yarn perf:check`. `perf:check` includes the collector compatibility and deliberate-regression selftest, so neither CI nor the agent verification path needs a separate `perf:test` pass. Profiling and Chromium browser tests use sandboxed system Chrome. Keep Chrome up to date. `yarn perf:install` checks for Chrome, and `yarn perf:install --force` explicitly installs or refreshes it system-wide. Hosted CI refreshes Chrome stable before profiling. Use target/scenario filters for focused reruns after the full relevant pass. Scenario budgets are explicit in `scripts/react-perf/config.mjs`; preserve evidence and fix a regression before considering a justified baseline change. Ordinary production builds omit Bippy; the separate `build:profile` command supplies official React profiling instrumentation.
