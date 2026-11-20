@@ -16,6 +16,6 @@ Use available workers for substantial independent work when useful. Files under 
 
 For explicit pin/unpin requests use `scripts/pin.mjs`; edit shared sources, synchronize, and remove only an obsolete generated shortcut whose pin marker matches. For hook administration or drift repair, read [hooks](reference/hooks.md) or [doctor](reference/doctor.md) only when requested. Preserve licenses, scripts, and design assets.
 
-Use the affected workspace’s existing tokens, components, visual direction, and factual content. Preserve reduced-motion fallbacks and the requested scope. Verification follows `docs/agent-playbooks/verification.md`.
+Use the affected workspace’s existing tokens, components, visual direction, and factual content. Preserve reduced-motion fallbacks and the requested scope. Verification follows `agent-playbooks/verification.md`.
 
 Repository integration: keep committed hooks formatter-only unless the user explicitly requests a policy change. Nested `agents/*.toml` files are handoff templates for supported delegation, not automatic custom-agent discovery; leave model selection to the runtime. Use the repository’s browser/session resource rules.

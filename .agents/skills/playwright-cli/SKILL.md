@@ -6,14 +6,14 @@ allowed-tools: Bash(playwright-cli:*), Bash(./scripts/pw-session.sh:*), Bash(nod
 
 # Browser verification
 
-Check the affected flow and report observed results. Use the task's existing server URL; the canonical URL is `https://bitsocial.localhost`, but another worktree can have a different route. Verify route and workspace in the current source; the about, chain, docs, and stats sites have distinct launch commands.
+Check the affected flow and report observed results. Use the task's existing server URL; the canonical URL is `https://docs.bitsocial.localhost`, but another worktree can have a different route. Verify the route in the current source; `yarn start:docs` serves the built multi-locale preview and `yarn start:docs:live` the single-locale dev server.
 
 Use Chrome for a small browser change. Add Firefox and WebKit for shared CSS/layout/responsiveness, browser-sensitive behavior or APIs, broad interaction changes, releases, or an explicit user requirement. Include a mobile viewport when affected; resizing checks layout, not touch emulation. Run selected engines sequentially and record which were exercised.
 
 One browser session may be active machine-wide. Open and close through `./scripts/pw-session.sh`, use `-s=<session>` on every session command, and close the exact owned session on failure as well as success. Exit 75 means busy: defer or use the wrapper's bounded wait. Never bypass the lock or use `close-all`/`kill-all`.
 
 ```bash
-./scripts/pw-session.sh open check-task "https://bitsocial.localhost/" --browser=chrome
+./scripts/pw-session.sh open check-task "https://docs.bitsocial.localhost/" --browser=chrome
 playwright-cli -s=check-task snapshot
 # Use refs from the current snapshot for the assigned interaction.
 playwright-cli -s=check-task console error

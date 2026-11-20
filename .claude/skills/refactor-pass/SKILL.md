@@ -13,4 +13,4 @@ Prefer removing dead code, clarifying control flow, or reusing existing helpers 
 
 Preserve observable behavior, error contracts, accessibility, and project architecture. Remove memoization only when its purpose and impact are understood. Preserve workspace boundaries and existing data/state ownership. Keep derived values in render when appropriate; do not impose patterns from a client or a server framework on unrelated workspaces.
 
-Keep the diff focused and avoid new dependencies for routine cleanup. Verify the affected behavior using `docs/agent-playbooks/verification.md`; report what became simpler and any remaining uncertainty.
+Keep the diff focused and avoid new dependencies for routine cleanup. Verify the affected behavior using `agent-playbooks/verification.md`; report what became simpler and any remaining uncertainty.

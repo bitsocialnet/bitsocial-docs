@@ -8,7 +8,7 @@ description: Create scoped local commits when the user asks to commit changes.
 
 Review the requested diff, including staged and untracked files, and preserve unrelated work. Group independently useful changes into separate commits; do not split one coherent change merely by file type.
 
-Use the existing final-state verification and review evidence when still applicable. Follow `docs/agent-playbooks/verification.md` for any missing checks. A completed review does not need to be repeated just to commit the same diff.
+Use the existing final-state verification and review evidence when still applicable. Follow `agent-playbooks/verification.md` for any missing checks. A completed review does not need to be repeated just to commit the same diff.
 
 Stage only task-owned hunks and inspect `git diff --cached` before committing. For mixed files, use an index patch. Exclude unrelated staged changes from the commit and restore their staging afterward.
 

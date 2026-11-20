@@ -2,7 +2,7 @@
 
 Before merging, confirm that the PR's current head is the version reviewed, required checks pass, it is mergeable into the intended base, and no established correctness/security blocker remains. Required branch protections and explicit human review requirements still apply. A draft/readiness change is an external mutation; perform it only as part of the authorized scope.
 
-Use existing final-state verification evidence. A new head or relevant fix may require renewed checks under `docs/agent-playbooks/verification.md`; an unchanged PR does not automatically require another full local build.
+Use existing final-state verification evidence. A new head or relevant fix may require renewed checks under `agent-playbooks/verification.md`; an unchanged PR does not automatically require another full local build.
 
 Merge using the repository-supported method consistent with the request. Do not bundle branch deletion into the merge command unless cleanup is also intended. For this repository's usual squash merge:
 

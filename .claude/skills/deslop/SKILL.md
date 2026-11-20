@@ -14,4 +14,4 @@ Check history when a guard or workaround's purpose is unclear. Simplify defensiv
 
 Match nearby style without reformatting adjacent code. Preserve comments explaining constraints or tradeoffs. When evidence is insufficient, retain the code and report the uncertainty instead of inventing cleanup work.
 
-Verify affected behavior using `docs/agent-playbooks/verification.md`, reuse existing checks for unchanged code, and report the useful simplifications.
+Verify affected behavior using `agent-playbooks/verification.md`, reuse existing checks for unchanged code, and report the useful simplifications.

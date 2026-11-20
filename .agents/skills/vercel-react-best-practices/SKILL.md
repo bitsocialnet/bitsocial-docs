@@ -20,4 +20,4 @@ Useful starting points when relevant:
 
 Read other `rules/` files only when their topic applies. Skip Next.js, Server Components, server caching, and server actions for Vite surfaces; use hydration guidance only for an actual server-rendered docs concern. Do not introduce SWR, Next.js APIs, manual memoization, or a new dependency merely because an upstream example uses it. Adapt examples to the installed React/compiler behavior, existing data layer, and product design constraints.
 
-Establish a correctness or measured performance reason for a change, preserve error handling and accessibility, and verify the affected behavior under `docs/agent-playbooks/verification.md`. Treat reference priorities as triage guidance rather than mandatory refactor targets. Licensed upstream rule files and their attribution remain intact.
+Establish a correctness or measured performance reason for a change, preserve error handling and accessibility, and verify the affected behavior under `agent-playbooks/verification.md`. Treat reference priorities as triage guidance rather than mandatory refactor targets. Licensed upstream rule files and their attribution remain intact.

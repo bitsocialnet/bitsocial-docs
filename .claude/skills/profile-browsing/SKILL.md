@@ -1,6 +1,6 @@
 ---
 name: profile-browsing
-description: Measure Bitsocial Web loading, navigation, or interaction performance and investigate observed bottlenecks.
+description: Measure Bitsocial Docs loading, navigation, or interaction performance and investigate observed bottlenecks.
 ---
 
 <!-- Generated from .agents/skills/profile-browsing/SKILL.md; run yarn ai-workflow:sync. -->

@@ -1,6 +1,6 @@
 ---
 name: profiler
-description: Measure an assigned Bitsocial Web performance scenario and report observed costs and limitations.
+description: Measure an assigned Bitsocial Docs performance scenario and report observed costs and limitations.
 ---
 
 <!-- Generated from .agents/roles/profiler.md; run yarn ai-workflow:sync. -->

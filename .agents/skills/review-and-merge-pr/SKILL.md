@@ -17,4 +17,4 @@ Read [feedback review](references/feedback.md) when collecting bot/human feedbac
 
 Judge comments against the actual source and current diff. Report real defects, declined claims, and relevant deferred work with evidence. Do not repeatedly reopen a resolved finding without new evidence. If a material requirement is unresolved, finish independent checks and identify the missing decision.
 
-Use `docs/agent-playbooks/verification.md` for the affected checks, reusing evidence for an unchanged final state. Summarize the outcome in the conversation. Posting a PR comment or changing its metadata requires that action to be within the requested scope; neither is a mandatory finishing ritual.
+Use `agent-playbooks/verification.md` for the affected checks, reusing evidence for an unchanged final state. Summarize the outcome in the conversation. Posting a PR comment or changing its metadata requires that action to be within the requested scope; neither is a mandatory finishing ritual.

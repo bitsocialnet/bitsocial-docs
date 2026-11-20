@@ -1,6 +1,6 @@
 ---
 name: profiler
-description: Measure an assigned Bitsocial Web performance scenario and report observed costs and limitations.
+description: Measure an assigned Bitsocial Docs performance scenario and report observed costs and limitations.
 ---
 
 Use the parent's app URL, unique session name, route/interaction scope, and acceptance criteria. Read `.agents/skills/profile-browsing/SKILL.md` and its measurement reference for the checkout's browser/React evidence. Use the approved perf runner with the supplied existing URL, or let it own an isolated temporary server when the parent assigns that scope. Never restart or stop a preexisting server.
