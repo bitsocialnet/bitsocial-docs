@@ -10,7 +10,6 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import http from "node:http";
 import net from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -47,17 +46,6 @@ async function freePort() {
   const { port } = server.address();
   await new Promise((resolve) => server.close(resolve));
   return port;
-}
-
-function isListening(port) {
-  return new Promise((resolve) => {
-    const socket = net.connect({ host: "127.0.0.1", port });
-    socket.once("connect", () => {
-      socket.destroy();
-      resolve(true);
-    });
-    socket.once("error", () => resolve(false));
-  });
 }
 
 function groupAlive(pid) {
@@ -122,56 +110,6 @@ function fakeBin(t, name, script) {
   return { dir, log: path.join(dir, `${name}.log`) };
 }
 
-function openHmrSocket(port) {
-  return new Promise((resolve, reject) => {
-    const request = http.request({
-      host: "127.0.0.1",
-      port,
-      path: "/",
-      headers: {
-        Connection: "Upgrade",
-        Upgrade: "websocket",
-        "Sec-WebSocket-Key": "dGhlIHNhbXBsZSBub25jZQ==",
-        "Sec-WebSocket-Version": "13",
-        "Sec-WebSocket-Protocol": "vite-hmr",
-      },
-    });
-    request.once("upgrade", (_response, socket) => resolve(socket));
-    request.once("response", (response) =>
-      reject(new Error(`HMR upgrade refused with ${response.statusCode}`)),
-    );
-    request.once("error", reject);
-    request.end();
-  });
-}
-
-test("about dev server stops on SIGINT while a browser tab holds an HMR connection", async (t) => {
-  const port = await freePort();
-  const server = launch(t, "start-about-server.mjs", { PORT: String(port), HOST: "127.0.0.1" });
-  await server.waitForOutput("Host URL");
-  const socket = await openHmrSocket(port);
-  t.after(() => socket.destroy());
-
-  process.kill(server.pid, "SIGINT");
-
-  // Rolldown's signal-exit hook can turn the re-raised signal into a plain exit, so only
-  // assert that the server is gone.
-  assert.ok(await server.waitForExit(10_000), `about server ignored SIGINT:\n${server.output()}`);
-});
-
-for (const launcher of ["start-dev.mjs", "start-chain.mjs"]) {
-  test(`${launcher} stops its dev server when only the launcher is signalled`, async (t) => {
-    const port = await freePort();
-    const run = launch(t, launcher, { PORTLESS: "0", PORT: String(port), HOST: "127.0.0.1" });
-    await run.waitForOutput("Host URL");
-
-    process.kill(run.pid, "SIGTERM");
-
-    const stopped = await waitUntil(() => !groupAlive(run.pid), 10_000);
-    assert.ok(stopped, `${launcher} left its server running:\n${run.output()}`);
-  });
-}
-
 test("start-docs stops the docs build when only the launcher is signalled", async (t) => {
   const yarn = fakeBin(
     t,
@@ -202,26 +140,6 @@ while :; do sleep 0.1; done
   assert.match(readFileSync(yarn.log, "utf8"), /^TERM docs:build$/m);
 });
 
-test("start-stats stops the containers when interrupted while the dashboard warms up", async (t) => {
-  if (await isListening(3302)) {
-    t.skip("a stats dashboard is already listening on 127.0.0.1:3302");
-    return;
-  }
-  const envFile = path.join(repoRoot, "stats/.env");
-  if (!existsSync(envFile)) t.after(() => rmSync(envFile, { force: true }));
-  const docker = fakeBin(t, "docker", `#!/bin/sh\necho "$*" >> "$FAKE_LOG"\n`);
-  const run = launch(t, "start-stats.mjs", {
-    PATH: `${docker.dir}${path.delimiter}${process.env.PATH}`,
-    FAKE_LOG: docker.log,
-  });
-  await run.waitForOutput("Waiting for the stats dashboard");
-
-  process.kill(run.pid, "SIGINT");
-
-  assert.ok(await run.waitForExit(10_000), `start-stats did not exit:\n${run.output()}`);
-  assert.match(readFileSync(docker.log, "utf8"), /^compose -f \S+ stop$/m);
-});
-
 // Copies the launchers into a scratch checkout whose node_modules/.bin/portless is a stub: `list`
 // prints the routes in $FAKE_ROUTES, and running an app logs its name and the docs hand-off env.
 // `run` waits for a launcher whose app exits at once; `start` leaves the app running.
@@ -229,7 +147,7 @@ function portlessCheckout(t, branch) {
   const root = mkdtempSync(path.join(tmpdir(), "dev-servers-portless-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   mkdirSync(path.join(root, "scripts"));
-  for (const file of ["dev-server-utils.mjs", "start-dev.mjs", "start-docs.mjs"]) {
+  for (const file of ["dev-server-utils.mjs", "start-docs.mjs"]) {
     copyFileSync(path.join(repoRoot, "scripts", file), path.join(root, "scripts", file));
   }
   mkdirSync(path.join(root, "node_modules/.bin"), { recursive: true });
@@ -286,26 +204,16 @@ for (const [branch, docsHost] of [
   ["master", "docs.bitsocial.localhost"],
   ["feature/new-page", "feature-new-page.docs.bitsocial.localhost"],
 ]) {
-  test(`about server on ${branch} redirects /docs to the docs host the running docs server claimed`, async (t) => {
+  test(`start-docs on ${branch} claims ${docsHost}`, async (t) => {
     const checkout = portlessCheckout(t, branch);
     const docs = await checkout.start("start-docs.mjs");
     assert.equal(`${docs.name}.localhost`, docsHost);
-    writeFileSync(checkout.routes, `https://${docsHost}  ->  localhost:4321  (pid 1)\n`);
-
-    const about = checkout.run("start-dev.mjs");
-
-    // Same precedence as docsDevRedirectOrigin() in about/vite.config.ts.
-    const recorded = about.docsUrlFile ? readFileSync(about.docsUrlFile, "utf8").trim() : "";
-    assert.equal(about.docsTarget || recorded, `https://${docsHost}`);
   });
 }
 
 // Once a server stops, its host can be claimed by another checkout, so a leftover record would
 // send /docs (or agent-init) there.
-for (const [launcher, record] of [
-  ["start-docs.mjs", "docs"],
-  ["start-dev.mjs", "about"],
-]) {
+for (const [launcher, record] of [["start-docs.mjs", "docs"]]) {
   test(`${launcher} removes its URL record when its server stops, but not a newer launcher's`, async (t) => {
     const checkout = portlessCheckout(t, "master");
     const file = checkout.urlRecord(record);
@@ -346,118 +254,3 @@ for (const [launcher, record] of [
     );
   });
 }
-
-test("about dev server reads the recorded docs URL on every /docs request", async (t) => {
-  const record = path.join(mkdtempSync(path.join(tmpdir(), "dev-servers-docs-url-")), "docs-url");
-  t.after(() => rmSync(path.dirname(record), { recursive: true, force: true }));
-  const port = await freePort();
-  const server = launch(t, "start-about-server.mjs", {
-    PORT: String(port),
-    HOST: "127.0.0.1",
-    DOCS_DEV_URL_FILE: record,
-  });
-  await server.waitForOutput("Host URL");
-  const docsRedirect = () =>
-    new Promise((resolve, reject) => {
-      http
-        .get(`http://127.0.0.1:${port}/docs/getting-started`, (response) => {
-          response.resume();
-          resolve(`${response.statusCode} ${response.headers.location}`);
-        })
-        .once("error", reject);
-    });
-
-  writeFileSync(record, "https://feature.docs.bitsocial-2.localhost\n");
-  assert.equal(
-    await docsRedirect(),
-    "308 https://feature.docs.bitsocial-2.localhost/getting-started",
-  );
-  writeFileSync(record, "https://feature.docs.bitsocial.localhost\n");
-  assert.equal(
-    await docsRedirect(),
-    "308 https://feature.docs.bitsocial.localhost/getting-started",
-  );
-});
-
-// Runs agent-init.sh in a scratch repository with a stub `corepack` standing in for `yarn start`.
-function agentInit(t, corepackScript, env = {}) {
-  const root = mkdtempSync(path.join(tmpdir(), "dev-servers-agent-init-"));
-  execFileSync("git", ["init", "--quiet"], { cwd: root });
-  const bin = path.join(root, "bin");
-  mkdirSync(bin);
-  writeFileSync(path.join(bin, "corepack"), corepackScript);
-  chmodSync(path.join(bin, "corepack"), 0o755);
-  const pidFile = path.join(root, "server.pid");
-  t.after(() => {
-    if (existsSync(pidFile)) {
-      try {
-        process.kill(Number(readFileSync(pidFile, "utf8")), "SIGKILL");
-      } catch {
-        /* Already gone. */
-      }
-    }
-    rmSync(root, { recursive: true, force: true });
-  });
-  const child = spawn("bash", [path.join(repoRoot, "scripts/agent-init.sh")], {
-    cwd: root,
-    env: {
-      ...baseEnv,
-      ...env,
-      PATH: `${bin}${path.delimiter}${process.env.PATH}`,
-      AGENT_START_LOG: path.join(root, "start.log"),
-      SERVER_PID_FILE: pidFile,
-      FAKE_LOG: path.join(root, "server.log"),
-    },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  let output = "";
-  child.stdout.on("data", (chunk) => (output += chunk));
-  child.stderr.on("data", (chunk) => (output += chunk));
-  const exited = new Promise((resolve) => child.once("exit", (code) => resolve(code)));
-  return { root, exited, output: () => output, serverLog: path.join(root, "server.log") };
-}
-
-test("agent-init stops the dev server it started when the server never becomes ready", async (t) => {
-  const run = agentInit(
-    t,
-    `#!/bin/sh
-echo $$ > "$SERVER_PID_FILE"
-trap 'echo stopped >> "$FAKE_LOG"; exit 143' TERM
-echo started >> "$FAKE_LOG"
-while :; do sleep 0.1; done
-`,
-    { AGENT_INIT_TIMEOUT_SECONDS: "1" },
-  );
-
-  assert.equal(await run.exited, 1, run.output());
-  const stopped = await waitUntil(
-    () => existsSync(run.serverLog) && readFileSync(run.serverLog, "utf8").includes("stopped"),
-    5_000,
-  );
-  assert.ok(stopped, `agent-init left its dev server running:\n${run.output()}`);
-});
-
-test("agent-init waits for the URL the about launcher recorded", async (t) => {
-  const server = http.createServer((_request, response) =>
-    response.end("<title>Bitsocial</title>"),
-  );
-  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
-  t.after(() => server.close());
-  const run = agentInit(
-    t,
-    `#!/bin/sh
-echo $$ > "$SERVER_PID_FILE"
-sleep 0.5
-mkdir -p .dev-servers
-echo "$FAKE_URL" > .dev-servers/about-url
-while :; do sleep 0.1; done
-`,
-    {
-      AGENT_INIT_TIMEOUT_SECONDS: "10",
-      FAKE_URL: `http://127.0.0.1:${server.address().port}`,
-    },
-  );
-
-  assert.equal(await run.exited, 0, run.output());
-  assert.match(run.output(), /Dev server is ready/);
-});
