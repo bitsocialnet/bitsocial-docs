@@ -18,3 +18,24 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Repository tooling
+.firecrawl
+.playwright-cli
+.vercel
+node_modules
+.yarn/*
+!.yarn/patches/
+!.yarn/patches/**
+*.local
+__pycache__/
+bun.lock
+bun.lockb
+/.cursor/
+/.claude/worktrees
+.codegraph
+.dev-servers/
+
+# Local React profiling captures and isolated profiling builds.
+.react-perf/
+dist-profile/
