@@ -26,8 +26,8 @@ const words = (text) =>
     .map((m) => m[0])
     .filter((word) => word.length > 2 && !stop.has(word));
 const supportedPath = (file) =>
-  /^docs\/(?:[a-z0-9-]+\/)?[a-z0-9-]+\.md$/.test(file) &&
-  directories.includes(path.posix.dirname(file).replace(/^docs\/?/, "")) &&
+  /^(?:[a-z0-9-]+\/)?[a-z0-9-]+\.md$/.test(file) &&
+  directories.includes(path.posix.dirname(file).replace(/^\.$/, "")) &&
   !/(?:^|\/)(?:README|AGENTS|i18n-default-language-policy)\.md$/i.test(file);
 
 // Deliberately smaller than Markdown: only paragraphs that need no syntax interpretation.
@@ -133,12 +133,13 @@ export function extractDoc(file, text) {
     headings,
     blocks,
     links,
-    route: "/" + file.slice(5, -3),
+    route: "/" + file.slice(0, -3),
   };
 }
 
 export async function collectDocs(repoRoot = root) {
-  const docsRoot = path.join(repoRoot, "docs");
+  // The docs site is the repository root.
+  const docsRoot = repoRoot;
   if ((await fs.lstat(docsRoot)).isSymbolicLink()) fail("symlink_document_directory");
   const docs = [];
   let bytes = 0;
@@ -153,7 +154,7 @@ export async function collectDocs(repoRoot = root) {
       throw error;
     }
     for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
-      const file = path.posix.join("docs", directory, entry.name);
+      const file = path.posix.join(directory, entry.name);
       if (!supportedPath(file) || !entry.isFile()) continue;
       if (docs.length >= 200) fail("too_many_documents");
       const handle = await fs.open(
@@ -394,7 +395,7 @@ export async function main(args = process.argv.slice(2)) {
   });
   if (values.help) {
     console.log(
-      "Usage: node scripts/jev/docs-links.mjs [--source docs/browser-p2p.md] [--limit 1..20] [--live]\nDefault: offline candidate preview; no credentials/network or document edits. Only --live sends selected public excerpts to TypeSafe. JSON output goes to stdout.",
+      "Usage: node scripts/jev/docs-links.mjs [--source browser-p2p.md] [--limit 1..20] [--live]\nDefault: offline candidate preview; no credentials/network or document edits. Only --live sends selected public excerpts to TypeSafe. JSON output goes to stdout.",
     );
     return;
   }

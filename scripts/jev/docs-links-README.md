@@ -8,7 +8,7 @@ Run from the repository root with Node 22.12.0:
 
 ```sh
 node scripts/jev/docs-links.mjs --limit 10
-node scripts/jev/docs-links.mjs --source docs/content-discovery.md --limit 3
+node scripts/jev/docs-links.mjs --source content-discovery.md --limit 3
 ```
 
 Default execution reads no credentials and makes no network calls. Every result is `unverified` with code `offline`: lexical overlap alone does not establish that a link is useful. Repeat `--source` to select up to 20 source pages; targets come from the same bounded local catalog. Unknown, omitted, or unsupported source paths fail explicitly.
@@ -22,7 +22,7 @@ The extractor deliberately supports only plain prose paragraphs and headings. It
 Inspect the offline selection first. Then explicitly permit sending those public excerpts:
 
 ```sh
-node scripts/jev/docs-links.mjs --source docs/content-discovery.md --limit 3 --live
+node scripts/jev/docs-links.mjs --source content-discovery.md --limit 3 --live
 ```
 
 The existing [shared machine configuration](README.md) supplies the pinned model and API key. This command uses the same direct TypeSafe client as the other Jev helpers; no repository `.env`, Treg account, Gateway key, or new dependency is needed. There is no agent-generated substitute if credentials or the provider are unavailable.

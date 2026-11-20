@@ -38,7 +38,7 @@ async function loadDocsClient() {
         'export { usePagefindUi } from "./lib/usePagefindUi.ts";',
       ].join("\n"),
       loader: "ts",
-      resolveDir: path.join(repoRoot, "docs/src"),
+      resolveDir: path.join(repoRoot, "src"),
     },
     bundle: true,
     define: { __REACT_PERF_ENABLED__: "false" },

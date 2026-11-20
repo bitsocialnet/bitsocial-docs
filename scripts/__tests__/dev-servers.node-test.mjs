@@ -128,7 +128,7 @@ while :; do sleep 0.1; done
     FAKE_LOG: yarn.log,
   });
   const building = await waitUntil(
-    () => existsSync(yarn.log) && readFileSync(yarn.log, "utf8").includes("run docs:build"),
+    () => existsSync(yarn.log) && readFileSync(yarn.log, "utf8").includes("run build"),
     10_000,
   );
   assert.ok(building, `start-docs never started the docs build:\n${run.output()}`);
@@ -137,7 +137,7 @@ while :; do sleep 0.1; done
 
   const stopped = await waitUntil(() => !groupAlive(run.pid), 10_000);
   assert.ok(stopped, `start-docs left the docs build running:\n${run.output()}`);
-  assert.match(readFileSync(yarn.log, "utf8"), /^TERM docs:build$/m);
+  assert.match(readFileSync(yarn.log, "utf8"), /^TERM build$/m);
 });
 
 // Copies the launchers into a scratch checkout whose node_modules/.bin/portless is a stub: `list`

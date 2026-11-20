@@ -35,7 +35,7 @@ export async function loadDocPairs(repository, locales, paths) {
     )
   )
     throw new Error("Use source-relative Markdown paths");
-  const docs = await fs.realpath(path.join(repository, "docs"));
+  const docs = await fs.realpath(repository);
   async function read(relative) {
     const file = await fs.realpath(path.join(docs, relative));
     if (!file.startsWith(`${docs}${path.sep}`)) throw new Error("Document escapes docs directory");

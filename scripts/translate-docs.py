@@ -15,8 +15,10 @@ from typing import Any
 from deep_translator import GoogleTranslator
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DOCS_ROOT = REPO_ROOT / "docs"
-DOCS_I18N_ROOT = REPO_ROOT / "docs" / "i18n"
+# The docs site is the repository root; these root entries are repository tooling, not pages.
+DOCS_ROOT = REPO_ROOT
+DOCS_I18N_ROOT = REPO_ROOT / "i18n"
+NON_DOCS_ROOT_ENTRIES = {"build", "dist-profile", "node_modules", "scripts", "CLAUDE.md"}
 
 LOCALE_TARGETS = {
     "ar": "ar",
@@ -589,7 +591,7 @@ def translate_category_json(value: Any, locale: str, key: str | None = None) -> 
 
 
 def extract_docs_home_messages() -> dict[str, dict[str, str]]:
-    docs_home_path = REPO_ROOT / "docs" / "src" / "components" / "DocsHome.tsx"
+    docs_home_path = REPO_ROOT / "src" / "components" / "DocsHome.tsx"
     content = docs_home_path.read_text()
     string_literal = r'(?:"((?:[^"\\]|\\.)*)"|\'((?:[^\'\\]|\\.)*)\')'
     pattern = re.compile(
@@ -670,6 +672,8 @@ def copy_and_translate_docs(locale: str) -> None:
             continue
 
         relative_path = source_path.relative_to(DOCS_ROOT)
+        if relative_path.parts[0] in NON_DOCS_ROOT_ENTRIES or relative_path.parts[0].startswith("."):
+            continue
         target_path = target_root / relative_path
 
         if source_path.suffix in {".md", ".mdx"}:

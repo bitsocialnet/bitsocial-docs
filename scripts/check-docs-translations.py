@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Structural validator for translated Docusaurus docs.
 
-Compares each locale copy under docs/i18n/<locale>/docusaurus-plugin-content-docs/current/
-against its English source in docs/ and reports structural drift: code blocks that were
+Compares each locale copy under i18n/<locale>/docusaurus-plugin-content-docs/current/
+against its English source page and reports structural drift: code blocks that were
 translated, dropped links, mangled contract addresses, missing sections, and files that
 were copied without being translated.
 
@@ -25,8 +25,10 @@ from difflib import SequenceMatcher
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DOCS_ROOT = REPO_ROOT / "docs"
+# The docs site is the repository root; these root entries are repository tooling, not pages.
+DOCS_ROOT = REPO_ROOT
 DOCS_I18N_ROOT = DOCS_ROOT / "i18n"
+NON_DOCS_ROOT_ENTRIES = {"build", "dist-profile", "scripts", "CLAUDE.md"}
 CURRENT_SUBPATH = Path("docusaurus-plugin-content-docs") / "current"
 
 # Frontmatter keys whose values must survive translation byte-for-byte.
@@ -272,6 +274,8 @@ def collect_pages(paths: list[str] | None) -> list[str]:
         parts = relative.parts
         if parts[0] in {"i18n", "node_modules", "agent-runs"}:
             continue
+        if parts[0] in NON_DOCS_ROOT_ENTRIES or parts[0].startswith("."):
+            continue
         if relative.name in {"AGENTS.md", "README.md"}:
             continue
         pages.append(str(relative))
@@ -281,7 +285,7 @@ def collect_pages(paths: list[str] | None) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--locales", nargs="+", help="Locales to check (default: every locale directory).")
-    parser.add_argument("--paths", nargs="+", help="Doc paths relative to docs/ (default: every page).")
+    parser.add_argument("--paths", nargs="+", help="Doc paths relative to the repository root (default: every page).")
     parser.add_argument("--json", action="store_true", help="Emit JSON instead of text.")
     parser.add_argument("--allow-missing", action="store_true", help="Do not report absent translations.")
     args = parser.parse_args()

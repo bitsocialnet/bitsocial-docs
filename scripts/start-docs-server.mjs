@@ -110,7 +110,7 @@ if (docsStartMode === "live") {
 console.log("");
 
 if (docsStartMode === "multilocale") {
-  await runStep(["docs:build"]).catch((error) => {
+  await runStep(["build"]).catch((error) => {
     if (!stopSignal) {
       throw error;
     }
@@ -123,19 +123,8 @@ if (stopSignal) {
 
 const childArgs =
   docsStartMode === "live"
-    ? ["--cwd", "docs", "start", "--host", host, "--port", String(port)]
-    : [
-        "--cwd",
-        "docs",
-        "serve",
-        "--dir",
-        "../dist/docs",
-        "--no-open",
-        "--host",
-        host,
-        "--port",
-        String(port),
-      ];
+    ? ["start", "--host", host, "--port", String(port)]
+    : ["serve", "--dir", "build", "--no-open", "--host", host, "--port", String(port)];
 
 console.log(`Running: ${yarnBin} ${childArgs.join(" ")}`);
 
