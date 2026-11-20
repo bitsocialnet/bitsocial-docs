@@ -3,50 +3,35 @@ name: React diagnostics and runtime checks
 on:
   pull_request:
     branches: [master]
+    # The docs site is the repository root; agent tooling and unrelated scripts are left out.
     paths:
       [
-        "about/**",
-        "chain/**",
-        "docs/**",
+        "**",
+        "!.agents/**",
+        "!.claude/**",
+        "!.codex/**",
+        "!.github/**",
+        "!scripts/**",
         "scripts/react-perf/**",
-        "scripts/__tests__/about-navigation.node-test.mjs",
-        "scripts/__tests__/about-ssr.node-test.mjs",
-        "scripts/__tests__/analytics.node-test.mjs",
-        "scripts/__tests__/bso-holders.node-test.mjs",
-        "scripts/__tests__/bso-price-history.node-test.mjs",
-        "scripts/__tests__/chain-client-state.node-test.mjs",
         "scripts/__tests__/docs-client-state.node-test.mjs",
         "scripts/__tests__/hook-runner.mjs",
-        "scripts/__tests__/release-integrity.node-test.mjs",
-        "scripts/generate-bso-holders.mjs",
-        "scripts/generate-bso-price-history.mjs",
         "scripts/pw-session.sh",
-        "package.json",
-        "yarn.lock",
         ".github/workflows/react-checks.yml",
       ]
   push:
     branches: [master]
     paths:
       [
-        "about/**",
-        "chain/**",
-        "docs/**",
+        "**",
+        "!.agents/**",
+        "!.claude/**",
+        "!.codex/**",
+        "!.github/**",
+        "!scripts/**",
         "scripts/react-perf/**",
-        "scripts/__tests__/about-navigation.node-test.mjs",
-        "scripts/__tests__/about-ssr.node-test.mjs",
-        "scripts/__tests__/analytics.node-test.mjs",
-        "scripts/__tests__/bso-holders.node-test.mjs",
-        "scripts/__tests__/bso-price-history.node-test.mjs",
-        "scripts/__tests__/chain-client-state.node-test.mjs",
         "scripts/__tests__/docs-client-state.node-test.mjs",
         "scripts/__tests__/hook-runner.mjs",
-        "scripts/__tests__/release-integrity.node-test.mjs",
-        "scripts/generate-bso-holders.mjs",
-        "scripts/generate-bso-price-history.mjs",
         "scripts/pw-session.sh",
-        "package.json",
-        "yarn.lock",
         ".github/workflows/react-checks.yml",
       ]
 
@@ -73,29 +58,14 @@ jobs:
           node-version: 24
       - run: corepack enable
       - run: corepack yarn install --immutable
-      - name: Verify about scroll and hash navigation state
-        run: node --test scripts/__tests__/about-navigation.node-test.mjs
-      - name: Verify about SSR deployment output
-        run: node --test scripts/__tests__/about-ssr.node-test.mjs
-      - name: Verify analytics page-view sanitizing and gating
-        run: node --test scripts/__tests__/analytics.node-test.mjs
-      - name: Verify BSO holder classification
-        run: node --test scripts/__tests__/bso-holders.node-test.mjs
-      - name: Verify BSO price history merging
-        run: node --test scripts/__tests__/bso-price-history.node-test.mjs
-      - name: Verify chain theme and rich list history state
-        run: node --test scripts/__tests__/chain-client-state.node-test.mjs
       - name: Verify docs client language and search state
         run: node --test scripts/__tests__/docs-client-state.node-test.mjs
-      - name: Verify release integrity API caching
-        run: node --test scripts/__tests__/release-integrity.node-test.mjs
       - run: corepack yarn doctor:check
       # Hosted images disable Chrome updates between image releases.
       - run: corepack yarn perf:install --force
       # Hosted runners are roughly 2.5x slower than the developer hardware the
-      # wall-clock budgets were calibrated on: about/apps-search renders ~2.3s
-      # here against a 1s local limit. Commit and component-update budgets are
-      # hardware independent and stay exact.
+      # wall-clock budgets were calibrated on. Commit and component-update
+      # budgets are hardware independent and stay exact.
       - run: corepack yarn perf:check --output .react-perf/ci
         env:
           REACT_PERF_TIME_SCALE: 4
