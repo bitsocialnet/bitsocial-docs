@@ -8,7 +8,7 @@ import {
   SUPPORTED_LANGUAGE_CODES,
 } from "./src/lib/locales";
 
-const repoEditUrl = "https://github.com/bitsocialnet/bitsocial-web/tree/master";
+const repoEditUrl = "https://github.com/bitsocialnet/bitsocial-docs/tree/master";
 const isVercel = process.env.VERCEL === "1";
 const showDocsGitMetadata = !isVercel;
 const docsPreviewMode = process.env.DOCS_START_MODE === "live" ? "live" : "multilocale";
