@@ -94,7 +94,12 @@ const config: Config = {
             "src/**",
             "static/**",
             "agent-runs/**",
+            // This list replaces Docusaurus's default excludes, and the docs content root is
+            // also the repository root, so repository files must be listed here or they become
+            // pages.
+            "scripts/**",
             "AGENTS.md",
+            "CLAUDE.md",
             "README.md",
             // Repository-only playbook: no sidebar entry and no locale copies, so
             // every localized build fell back to this English page and could not
