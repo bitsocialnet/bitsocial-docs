@@ -4,6 +4,10 @@
   "private": true,
   "description": "Bitsocial documentation site, served at docs.bitsocial.net.",
   "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitsocialnet/bitsocial-docs.git"
+  },
   "author": "Bitsocial Forge",
   "scripts": {
     "docusaurus": "docusaurus",
