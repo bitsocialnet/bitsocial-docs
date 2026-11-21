@@ -79,4 +79,4 @@ Codex 에이전트 파일에는 `name`, `description`, `developer_instructions`�
 
 MCP 오버헤드는 하네스에 따라 다릅니다. 도구를 지연 로딩하면 모든 스키마를 처음부터 불러오지 않아도 됩니다. MCP 자체를 낡은 것으로 취급하지 말고 관련 있는 통합만 유지하세요. 기존의 CLI 선택은 재현성과 리소스 관리 측면에서 여전히 유용합니다.
 
-모든 브라우저 세션은 `./scripts/pw-session.sh`를 사용하며, 이 스크립트는 머신 전체에서 활성 브라우저를 하나로 제한합니다. 기본적으로 새로운 격리 세션을 사용하세요. 현재 쓰고 있는 개인 브라우저에 접근하려면 명시적인 허가가 필요하며, 허가를 받았다면 이후 단계에서도 그 허가를 재사용하세요. 영향받는 동작에 맞게 브라우저/뷰포트를 고르고, 선택한 엔진을 순차적으로 실행하고, 정리 단계에서 이름이 지정된 바로 그 세션을 닫고, `close-all`/`kill-all`은 절대 사용하지 마세요. `playwright-cli` 스킬과 [verification.md](https://github.com/bitsocialnet/bitsocial-web/blob/master/docs/agent-playbooks/verification.md)를 참고하세요.
+모든 브라우저 세션은 `./scripts/pw-session.sh`를 사용하며, 이 스크립트는 머신 전체에서 활성 브라우저를 하나로 제한합니다. 기본적으로 새로운 격리 세션을 사용하세요. 현재 쓰고 있는 개인 브라우저에 접근하려면 명시적인 허가가 필요하며, 허가를 받았다면 이후 단계에서도 그 허가를 재사용하세요. 영향받는 동작에 맞게 브라우저/뷰포트를 고르고, 선택한 엔진을 순차적으로 실행하고, 정리 단계에서 이름이 지정된 바로 그 세션을 닫고, `close-all`/`kill-all`은 절대 사용하지 마세요. `playwright-cli` 스킬과 [verification.md](https://github.com/bitsocialnet/bitsocial-docs/blob/master/agent-playbooks/verification.md)를 참고하세요.

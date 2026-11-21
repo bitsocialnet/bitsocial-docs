@@ -2262,7 +2262,7 @@ Claude does not read a standalone `.claude/hooks.json`. Each app still controls 
 
 The formatter validates event/payload, edit success, file extension, and repository containment including symlinks. Missing dependencies or irrelevant input do no work. Commands use an argument array with Corepack network access disabled; hooks do not install dependencies, run builds/reviews, or mutate Git.
 
-Run checks explicitly according to [verification.md](https://github.com/bitsocialnet/bitsocial-web/blob/master/docs/agent-playbooks/verification.md). Run `yarn ai-workflow:sync`, `yarn ai-workflow:check`, and `yarn ai-workflow:test` after changing the workflow. Fixtures use disposable files and fake formatter invocations; they do not prove each app loaded its configuration. Reload and inspect the app catalog after upgrades.
+Run checks explicitly according to [verification.md](https://github.com/bitsocialnet/bitsocial-docs/blob/master/agent-playbooks/verification.md). Run `yarn ai-workflow:sync`, `yarn ai-workflow:check`, and `yarn ai-workflow:test` after changing the workflow. Fixtures use disposable files and fake formatter invocations; they do not prove each app loaded its configuration. Reload and inspect the app catalog after upgrades.
 
 The Impeccable design skill and its executable helpers remain available on demand under `.agents/skills/impeccable`. Its former Codex hook pointed at a missing directory; the design workflow now runs when its skill is selected, with no always-on design hook. The skill must not reconfigure project hooks as an incidental design step.
 
@@ -2500,7 +2500,7 @@ Use durable task state when work needs resumption or a handoff, or when a single
 
 Record the requested outcome, current branch/worktree, file ownership, completed changes, checks with results, owned processes/sessions, and the next unresolved step. Do not store credentials or arbitrary source dumps. Mark a feature complete only when its acceptance criteria are verified.
 
-On resumption, inspect Git state, the latest progress, and relevant source before editing. Reuse compatible owned resources; start a dev server only when the next check needs one. Select checks by impact using [verification.md](https://github.com/bitsocialnet/bitsocial-web/blob/master/docs/agent-playbooks/verification.md), rather than repeating an unchanged full pass.
+On resumption, inspect Git state, the latest progress, and relevant source before editing. Reuse compatible owned resources; start a dev server only when the next check needs one. Select checks by impact using [verification.md](https://github.com/bitsocialnet/bitsocial-docs/blob/master/agent-playbooks/verification.md), rather than repeating an unchanged full pass.
 
 Keep related delegated work scoped and non-overlapping. One agent owns heavy checks and browser sessions. Update durable state when a completed slice, blocker, or handoff changes what the next contributor needs to know; do not mechanically log every command.
 
@@ -2591,7 +2591,7 @@ Prefer the existing skill/tool catalog and installed project CLIs. Use `gh` for 
 
 MCP overhead depends on the harness: deferred tool loading can avoid loading every schema upfront. Keep integrations relevant rather than treating MCP itself as obsolete. Existing CLI choices remain useful for reproducibility and resource control.
 
-All browser sessions use `./scripts/pw-session.sh`, which enforces one active browser machine-wide. Default to a fresh isolated session. Current personal-browser access needs explicit authorization; reuse that authorization in subsequent steps. Choose browsers/viewports for the affected behavior, run selected engines sequentially, close the exact named session in cleanup, and never use `close-all`/`kill-all`. See the `playwright-cli` skill and [verification.md](https://github.com/bitsocialnet/bitsocial-web/blob/master/docs/agent-playbooks/verification.md).
+All browser sessions use `./scripts/pw-session.sh`, which enforces one active browser machine-wide. Default to a fresh isolated session. Current personal-browser access needs explicit authorization; reuse that authorization in subsequent steps. Choose browsers/viewports for the affected behavior, run selected engines sequentially, close the exact named session in cleanup, and never use `close-all`/`kill-all`. See the `playwright-cli` skill and [verification.md](https://github.com/bitsocialnet/bitsocial-docs/blob/master/agent-playbooks/verification.md).
 
 ### Feature List Template
 

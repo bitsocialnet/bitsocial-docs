@@ -4,6 +4,6 @@ Använd beständigt uppgiftstillstånd när arbetet behöver kunna återupptas e
 
 Registrera det begärda resultatet, aktuell gren/worktree, filägarskap, slutförda ändringar, kontroller med resultat, ägda processer/sessioner och nästa olösta steg. Lagra inte autentiseringsuppgifter eller godtyckliga dumpar av källkod. Markera en funktion som klar först när dess acceptanskriterier har verifierats.
 
-När arbetet återupptas, granska Git-tillståndet, det senaste förloppet och relevant källkod innan du redigerar. Återanvänd kompatibla resurser som du äger; starta en utvecklingsserver bara när nästa kontroll behöver en. Välj kontroller efter påverkan med hjälp av [verification.md](https://github.com/bitsocialnet/bitsocial-web/blob/master/docs/agent-playbooks/verification.md), i stället för att upprepa en oförändrad fullständig körning.
+När arbetet återupptas, granska Git-tillståndet, det senaste förloppet och relevant källkod innan du redigerar. Återanvänd kompatibla resurser som du äger; starta en utvecklingsserver bara när nästa kontroll behöver en. Välj kontroller efter påverkan med hjälp av [verification.md](https://github.com/bitsocialnet/bitsocial-docs/blob/master/agent-playbooks/verification.md), i stället för att upprepa en oförändrad fullständig körning.
 
 Håll relaterat delegerat arbete avgränsat och utan överlapp. En agent äger tunga kontroller och webbläsarsessioner. Uppdatera det beständiga tillståndet när en slutförd del, ett hinder eller en överlämning ändrar vad nästa bidragsgivare behöver veta; logga inte mekaniskt varje kommando.

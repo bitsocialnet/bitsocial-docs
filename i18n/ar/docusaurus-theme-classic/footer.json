@@ -57,7 +57,7 @@
   },
   "link.item.label.GitHub": {
     "message": "جيثب",
-    "description": "The label of footer link with label=GitHub linking to https://github.com/bitsocialnet/bitsocial-web"
+    "description": "The label of footer link with label=GitHub linking to https://github.com/bitsocialnet/bitsocial-docs"
   },
   "copyright": {
     "message": "تحقيق اللامركزية في جميع وسائل التواصل الاجتماعي · © 2026 Bitsocial Forge, Inc.",

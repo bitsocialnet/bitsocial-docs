@@ -57,7 +57,7 @@
   },
   "link.item.label.GitHub": {
     "message": "GitHub",
-    "description": "The label of footer link with label=GitHub linking to https://github.com/bitsocialnet/bitsocial-web"
+    "description": "The label of footer link with label=GitHub linking to https://github.com/bitsocialnet/bitsocial-docs"
   },
   "copyright": {
     "message": "అన్ని సోషల్ మీడియాలను వికేంద్రీకరించండి · © 2026 Bitsocial Forge, Inc.",

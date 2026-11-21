@@ -186,7 +186,7 @@ const config: Config = {
           title: "Project",
           items: [
             { label: "Main site", href: "https://bitsocial.net" },
-            { label: "GitHub", href: "https://github.com/bitsocialnet/bitsocial-web" },
+            { label: "GitHub", href: "https://github.com/bitsocialnet/bitsocial-docs" },
           ],
         },
       ],

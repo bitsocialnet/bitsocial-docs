@@ -79,4 +79,4 @@ Codex 代理文件包含 `name`、`description` 和 `developer_instructions`。`
 
 MCP 的开销取决于代理运行框架：延迟加载工具可以避免预先加载每一个 schema。让集成与需求保持相关，而不是把 MCP 本身视为过时。现有的 CLI 选择在可复现性和资源控制方面依然有用。
 
-所有浏览器会话都使用 `./scripts/pw-session.sh`，它在全机器范围内只允许一个活动浏览器。默认使用全新的隔离会话。当前访问个人浏览器需要明确授权；在后续步骤中复用该授权。根据受影响的行为选择浏览器/视口，依次运行选定的引擎，在清理时关闭确切命名的会话，并且绝不使用 `close-all`/`kill-all`。参见 `playwright-cli` 技能和 [verification.md](https://github.com/bitsocialnet/bitsocial-web/blob/master/docs/agent-playbooks/verification.md)。
+所有浏览器会话都使用 `./scripts/pw-session.sh`，它在全机器范围内只允许一个活动浏览器。默认使用全新的隔离会话。当前访问个人浏览器需要明确授权；在后续步骤中复用该授权。根据受影响的行为选择浏览器/视口，依次运行选定的引擎，在清理时关闭确切命名的会话，并且绝不使用 `close-all`/`kill-all`。参见 `playwright-cli` 技能和 [verification.md](https://github.com/bitsocialnet/bitsocial-docs/blob/master/agent-playbooks/verification.md)。

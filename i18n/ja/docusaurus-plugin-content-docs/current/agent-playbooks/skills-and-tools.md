@@ -79,4 +79,4 @@ Codex のエージェントファイルには `name`、`description`、`develope
 
 MCP のオーバーヘッドはハーネスによって異なります。ツールの遅延読み込みを使えば、すべてのスキーマを最初に読み込まずに済む場合があります。MCP そのものを時代遅れとみなすのではなく、統合を必要なものに絞ってください。既存の CLI という選択は、再現性とリソース管理の面で引き続き有用です。
 
-すべてのブラウザセッションは `./scripts/pw-session.sh` を使います。このスクリプトは、アクティブなブラウザをマシン全体で 1 つに制限します。既定では、新しい分離されたセッションを使います。現在の個人用ブラウザへのアクセスには明示的な許可が必要で、許可を得たら以降のステップでもその許可を引き継ぎます。影響を受ける挙動に合わせてブラウザとビューポートを選び、選んだエンジンは順番に実行し、クリーンアップでは名前を正確に指定してセッションを閉じます。`close-all`/`kill-all` は決して使わないでください。`playwright-cli` スキルと [verification.md](https://github.com/bitsocialnet/bitsocial-web/blob/master/docs/agent-playbooks/verification.md) を参照してください。
+すべてのブラウザセッションは `./scripts/pw-session.sh` を使います。このスクリプトは、アクティブなブラウザをマシン全体で 1 つに制限します。既定では、新しい分離されたセッションを使います。現在の個人用ブラウザへのアクセスには明示的な許可が必要で、許可を得たら以降のステップでもその許可を引き継ぎます。影響を受ける挙動に合わせてブラウザとビューポートを選び、選んだエンジンは順番に実行し、クリーンアップでは名前を正確に指定してセッションを閉じます。`close-all`/`kill-all` は決して使わないでください。`playwright-cli` スキルと [verification.md](https://github.com/bitsocialnet/bitsocial-docs/blob/master/agent-playbooks/verification.md) を参照してください。

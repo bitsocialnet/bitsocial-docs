@@ -4,6 +4,6 @@
 
 记录所请求的结果、当前分支/工作树、文件归属、已完成的改动、检查及其结果、自己拥有的进程/会话，以及下一个尚未解决的步骤。不要存储凭据或随意的源码转储。只有在某个功能的验收标准经过验证之后，才把它标记为完成。
 
-恢复工作时，先检查 Git 状态、最新进度和相关源码，再进行编辑。复用兼容且归自己所有的资源；只有在下一项检查需要时才启动开发服务器。依据 [verification.md](https://github.com/bitsocialnet/bitsocial-web/blob/master/docs/agent-playbooks/verification.md) 按影响选择检查，而不是把没有变化的完整检查再跑一遍。
+恢复工作时，先检查 Git 状态、最新进度和相关源码，再进行编辑。复用兼容且归自己所有的资源；只有在下一项检查需要时才启动开发服务器。依据 [verification.md](https://github.com/bitsocialnet/bitsocial-docs/blob/master/agent-playbooks/verification.md) 按影响选择检查，而不是把没有变化的完整检查再跑一遍。
 
 让相关的委派工作范围明确、互不重叠。由一个代理负责重量级检查和浏览器会话。当某个已完成的切片、阻塞项或交接改变了下一位贡献者需要了解的内容时，更新持久状态；不要机械地记录每一条命令。
