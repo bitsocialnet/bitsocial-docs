@@ -1,80 +1,87 @@
 ---
-title: Blokátor spamu
-description: Centralizovaná služba detekce spamu s hodnocením rizik, výzvami OAuth a konfigurovatelnými prahovými hodnotami úrovní.
+title: Spam Blocker
+description: Hostovaná detekce spamu pro komunity Bitsocial s hodnocením rizika, kontrolami pomocí CAPTCHA a přihlášení a zásadami pro připojení.
 sidebar_position: 1
 ---
 
-# Blokátor spamu
+# Spam Blocker
 
-Spam Blocker je centralizovaná služba detekce spamu, která vyhodnocuje příchozí publikace a přiřazuje skóre rizik. Skládá se ze dvou balíčků:
+Spam Blocker hodnotí riziko spamu u příspěvků, odpovědí a hlasů dřív, než je komunita přijme. Komunita si nainstaluje balíček výzvy, který každou publikaci odešle službě Spam Blocker. Bitsocial jednu takovou službu provozuje na `spamblocker.bitsocial.net`.
 
-- **`@bitsocial/spam-blocker-server`** -- HTTP server, který hostí rozhraní API pro hodnocení a výzvy.
-- **`@bitsocial/spam-blocker-challenge`** – odlehčený klientský balíček, který komunity integrují a posílají publikace k vyhodnocení.
+- **`@bitsocial/spam-blocker-challenge`** je open-source balíček výzvy, který komunity instalují. Jeho integrační kontrakt, sdílená schémata a API jsou veřejné.
+- **Hostovaná služba** hodnotí publikace a poskytuje stránky s CAPTCHA a přihlášením. Její podrobné váhy a heuristiky jsou neveřejné, jak vysvětlují [zásady pro zdrojový kód](https://github.com/bitsocialnet/spam-blocker/blob/master/docs/architecture/hosted-service-source-policy.md).
 
 **Zdrojový kód:** [github.com/bitsocialnet/spam-blocker](https://github.com/bitsocialnet/spam-blocker)
 
-## Jak funguje hodnocení rizika
+## Jak se publikace kontroluje
 
-Každá publikace odeslaná do koncového bodu `/evaluate` obdrží číselné skóre rizika. Skóre je vážená kombinace několika signálů:
+1. Výzva komunity odešle podepsanou publikaci službě, která vrátí skóre rizika mezi 0 a 1.
+2. Pod prahem automatického přijetí komunity publikace projde. Na prahu automatického odmítnutí nebo nad ním neprojde a autor uvidí proč.
+3. Mezi těmito prahy se znovu použije zapamatované přihlášení autora, pokud stačí. Jinak autor dostane ověřovací stránku: CAPTCHA, pokud k průchodu může stačit samotná CAPTCHA, jinak přihlášení. Přes VPN, proxy nebo připojení z datacentra, které komunita omezuje, potřebuje autor přihlášení při jakémkoli skóre pod prahem automatického odmítnutí, pokud neplatí některá výjimka uvedená v části Zásady pro připojení.
+4. Komunita pak výsledek ověří u služby a uplatní vlastní pravidla pro zemi, riziko IP a typ připojení.
 
-| Signál           | Popis                                                                                                           |
-| ---------------- | --------------------------------------------------------------------------------------------------------------- |
-| Stáří účtu       | Novější účty dostávají vyšší skóre rizika.                                                                      |
-| Karma            | Nahromaděná komunitní karma snižuje riziko.                                                                     |
-| Pověst autora    | Údaje o pověsti shromážděné indexátorem sítě na pozadí.                                                         |
-| Obsahová analýza | Heuristika na úrovni textu (hustota odkazů, známé vzorce spamu atd.).                                           |
-| Rychlost         | Rychle po sobě jdoucí příspěvky od stejného autora zvyšují riziko.                                              |
-| IP inteligence   | Geolokace na úrovni země a vyhledávání zdrojů hrozeb. Nezpracované IP adresy nejsou nikdy sdíleny s komunitami. |
+Před nahráním přiloženého souboru může klient spustit stejnou kontrolu jako předběžnou kontrolu, čímž většině autorů, kteří by byli odmítnuti, ušetří nahrávání. Při zveřejnění se publikace kontroluje znovu, takže může neprojít, i když předběžná kontrola prošla.
 
-## Hranice úrovně
+## Skóre rizika
 
-Skóre rizika se mapuje do jedné ze čtyř konfigurovatelných úrovní, které určují, co se stane dál:
+| Signál           | Popis                                                                                                                  |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Stáří účtu       | Novější účty dostávají vyšší skóre rizika.                                                                             |
+| Karma            | Nahromaděná komunitní karma snižuje riziko.                                                                            |
+| Pověst autora    | Data z indexátoru na pozadí, který sleduje, kteří autoři jsou napříč komunitami přijímáni, odstraňováni nebo banováni. |
+| Obsah a odkazy   | Analýza textu a odkazů, včetně opakovaného obsahu.                                                                     |
+| Rychlost         | Rychle po sobě jdoucí příspěvky od stejného autora zvyšují riziko.                                                     |
+| IP inteligence   | Typ připojení (Tor, VPN, proxy, datacentrum) a riziko IP. Nezpracované IP adresy nejsou nikdy sdíleny s komunitami.    |
+| Propojené účty   | Mnoho účtů přispívajících z jedné sítě postupně zvyšuje riziko.                                                        |
+| Sociální ověření | Dřívější přihlášení u účtu autora snižují riziko.                                                                      |
 
-1. **Automatické přijetí** – skóre je dostatečně nízké, aby byla publikace schválena bez jakýchkoliv problémů.
-2. **OAuth-dostatečné** – autor musí provést ověření OAuth, aby mohl pokračovat.
-3. **OAuth-plus-more** -- Samotné OAuth nestačí; je vyžadováno další ověření (např. CAPTCHA).
-4. **Automatické odmítnutí** – skóre je příliš vysoké; zveřejnění je zcela odmítnuto.
+## Ověření
 
-Všechny prahové hodnoty jsou konfigurovatelné pro každou komunitu.
+Každý dokončený krok vynásobí skóre rizika a publikace projde, když je výsledek nižší než 0.4.
 
-## Challenge Flow
+| Krok                                             | Násobitel   |
+| ------------------------------------------------ | ----------- |
+| CAPTCHA (Cloudflare Turnstile)                   | × 0.7       |
+| Přihlášení přes Google, Apple nebo Telegram      | × 0.6       |
+| Přihlášení přes druhého, odlišného poskytovatele | další × 0.5 |
 
-Když publikace spadá do úrovně, která vyžaduje ověření, začne tok výzvy:
+Pokud CAPTCHA nestačí, následuje přihlášení. Pokud nestačí přihlášení, následuje CAPTCHA, pokud tím kontrola skončí, a jinak přihlášení přes druhého poskytovatele.
 
-1. Autor je nejprve vyzván k ověření prostřednictvím **OAuth** (GitHub, Google, Twitter a další podporovaní poskytovatelé).
-2. Pokud samotné OAuth nestačí (úroveň 3), zobrazí se **záložní CAPTCHA** využívající Cloudflare Turnstile.
-3. Identita OAuth slouží výhradně k ověření – **nikdy není sdílena** s komunitou ani jinými uživateli.
+### Zapamatovaná přihlášení
 
-## Koncové body API
+Služba si pamatuje účet, se kterým se autor naposledy přihlásil. Pozdější příspěvek, který vyžaduje ověření, jej znovu použije, jako by se autor přihlásil znovu, pokud jej některý z autorových příspěvků použil v posledních 30 dnech. Každé opětovné použití se počítá jako takový příspěvek, takže lhůta 30 dní s každým z nich začíná znovu. Pokud to stačí, příspěvek projde bez CAPTCHA. Platnost končí, když komunita uloží ban spojený s tímto účtem, a také když je jeho poskytovatel ze služby odebrán.
 
-### `POST /evaluate`
+## Zásady pro připojení
 
-Odeslat publikaci k vyhodnocení rizik. Vrátí vypočítané skóre rizika a požadovanou úroveň výzvy.
+Komunity mohou omezit publikace z připojení přes Tor, VPN (včetně iCloud Private Relay), proxy a datacentra. V hostované službě platí:
 
-### `POST /challenge/verify`
+- **Připojení přes VPN, proxy a datacentra** mohou přispívat po přihlášení. Stránka vysvětluje, proč je přihlášení potřeba a jak lze přispívat bez něj vypnutím VPN. Ban v komunitě se pak vztahuje i na účet použitý k přihlášení.
+- **Zavedené účty** mají výjimku z omezení pro VPN, proxy a datacentra, ale ne z omezení pro Tor. Účet se stane zavedeným, když ve 3 různých dnech projde CAPTCHA nebo přihlášením z neomezených připojení; příspěvky, které prošly bez CAPTCHA i bez přihlášení, se nezapočítávají. Síť se započítává jen jednomu účtu: jakmile z ní projde kontrolou jiný účet, nezapočítává se ani jednomu z nich. V komunitě, která uložila ban účtu v některé z těchto sítí, se z této historie nezapočítává nic.
+- **Tor** zůstává omezený, s výjimkou autorů, pro které komunita nastavila výjimku: roli moderátora, seznam povolených autorů komunity nebo ověřené jméno `.bso`.
 
-Odešlete výsledek dokončené výzvy (token OAuth, řešení CAPTCHA nebo obojí) k ověření.
+Přiložené soubory nahrávané do Forge Images se řídí stejnými pravidly. Přes VPN, proxy nebo připojení z datacentra vyžaduje nahrání předběžnou kontrolu, která prošla s přihlášením, nebo zavedený účet. Přes Tor vyžaduje ověřenou výjimku.
 
-### `GET /iframe/:sessionId`
+## Soukromí
 
-Vrátí vložitelnou stránku HTML, která vykreslí příslušné uživatelské rozhraní výzvy pro danou relaci.
+- **Provozovatel** ukládá nezpracované IP adresy a obsah publikací kvůli odhalování zneužití a posílá IP adresy ke klasifikaci externímu poskytovateli (ve výchozím nastavení proxycheck.io).
+- **Komunity** dostávají pouze kód země, riziko IP, odhad typu připojení a výsledek (prošlo, nebo neprošlo). Nikdy nedostanou nezpracovanou IP adresu ani účet použitý k přihlášení.
+- **Přihlášení** nevyžadují žádné profilové údaje. Služba od Google, Apple nebo Telegram dostane pouze ID účtu, nikdy jméno, e-mail ani fotografii. ID uchovává spolu s příspěvkem bez automatického mazání, aby se ban vztahoval i na účet.
+- **Autoři používající VPN** při přihlášení skryjí svou skutečnou IP adresu: služba vidí pouze adresu VPN.
 
-## Omezení sazby
+## Omezení četnosti
 
-Limity sazeb jsou aplikovány dynamicky na základě věku a pověsti autora. Novější autoři nebo autoři s nižší reputací čelí přísnějším limitům, zatímco zavedení autoři si užívají štědřejší limity. Tím se zabrání záplavám nevyžádané pošty bez penalizace důvěryhodných účastníků.
+Před hodnocením služba odmítá autory, kteří překročí svůj hodinový nebo denní limit příspěvků, odpovědí a hlasů. Limity rostou se stářím účtu a dobrou pověstí a snižují se po banech nebo odstraněních.
 
-## Pozadí Network Indexer
+## API
 
-Server spouští indexátor na pozadí, který nepřetržitě prochází síť, aby vytvořil a udržoval data o pověsti autora. Tato data se přivádějí přímo do procesu hodnocení rizik, což umožňuje systému rozpoznat opakující se účastníky dobré víry napříč komunitami.
+Hlavní cesty, relativní k `spamblocker.bitsocial.net/api/v1`:
 
-## soukromí
+| Cesta                    | Volající                  | Účel                                          |
+| ------------------------ | ------------------------- | --------------------------------------------- |
+| `POST /evaluate`         | Iframe výzvy, komunita    | Ohodnotit publikaci a vytvořit její relaci    |
+| `POST /challenge/verify` | Komunita                  | Načíst výsledek relace a IP inteligenci       |
+| `POST /precheck`         | Iframe předběžné kontroly | Ohodnotit koncept před nahráním               |
+| `GET /iframe/:sessionId` | Prohlížeč autora          | Ověřovací stránka                             |
+| `POST /upload/authorize` | Klient autora             | Autorizovat přiložený soubor pro Forge Images |
 
-Spam Blocker je navržen s ohledem na soukromí:
-
-- Identity OAuth se používají pouze pro ověření výzvy a nejsou **nikdy sdělovány** komunitám.
-- Provozovatel služby ukládá nezpracované IP adresy kvůli odhalování zneužití a posílá je ke klasifikaci externímu poskytovateli informací o IP adresách.
-- Komunity dostávají pouze kód země, rizikovost IP a odhad typu připojení, nikdy nezpracovanou IP adresu.
-
-## databáze
-
-Server používá **SQLite** (prostřednictvím `better-sqlite3`) pro místní zachování dat reputace, stavu relace a konfigurace.
+Úplný kontrakt včetně podepisování požadavků a schémat odpovědí najdete v [README spam-blocker](https://github.com/bitsocialnet/spam-blocker#api-contract).

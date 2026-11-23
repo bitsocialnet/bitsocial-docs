@@ -1,80 +1,87 @@
 ---
-title: Spam-Blocker
-description: Zentralisierter Spam-Erkennungsdienst mit Risikobewertung, OAuth-Herausforderungen und konfigurierbaren Stufenschwellenwerten.
+title: Spam Blocker
+description: Gehostete Spam-Erkennung für Bitsocial-Communities mit Risikobewertung, CAPTCHA- und Anmeldeprüfungen sowie Verbindungsrichtlinien.
 sidebar_position: 1
 ---
 
-# Spam-Blocker
+# Spam Blocker
 
-Spam Blocker ist ein zentraler Spam-Erkennungsdienst, der eingehende Veröffentlichungen bewertet und Risikobewertungen zuweist. Es besteht aus zwei Paketen:
+Spam Blocker bewertet Beiträge, Antworten und Votes auf ihr Spam-Risiko, bevor eine Community sie annimmt. Eine Community installiert das Challenge-Paket, das jede Veröffentlichung an einen Spam-Blocker-Dienst sendet. Bitsocial betreibt einen solchen Dienst unter `spamblocker.bitsocial.net`.
 
-- **`@bitsocial/spam-blocker-server`** – der HTTP-Server, der die Evaluierungs- und Challenge-APIs hostet.
-- **`@bitsocial/spam-blocker-challenge`** – ein leichtgewichtiges Client-Paket, das Communities integrieren, um Publikationen zur Evaluierung zu senden.
+- **`@bitsocial/spam-blocker-challenge`** ist das Open-Source-Challenge-Paket, das Communities installieren. Sein Integrationsvertrag, die gemeinsamen Schemas und die API sind öffentlich.
+- **Der gehostete Dienst** bewertet Veröffentlichungen und stellt die CAPTCHA- und Anmeldeseiten bereit. Seine genauen Gewichtungen und Heuristiken sind nicht öffentlich, wie die [Quellcode-Richtlinie](https://github.com/bitsocialnet/spam-blocker/blob/master/docs/architecture/hosted-service-source-policy.md) erklärt.
 
 **Quellcode:** [github.com/bitsocialnet/spam-blocker](https://github.com/bitsocialnet/spam-blocker)
 
-## So funktioniert die Risikobewertung
+## So wird eine Veröffentlichung geprüft
 
-Jede an den Endpunkt `/evaluate` übermittelte Veröffentlichung erhält eine numerische Risikobewertung. Der Score ist eine gewichtete Kombination mehrerer Signale:
+1. Die Challenge der Community sendet die signierte Veröffentlichung an den Dienst, der eine Risikobewertung zwischen 0 und 1 zurückgibt.
+2. Liegt sie unter der Schwelle der Community für automatisches Akzeptieren, wird die Veröffentlichung angenommen. Erreicht oder überschreitet sie die Schwelle für automatische Ablehnung, wird sie abgelehnt, und der Autor sieht den Grund.
+3. Dazwischen wird die gespeicherte Anmeldung des Autors wiederverwendet, wenn sie ausreicht. Andernfalls erhält der Autor eine Verifizierungsseite: ein CAPTCHA, wenn ein CAPTCHA allein zum Bestehen reichen kann, sonst eine Anmeldung. Über eine VPN-, Proxy- oder Rechenzentrumsverbindung, die die Community einschränkt, braucht der Autor bei jeder Risikobewertung unterhalb der Schwelle für automatische Ablehnung eine Anmeldung, sofern keine Ausnahme unter Verbindungsrichtlinien greift.
+4. Anschließend prüft die Community das Ergebnis beim Dienst und wendet ihre eigenen Regeln für Land, IP-Risiko und Verbindungstyp an.
 
-| Signal          | Beschreibung                                                                                                                   |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Kontoalter      | Neuere Konten erhalten höhere Risikobewertungen.                                                                               |
-| Karma           | Angesammeltes Gemeinschaftskarma reduziert das Risiko.                                                                         |
-| Ruf des Autors  | Vom Hintergrund-Netzwerkindexer erfasste Reputationsdaten.                                                                     |
-| Inhaltsanalyse  | Heuristiken auf Textebene (Linkdichte, bekannte Spam-Muster usw.).                                                             |
-| Geschwindigkeit | Schnell aufeinanderfolgende Beiträge desselben Autors erhöhen das Risiko.                                                      |
-| IP-Intelligenz  | Geolokalisierung auf Länderebene und Suche nach Bedrohungsfeeds. Rohe IP-Adressen werden niemals an Communities weitergegeben. |
+Vor dem Hochladen einer angehängten Datei kann ein Client dieselbe Prüfung als Vorabprüfung ausführen, was den meisten Autoren, die abgelehnt würden, das Hochladen erspart. Beim Veröffentlichen wird die Veröffentlichung erneut geprüft, sodass sie auch nach einer bestandenen Vorabprüfung noch abgelehnt werden kann.
 
-## Stufenschwellenwerte
+## Risikobewertung
 
-Die Risikobewertung wird einer von vier konfigurierbaren Stufen zugeordnet, die bestimmen, was als nächstes passiert:
+| Signal                | Beschreibung                                                                                                                      |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Kontoalter            | Neuere Konten erhalten höhere Risikobewertungen.                                                                                  |
+| Karma                 | Angesammeltes Gemeinschaftskarma reduziert das Risiko.                                                                            |
+| Ruf des Autors        | Daten eines Hintergrund-Indexers, der verfolgt, welche Autoren über Communities hinweg angenommen, entfernt oder gesperrt werden. |
+| Inhalte und Links     | Text- und Linkanalyse, einschließlich wiederholter Inhalte.                                                                       |
+| Geschwindigkeit       | Schnell aufeinanderfolgende Beiträge desselben Autors erhöhen das Risiko.                                                         |
+| IP-Intelligenz        | Verbindungstyp (Tor, VPN, Proxy, Rechenzentrum) und IP-Risiko. Rohe IP-Adressen werden niemals an Communities weitergegeben.      |
+| Verknüpfte Konten     | Viele Konten, die aus demselben Netzwerk posten, erhöhen das Risiko schrittweise.                                                 |
+| Soziale Verifizierung | Frühere Anmeldungen für das Konto des Autors senken das Risiko.                                                                   |
 
-1. **Automatisch akzeptieren** – Die Punktzahl ist niedrig genug, dass die Veröffentlichung ohne Beanstandung genehmigt wird.
-2. **OAuth-ausreichend** – der Autor muss eine OAuth-Überprüfung durchführen, um fortzufahren.
-3. **OAuth-plus-more** – OAuth allein reicht nicht aus; Eine zusätzliche Verifizierung (z. B. CAPTCHA) ist erforderlich.
-4. **Automatische Ablehnung** – Punktzahl ist zu hoch; die Veröffentlichung wird entschieden abgelehnt.
+## Verifizierung
 
-Alle Schwellenwerte sind pro Community konfigurierbar.
+Jeder abgeschlossene Schritt multipliziert die Risikobewertung, und die Veröffentlichung wird angenommen, wenn das Ergebnis unter 0.4 liegt.
 
-## Herausforderungsfluss
+| Schritt                                       | Multiplikator    |
+| --------------------------------------------- | ---------------- |
+| CAPTCHA (Cloudflare Turnstile)                | × 0.7            |
+| Anmeldung mit Google, Apple oder Telegram     | × 0.6            |
+| Anmeldung bei einem zweiten, anderen Anbieter | zusätzlich × 0.5 |
 
-Wenn eine Veröffentlichung in eine Stufe fällt, die eine Überprüfung erfordert, beginnt der Challenge-Flow:
+Reicht ein CAPTCHA nicht aus, folgt eine Anmeldung. Reicht eine Anmeldung nicht aus, folgt ein CAPTCHA, wenn dieses die Prüfung abschließt, andernfalls eine Anmeldung bei einem zweiten Anbieter.
 
-1. Der Autor wird zunächst aufgefordert, sich über **OAuth** zu authentifizieren (GitHub, Google, Twitter und andere unterstützte Anbieter).
-2. Wenn OAuth allein nicht ausreicht (Stufe 3), wird ein **CAPTCHA-Fallback** von Cloudflare Turnstile angeboten.
-3. Die OAuth-Identität wird ausschließlich zur Überprüfung verwendet – sie wird **niemals** an die Community oder andere Benutzer weitergegeben.
+### Gespeicherte Anmeldungen
 
-## API-Endpunkte
+Der Dienst merkt sich das Konto, mit dem sich ein Autor zuletzt angemeldet hat. Ein späterer Beitrag, der eine Verifizierung benötigt, verwendet es wieder, als hätte sich der Autor erneut angemeldet, wenn einer der Beiträge des Autors es in den letzten 30 Tagen verwendet hat. Eine Wiederverwendung zählt als solcher Beitrag, sodass die 30 Tage mit jeder neu beginnen. Reicht das aus, wird der Beitrag ohne CAPTCHA angenommen. Das endet, wenn die Community eine mit dem Konto verknüpfte Sperre verhängt, und ebenso, wenn der Anbieter des Kontos aus dem Dienst entfernt wird.
 
-### `POST /evaluate`
+## Verbindungsrichtlinien
 
-Reichen Sie eine Veröffentlichung zur Risikobewertung ein. Gibt die berechnete Risikobewertung und die erforderliche Herausforderungsstufe zurück.
+Communities können Veröffentlichungen über Tor-, VPN- (einschließlich iCloud Private Relay), Proxy- und Rechenzentrumsverbindungen einschränken. Beim gehosteten Dienst gilt:
 
-### `POST /challenge/verify`
+- **VPN-, Proxy- und Rechenzentrumsverbindungen** können nach einer Anmeldung posten. Die Seite erklärt, warum die Anmeldung nötig ist und wie man ohne sie postet, indem man das VPN ausschaltet. Eine Sperre in der Community gilt dann auch für das Konto, mit dem man sich angemeldet hat.
+- **Etablierte Konten** sind von den Einschränkungen für VPN, Proxy und Rechenzentren ausgenommen, aber nicht von der für Tor. Ein Konto gilt als etabliert, nachdem es an 3 verschiedenen Tagen über nicht eingeschränkte Verbindungen ein CAPTCHA oder eine Anmeldung bestanden hat; Beiträge, die ohne eines davon angenommen wurden, zählen nicht. Ein Netzwerk zählt nur für ein Konto: Sobald ein anderes Konto darüber eine Prüfung besteht, zählt es für keines der beiden. In einer Community, die ein Konto in einem dieser Netzwerke gesperrt hat, zählt nichts von diesem Verlauf.
+- **Tor** bleibt eingeschränkt, außer für Autoren mit einer Ausnahme, die die Community konfiguriert hat: eine Moderatorrolle, die Whitelist der Community oder ein verifizierter `.bso`-Name.
 
-Senden Sie das Ergebnis einer abgeschlossenen Herausforderung (OAuth-Token, CAPTCHA-Lösung oder beides) zur Überprüfung.
-
-### `GET /iframe/:sessionId`
-
-Gibt eine einbettbare HTML-Seite zurück, die die entsprechende Challenge-Benutzeroberfläche für die angegebene Sitzung darstellt.
-
-## Ratenbegrenzung
-
-Ratenbegrenzungen werden dynamisch basierend auf dem Alter und der Reputation des Autors angewendet. Für neuere oder weniger renommierte Autoren gelten strengere Grenzwerte, während für etablierte Autoren großzügigere Grenzwerte gelten. Dies verhindert Spam-Flut, ohne vertrauenswürdige Teilnehmer zu benachteiligen.
-
-## Hintergrund-Netzwerkindexer
-
-Der Server führt einen Hintergrundindexer aus, der das Netzwerk kontinuierlich durchsucht, um Reputationsdaten des Autors zu erstellen und zu verwalten. Diese Daten fließen direkt in die Risikobewertungspipeline ein und ermöglichen es dem System, wiederkehrende gutgläubige Teilnehmer in allen Communities zu erkennen.
+Angehängte Dateien, die zu Forge Images hochgeladen werden, folgen denselben Regeln. Über eine VPN-, Proxy- oder Rechenzentrumsverbindung benötigt der Upload eine Vorabprüfung, die mit einer Anmeldung bestanden wurde, oder ein etabliertes Konto. Über Tor benötigt er eine verifizierte Ausnahme.
 
 ## Privatsphäre
 
-Spam Blocker wurde unter Berücksichtigung des Datenschutzes entwickelt:
+- **Der Betreiber** speichert rohe IP-Adressen und Inhalte von Veröffentlichungen zur Missbrauchserkennung und sendet IP-Adressen zur Klassifizierung an einen externen Anbieter (standardmäßig proxycheck.io).
+- **Communities** erhalten nur den Ländercode, das IP-Risiko, die Schätzung des Verbindungstyps und das Ergebnis (bestanden oder nicht bestanden). Sie erhalten nie die rohe IP-Adresse oder das Anmeldekonto.
+- **Anmeldungen** fordern keine Profildaten an. Der Dienst erhält von Google, Apple oder Telegram nur eine Konto-ID, nie einen Namen, eine E-Mail-Adresse oder ein Foto. Er speichert die ID ohne automatische Löschung zusammen mit dem Beitrag, damit eine Sperre auch für das Konto gilt.
+- **Autoren mit VPN** halten ihre echte IP-Adresse verborgen, wenn sie sich anmelden: Der Dienst sieht nur die Adresse des VPN.
 
-- OAuth-Identitäten werden nur zur Überprüfung der Herausforderung verwendet und **niemals** an Communities weitergegeben.
-- Der Betreiber des Dienstes speichert rohe IP-Adressen zur Missbrauchserkennung und sendet sie zur Klassifizierung an einen externen IP-Intelligence-Anbieter.
-- Communities erhalten nur den Ländercode, das IP-Risiko und eine Schätzung des Verbindungstyps, niemals die rohe IP-Adresse.
+## Ratenbegrenzung
 
-## Datenbank
+Vor der Bewertung lehnt der Dienst Autoren ab, die ihr stündliches oder tägliches Budget für Beiträge, Antworten und Votes überschreiten. Die Budgets wachsen mit dem Kontoalter und einem guten Ruf und schrumpfen nach Sperren oder Entfernungen.
 
-Der Server verwendet **SQLite** (über `better-sqlite3`) für die lokale Persistenz von Reputationsdaten, Sitzungsstatus und Konfiguration.
+## API
+
+Die wichtigsten Routen, relativ zu `spamblocker.bitsocial.net/api/v1`:
+
+| Route                    | Aufrufer                    | Zweck                                                     |
+| ------------------------ | --------------------------- | --------------------------------------------------------- |
+| `POST /evaluate`         | Challenge-iframe, Community | Eine Veröffentlichung bewerten und ihre Sitzung erstellen |
+| `POST /challenge/verify` | Community                   | Sitzungsergebnis und IP-Intelligenz abrufen               |
+| `POST /precheck`         | Vorabprüfungs-iframe        | Einen Entwurf vor dem Upload bewerten                     |
+| `GET /iframe/:sessionId` | Browser des Autors          | Verifizierungsseite                                       |
+| `POST /upload/authorize` | Client des Autors           | Eine angehängte Datei für Forge Images autorisieren       |
+
+Den vollständigen Vertrag, einschließlich der Signierung von Anfragen und der Antwortschemas, finden Sie in der [README von spam-blocker](https://github.com/bitsocialnet/spam-blocker#api-contract).
