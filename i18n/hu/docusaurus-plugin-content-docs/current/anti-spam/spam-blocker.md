@@ -17,10 +17,10 @@ A Spam Blocker pontozza a bejegyzések, válaszok és szavazatok spamkockázatá
 
 1. A közösség kihívása elküldi az aláírt közzétételt a szolgáltatásnak, amely 0 és 1 közötti kockázati pontszámot ad vissza.
 2. A közösség automatikus elfogadási küszöbe alatt a közzététel átmegy. Az automatikus elutasítási küszöbén vagy afölött elbukik, és a szerző látja, miért.
-3. A kettő között a rendszer újra felhasználja a szerző elmúlt 30 napon belüli bejelentkezését, ha az elegendő. Ellenkező esetben a szerző ellenőrző oldalt kap: CAPTCHA-t, ha egy CAPTCHA önmagában elég lehet az átjutáshoz, különben bejelentkezést.
+3. A kettő között a rendszer újra felhasználja a szerző megjegyzett bejelentkezését, ha az elegendő. Ellenkező esetben a szerző ellenőrző oldalt kap: CAPTCHA-t, ha egy CAPTCHA önmagában elég lehet az átjutáshoz, különben bejelentkezést. Ha a szerző olyan VPN-, proxy- vagy adatközponti kapcsolatot használ, amelyet a közösség korlátoz, az automatikus elutasítási küszöb alatti bármely pontszámnál bejelentkezésre van szüksége, kivéve, ha a Kapcsolati szabályok részben leírt mentességek valamelyike vonatkozik rá.
 4. Ezután a közösség ellenőrzi az eredményt a szolgáltatásnál, és alkalmazza a saját szabályait az országra, az IP-kockázatra és a kapcsolattípusra.
 
-Csatolt fájl feltöltése előtt a kliens ugyanezt az ellenőrzést előzetes ellenőrzésként is lefuttathatja, így azok a szerzők, akiket elutasítanának, sosem töltenek fel semmit.
+Csatolt fájl feltöltése előtt a kliens ugyanezt az ellenőrzést előzetes ellenőrzésként is lefuttathatja, ami a legtöbb szerzőt, akit elutasítanának, megkíméli a feltöltéstől. A rendszer a közzétételt közzétételkor újra ellenőrzi, ezért az akkor is elbukhat, ha az előzetes ellenőrzésen átment.
 
 ## Kockázati pontszám
 
@@ -49,14 +49,14 @@ Ha egy CAPTCHA nem elég, bejelentkezés következik. Ha egy bejelentkezés nem 
 
 ### Megjegyzett bejelentkezések
 
-A szolgáltatás megjegyzi, melyik fiókkal jelentkezett be a szerző legutóbb. Egy későbbi, ellenőrzést igénylő bejegyzés újra felhasználja azt, mintha a szerző ismét bejelentkezett volna, amíg a szerző legalább 30 naponta egyszer posztol vele. Ha ez elég, a bejegyzés CAPTCHA nélkül átmegy. Ennek véget vet a közösségben kiszabott, a fiókhoz kötött kitiltás, és az is, ha a fiók szolgáltatóját eltávolítják a szolgáltatásból.
+A szolgáltatás megjegyzi, melyik fiókkal jelentkezett be a szerző legutóbb. Egy későbbi, ellenőrzést igénylő bejegyzés újra felhasználja azt, mintha a szerző ismét bejelentkezett volna, ha az elmúlt 30 napban a szerző valamelyik bejegyzése használta. Az újrafelhasználás is ilyen bejegyzésnek számít, így a 30 nap minden újrafelhasználással újraindul. Ha ez elég, a bejegyzés CAPTCHA nélkül átmegy. Ennek véget vet a közösségben kiszabott, a fiókhoz kötött kitiltás, és az is, ha a fiók szolgáltatóját eltávolítják a szolgáltatásból.
 
 ## Kapcsolati szabályok
 
 A közösségek korlátozhatják a Tor-, VPN- (beleértve az iCloud Private Relay szolgáltatást), proxy- és adatközponti kapcsolatokról érkező közzétételeket. A hosztolt szolgáltatáson:
 
 - **VPN-, proxy- és adatközponti kapcsolatokról** bejelentkezés után lehet posztolni. Az oldal elmagyarázza, miért szükséges a bejelentkezés, és hogyan lehet nélküle posztolni a VPN kikapcsolásával. Ezután a közösségi kitiltás a bejelentkezéshez használt fiókra is vonatkozik.
-- **A bejáratott fiókok**, amelyek 3 különböző napon átmentek egy ellenőrzésen korlátozás alá nem eső kapcsolatokról, mentesülnek.
+- **A bejáratott fiókok** mentesülnek a VPN-, proxy- és adatközponti korlátozások alól, a Tor-korlátozás alól azonban nem. Egy fiók akkor válik bejáratottá, ha 3 különböző napon teljesít egy CAPTCHA-t vagy bejelentkezést korlátozás alá nem eső kapcsolatokról; a CAPTCHA vagy bejelentkezés nélkül átjutott bejegyzések nem számítanak. Egy hálózat csak egy fióknál számít: amint egy másik fiók is átmegy róla egy ellenőrzésen, egyiknél sem számít. Abban a közösségben, amely kitiltott egy fiókot az egyik ilyen hálózaton, ebből az előzményből semmi sem számít.
 - **A Tor** korlátozott marad, kivéve azokat a szerzőket, akiknek a közösség által beállított mentességük van: moderátori szerepkör, a közösség engedélyezőlistája vagy ellenőrzött `.bso` név.
 
 A Forge Images szolgáltatásba feltöltött csatolt fájlokra ugyanezek a szabályok vonatkoznak. VPN-, proxy- vagy adatközponti kapcsolaton keresztül a feltöltéshez bejelentkezéssel teljesített előzetes ellenőrzés vagy bejáratott fiók szükséges. Tor hálózaton keresztül ellenőrzött mentesség kell hozzá.

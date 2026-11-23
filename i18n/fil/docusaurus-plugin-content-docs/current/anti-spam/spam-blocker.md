@@ -17,10 +17,10 @@ Binibigyan ng Spam Blocker ng marka ng panganib sa spam ang mga post, reply at b
 
 1. Ipinapadala ng hamon ng komunidad ang nilagdaang publikasyon sa serbisyo, na nagbabalik ng marka ng panganib sa pagitan ng 0 at 1.
 2. Kapag mas mababa sa auto-accept threshold ng komunidad, papasa ang publikasyon. Kapag nasa o lampas sa auto-reject threshold nito, babagsak ito at makikita ng may-akda kung bakit.
-3. Sa pagitan ng dalawang ito, muling ginagamit ang pag-sign in ng may-akda sa nakaraang 30 araw kapag sapat na ito. Kung hindi, makakatanggap ang may-akda ng pahina ng pag-verify: isang CAPTCHA kapag kayang makapasa sa CAPTCHA lamang, o isang pag-sign in.
+3. Sa pagitan ng dalawang ito, muling ginagamit ang naaalalang pag-sign in ng may-akda kapag sapat na ito. Kung hindi, makakatanggap ang may-akda ng pahina ng pag-verify: isang CAPTCHA kapag kayang makapasa sa CAPTCHA lamang, o isang pag-sign in. Sa pamamagitan ng koneksyong VPN, proxy o datacenter na hinihigpitan ng komunidad, kailangan ng may-akda ng pag-sign in sa anumang marka na mas mababa sa auto-reject threshold, maliban kung may nalalapat na exemption sa ilalim ng Mga patakaran sa koneksyon.
 4. Pagkatapos, sinusuri ng komunidad ang resulta sa serbisyo at inilalapat ang sarili nitong mga panuntunan para sa bansa, IP risk at uri ng koneksyon.
 
-Bago mag-upload ng naka-attach na file, maaaring patakbuhin ng isang client ang parehong pagsusuri bilang paunang pagsusuri, para hindi na kailanman makapag-upload ang mga may-akdang tatanggihan.
+Bago mag-upload ng naka-attach na file, maaaring patakbuhin ng isang client ang parehong pagsusuri bilang paunang pagsusuri, para hindi na kailangang mag-upload ang karamihan sa mga may-akdang tatanggihan. Muling sinusuri ang publikasyon kapag na-publish na ito, kaya maaari pa rin itong bumagsak kahit pumasa ang paunang pagsusuri.
 
 ## Marka ng panganib
 
@@ -49,14 +49,14 @@ Kapag hindi sapat ang CAPTCHA, susundan ito ng pag-sign in. Kapag hindi sapat an
 
 ### Mga naaalalang pag-sign in
 
-Naaalala ng serbisyo ang account na huling ginamit ng may-akda sa pag-sign in. Muli itong ginagamit ng susunod na post na nangangailangan ng pag-verify, na para bang nag-sign in muli ang may-akda, basta't patuloy na nagpo-post ang may-akda gamit ito nang hindi bababa sa isang beses kada 30 araw. Kapag sapat na iyon, papasa ang post nang walang CAPTCHA. Natatapos ito kapag may ban sa komunidad na naka-link sa account, at gayundin kapag inalis ang provider nito sa serbisyo.
+Naaalala ng serbisyo ang account na huling ginamit ng may-akda sa pag-sign in. Muli itong ginagamit ng susunod na post na nangangailangan ng pag-verify, na para bang nag-sign in muli ang may-akda, kapag ginamit ito ng isa sa mga post ng may-akda sa nakaraang 30 araw. Itinuturing na ganoong post ang bawat muling paggamit, kaya nagsisimulang muli ang 30 araw sa bawat isa. Kapag sapat na iyon, papasa ang post nang walang CAPTCHA. Natatapos ito kapag may ban sa komunidad na naka-link sa account, at gayundin kapag inalis ang provider nito sa serbisyo.
 
 ## Mga patakaran sa koneksyon
 
 Maaaring higpitan ng mga komunidad ang mga publikasyon mula sa mga koneksyong Tor, VPN (kasama ang iCloud Private Relay), proxy at datacenter. Sa naka-host na serbisyo:
 
 - **Ang mga koneksyong VPN, proxy at datacenter** ay maaaring mag-post pagkatapos mag-sign in. Ipinapaliwanag ng pahina kung bakit kailangan ang pag-sign in at kung paano mag-post nang wala nito sa pamamagitan ng pag-off sa VPN. Pagkatapos nito, nalalapat din ang ban sa komunidad sa account na ginamit sa pag-sign in.
-- **Ang mga matatag na account**, na pumasa sa isang pagsusuri sa 3 magkakahiwalay na araw mula sa mga koneksyong walang paghihigpit, ay hindi saklaw ng paghihigpit.
+- **Ang mga matatag na account** ay hindi saklaw ng mga paghihigpit sa VPN, proxy at datacenter, pero saklaw pa rin ng paghihigpit sa Tor. Nagiging matatag ang isang account kapag pumasa ito sa CAPTCHA o pag-sign in sa 3 magkakahiwalay na araw mula sa mga koneksyong walang paghihigpit; hindi binibilang ang mga post na pumasa nang walang CAPTCHA o pag-sign in. Isang account lang ang pinagbibilangan ng isang network: kapag may ibang account na pumasa sa isang pagsusuri mula rito, hindi na ito binibilang para sa alinman sa dalawa. Sa isang komunidad na nag-ban ng account sa isa sa mga network na iyon, wala sa kasaysayang ito ang binibilang.
 - **Ang Tor** ay nananatiling may paghihigpit, maliban sa mga may-akdang may exemption na na-configure ng komunidad: role ng moderator, whitelist ng komunidad, o na-verify na pangalang `.bso`.
 
 Sinusunod ng mga naka-attach na file na ina-upload sa Forge Images ang parehong mga panuntunan. Sa pamamagitan ng koneksyong VPN, proxy o datacenter, kailangan ng upload ang isang paunang pagsusuri na pumasa gamit ang pag-sign in, o isang matatag na account. Sa pamamagitan ng Tor, kailangan nito ang isang na-verify na exemption.

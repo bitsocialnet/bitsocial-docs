@@ -17,10 +17,10 @@ Spam Blocker assegna a post, risposte e voti un punteggio di rischio spam prima 
 
 1. La sfida della comunità invia la pubblicazione firmata al servizio, che restituisce un punteggio di rischio compreso tra 0 e 1.
 2. Sotto la soglia di accettazione automatica della comunità, la pubblicazione passa. Alla soglia di rifiuto automatico o sopra, viene respinta e l'autore ne vede il motivo.
-3. Nella fascia intermedia, se basta, viene riutilizzato l'accesso effettuato dall'autore negli ultimi 30 giorni. Altrimenti l'autore riceve una pagina di verifica: un CAPTCHA quando un CAPTCHA da solo può bastare a passare, oppure un accesso.
+3. Nella fascia intermedia, se basta, viene riutilizzato l'accesso memorizzato dell'autore. Altrimenti l'autore riceve una pagina di verifica: un CAPTCHA quando un CAPTCHA da solo può bastare a passare, oppure un accesso. Tramite una connessione VPN, proxy o datacenter che la comunità limita, l'autore deve effettuare l'accesso con qualsiasi punteggio inferiore alla soglia di rifiuto automatico, a meno che non si applichi un'esenzione prevista nella sezione Criteri per le connessioni.
 4. La comunità verifica poi il risultato con il servizio e applica le proprie regole su paese, rischio dell'IP e tipo di connessione.
 
-Prima di caricare un file allegato, un client può eseguire lo stesso controllo come controllo preliminare, così gli autori che verrebbero respinti non arrivano mai a caricarlo.
+Prima di caricare un file allegato, un client può eseguire lo stesso controllo come controllo preliminare, che risparmia il caricamento alla maggior parte degli autori che verrebbero respinti. La pubblicazione viene verificata di nuovo quando viene pubblicata, quindi può comunque essere respinta anche dopo un controllo preliminare superato.
 
 ## Punteggio di rischio
 
@@ -49,14 +49,14 @@ Se un CAPTCHA non basta, segue un accesso. Se un accesso non basta, segue un CAP
 
 ### Accessi memorizzati
 
-Il servizio ricorda l'account con cui un autore ha effettuato l'ultimo accesso. Un post successivo che richiede una verifica lo riutilizza, come se l'autore avesse effettuato di nuovo l'accesso, purché l'autore continui a pubblicare con quell'account almeno una volta ogni 30 giorni. Quando basta, il post passa senza CAPTCHA. Un ban nella comunità collegato all'account pone fine a questo meccanismo, così come la rimozione del relativo provider dal servizio.
+Il servizio ricorda l'account con cui un autore ha effettuato l'ultimo accesso. Un post successivo che richiede una verifica lo riutilizza, come se l'autore avesse effettuato di nuovo l'accesso, se uno dei post dell'autore l'ha usato negli ultimi 30 giorni. Anche un riutilizzo conta come post di questo tipo, quindi i 30 giorni ripartono da capo a ogni riutilizzo. Quando basta, il post passa senza CAPTCHA. Un ban nella comunità collegato all'account pone fine a questo meccanismo, così come la rimozione del relativo provider dal servizio.
 
 ## Criteri per le connessioni
 
 Le comunità possono limitare le pubblicazioni provenienti da connessioni Tor, VPN (compreso iCloud Private Relay), proxy e datacenter. Sul servizio ospitato:
 
 - **Le connessioni VPN, proxy e datacenter** possono pubblicare dopo un accesso. La pagina spiega perché l'accesso è necessario e come pubblicare senza, disattivando la VPN. Un ban nella comunità si applica poi anche all'account usato per l'accesso.
-- **Gli account consolidati**, che hanno superato un controllo in 3 giorni diversi da connessioni non soggette a limitazioni, sono esenti.
+- **Gli account consolidati** sono esenti dalle limitazioni per VPN, proxy e datacenter, ma non da quella per Tor. Un account diventa consolidato dopo aver completato un CAPTCHA o un accesso in 3 giorni diversi da connessioni non soggette a limitazioni; i post accettati senza nessuno dei due non contano. Una rete conta per un solo account: appena un altro account supera un controllo da quella rete, non conta più per nessuno dei due. In una comunità che ha bannato un account su una di quelle reti, nessuna parte di questo storico conta.
 - **Tor** resta soggetto a limitazioni, tranne per gli autori con un'esenzione configurata dalla comunità: un ruolo di moderatore, la whitelist della comunità o un nome `.bso` verificato.
 
 I file allegati caricati su Forge Images seguono le stesse regole. Tramite una connessione VPN, proxy o datacenter, il caricamento richiede un controllo preliminare superato con un accesso, oppure un account consolidato. Tramite Tor, richiede un'esenzione verificata.

@@ -17,10 +17,10 @@ Spam Blocker bedömer spamrisken i inlägg, svar och röster innan en community 
 
 1. Communityns utmaning skickar den signerade publikationen till tjänsten, som returnerar en riskpoäng mellan 0 och 1.
 2. Under communityns tröskel för automatiskt godkännande går publikationen igenom. På eller över tröskeln för automatiskt avslag avvisas den, och författaren får se varför.
-3. Däremellan återanvänds författarens inloggning från de senaste 30 dagarna om den räcker. Annars får författaren en verifieringssida: en CAPTCHA när enbart en CAPTCHA kan räcka, annars en inloggning.
+3. Däremellan återanvänds författarens ihågkomna inloggning om den räcker. Annars får författaren en verifieringssida: en CAPTCHA när enbart en CAPTCHA kan räcka, annars en inloggning. Via en VPN-, proxy- eller datacenteranslutning som communityn begränsar behöver författaren en inloggning vid varje poäng under tröskeln för automatiskt avslag, om inte ett undantag under Anslutningspolicyer gäller.
 4. Communityn kontrollerar sedan resultatet med tjänsten och tillämpar sina egna regler för land, IP-risk och anslutningstyp.
 
-Innan en bifogad fil laddas upp kan en klient köra samma kontroll som en förkontroll, så att författare som skulle avvisas aldrig laddar upp något.
+Innan en bifogad fil laddas upp kan en klient köra samma kontroll som en förkontroll, vilket besparar de flesta författare som skulle avvisas en uppladdning. Publikationen kontrolleras igen när den publiceras, så den kan fortfarande avvisas trots att en förkontroll klarades.
 
 ## Riskpoäng
 
@@ -49,14 +49,14 @@ Om en CAPTCHA inte räcker följer en inloggning. Om en inloggning inte räcker 
 
 ### Ihågkomna inloggningar
 
-Tjänsten kommer ihåg vilket konto en författare senast loggade in med. Ett senare inlägg som behöver verifieras återanvänder det, som om författaren hade loggat in igen, så länge författaren fortsätter att publicera med det minst en gång var 30:e dag. När det räcker godkänns inlägget utan CAPTCHA. En avstängning i communityn som är kopplad till kontot avslutar detta, och det gör även att kontots leverantör tas bort från tjänsten.
+Tjänsten kommer ihåg vilket konto en författare senast loggade in med. Ett senare inlägg som behöver verifieras återanvänder det, som om författaren hade loggat in igen, om något av författarens inlägg har använt det under de senaste 30 dagarna. En återanvändning räknas som ett sådant inlägg, så de 30 dagarna börjar om vid varje återanvändning. När det räcker godkänns inlägget utan CAPTCHA. En avstängning i communityn som är kopplad till kontot avslutar detta, och det gör även att kontots leverantör tas bort från tjänsten.
 
 ## Anslutningspolicyer
 
 Communities kan begränsa publikationer som kommer via Tor, VPN (inklusive iCloud Private Relay), proxy eller datacenter. På den hostade tjänsten gäller följande:
 
 - **VPN-, proxy- och datacenteranslutningar** kan publicera efter en inloggning. Sidan förklarar varför inloggningen behövs och hur man kan publicera utan den genom att stänga av sitt VPN. En avstängning i communityn gäller då även kontot som användes för inloggningen.
-- **Etablerade konton**, som har klarat en kontroll på 3 olika dagar från obegränsade anslutningar, är undantagna.
+- **Etablerade konton** är undantagna från begränsningarna för VPN, proxy och datacenter, men inte från Tor-begränsningen. Ett konto blir etablerat när det har klarat en CAPTCHA eller inloggning på 3 olika dagar från obegränsade anslutningar; inlägg som godkändes utan någon av dem räknas inte. Ett nätverk räknas bara för ett konto: när ett annat konto klarar en kontroll från det räknas det för inget av dem. I en community som har stängt av ett konto på något av dessa nätverk räknas ingen del av historiken.
 - **Tor** förblir begränsat, utom för författare med ett undantag som communityn har konfigurerat: en moderatorsroll, communityns vitlista eller ett verifierat `.bso`-namn.
 
 Bifogade filer som laddas upp till Forge Images följer samma regler. Via en VPN-, proxy- eller datacenteranslutning kräver uppladdningen en förkontroll som klarades med en inloggning, eller ett etablerat konto. Via Tor krävs ett verifierat undantag.

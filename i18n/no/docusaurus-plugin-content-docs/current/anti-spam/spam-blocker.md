@@ -17,10 +17,10 @@ Spam Blocker gir innlegg, svar og stemmer en risikoscore for spam før et felles
 
 1. Fellesskapets utfordring sender den signerte publikasjonen til tjenesten, som returnerer en risikoscore mellom 0 og 1.
 2. Under fellesskapets terskel for automatisk godkjenning slipper publikasjonen gjennom. På eller over terskelen for automatisk avvisning blir den avvist, og forfatteren ser hvorfor.
-3. Mellom de to tersklene gjenbrukes forfatterens innlogging fra de siste 30 dagene når den er nok. Ellers får forfatteren en verifiseringsside: en CAPTCHA når en CAPTCHA alene kan være nok, ellers en innlogging.
+3. Mellom de to tersklene gjenbrukes forfatterens huskede innlogging når den er nok. Ellers får forfatteren en verifiseringsside: en CAPTCHA når en CAPTCHA alene kan være nok, ellers en innlogging. Via en VPN-, proxy- eller datasentertilkobling som fellesskapet begrenser, trenger forfatteren en innlogging ved enhver score under terskelen for automatisk avvisning, med mindre et unntak under Tilkoblingsregler gjelder.
 4. Fellesskapet kontrollerer deretter resultatet hos tjenesten og bruker sine egne regler for land, IP-risiko og tilkoblingstype.
 
-Før en vedlagt fil lastes opp, kan en klient kjøre den samme kontrollen som en forhåndskontroll, slik at forfattere som ville blitt avvist, aldri laster opp.
+Før en vedlagt fil lastes opp, kan en klient kjøre den samme kontrollen som en forhåndskontroll, slik at de fleste forfattere som ville blitt avvist, slipper å laste opp. Publikasjonen kontrolleres på nytt når den publiseres, så den kan fortsatt bli avvist etter at en forhåndskontroll er bestått.
 
 ## Risikoscore
 
@@ -49,14 +49,14 @@ En CAPTCHA som ikke er nok, etterfølges av en innlogging. En innlogging som ikk
 
 ### Huskede innlogginger
 
-Tjenesten husker kontoen en forfatter sist logget inn med. Et senere innlegg som krever verifisering, gjenbruker den som om forfatteren hadde logget inn på nytt, så lenge forfatteren fortsetter å publisere med den minst én gang per 30 dager. Når det er nok, godkjennes innlegget uten CAPTCHA. En utestengelse i fellesskapet som er knyttet til kontoen, avslutter dette, og det samme gjør det å fjerne kontoens leverandør fra tjenesten.
+Tjenesten husker kontoen en forfatter sist logget inn med. Et senere innlegg som krever verifisering, gjenbruker den som om forfatteren hadde logget inn på nytt, når et av forfatterens innlegg har brukt den i løpet av de siste 30 dagene. Når kontoen gjenbrukes, teller det som et slikt innlegg, så de 30 dagene starter på nytt hver gang. Når det er nok, godkjennes innlegget uten CAPTCHA. En utestengelse i fellesskapet som er knyttet til kontoen, avslutter dette, og det samme gjør det å fjerne kontoens leverandør fra tjenesten.
 
 ## Tilkoblingsregler
 
 Fellesskap kan begrense publikasjoner som kommer via Tor, VPN (inkludert iCloud Private Relay), proxyer og datasentre. På den hostede tjenesten gjelder følgende:
 
 - **VPN-, proxy- og datasentertilkoblinger** kan publisere etter en innlogging. Siden forklarer hvorfor innloggingen trengs, og hvordan man kan publisere uten å logge inn ved å slå av VPN-en. En utestengelse i fellesskapet gjelder da også kontoen som ble brukt til å logge inn.
-- **Etablerte kontoer**, som har bestått en kontroll på 3 ulike dager fra ubegrensede tilkoblinger, er unntatt.
+- **Etablerte kontoer** er unntatt fra begrensningene for VPN, proxy og datasentre, men ikke fra begrensningen for Tor. En konto blir etablert etter at den har bestått en CAPTCHA eller innlogging på 3 ulike dager fra ubegrensede tilkoblinger; innlegg som slapp gjennom uten noen av delene, teller ikke. Et nettverk teller bare for én konto: så snart en annen konto består en kontroll fra det, teller det for ingen av dem. I et fellesskap som har utestengt en konto på et av disse nettverkene, teller ingenting av historikken.
 - **Tor** forblir begrenset, bortsett fra for forfattere med et unntak som fellesskapet har konfigurert: en moderatorrolle, fellesskapets hviteliste eller et verifisert `.bso`-navn.
 
 Vedlagte filer som lastes opp til Forge Images, følger de samme reglene. Via en VPN-, proxy- eller datasentertilkobling krever opplastingen en forhåndskontroll som ble bestått med en innlogging, eller en etablert konto. Via Tor krever den et verifisert unntak.

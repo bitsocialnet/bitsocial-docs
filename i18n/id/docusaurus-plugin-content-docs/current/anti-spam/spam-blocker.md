@@ -17,10 +17,10 @@ Spam Blocker memberi skor risiko spam pada postingan, balasan, dan suara sebelum
 
 1. Tantangan komunitas mengirim publikasi yang telah ditandatangani ke layanan, yang mengembalikan skor risiko antara 0 dan 1.
 2. Di bawah ambang batas terima otomatis komunitas, publikasi lolos. Pada atau di atas ambang batas tolak otomatisnya, publikasi gagal dan penulis melihat alasannya.
-3. Di antara keduanya, login penulis dalam 30 hari terakhir digunakan kembali jika sudah cukup. Jika tidak, penulis mendapat halaman verifikasi: CAPTCHA jika CAPTCHA saja sudah bisa meloloskan publikasi, atau login.
+3. Di antara keduanya, login penulis yang diingat digunakan kembali jika sudah cukup. Jika tidak, penulis mendapat halaman verifikasi: CAPTCHA jika CAPTCHA saja sudah bisa meloloskan publikasi, atau login. Melalui koneksi VPN, proxy, atau pusat data yang dibatasi komunitas, penulis perlu login pada skor berapa pun di bawah ambang batas tolak otomatis, kecuali berlaku pengecualian yang dijelaskan di bagian Kebijakan koneksi.
 4. Komunitas lalu memeriksa hasilnya ke layanan dan menerapkan aturannya sendiri untuk negara, risiko IP, dan jenis koneksi.
 
-Sebelum mengunggah berkas lampiran, klien dapat menjalankan pemeriksaan yang sama sebagai pra-pemeriksaan, sehingga penulis yang akan ditolak tidak pernah mengunggah apa pun.
+Sebelum mengunggah berkas lampiran, klien dapat menjalankan pemeriksaan yang sama sebagai pra-pemeriksaan, sehingga sebagian besar penulis yang akan ditolak tidak perlu mengunggah. Publikasi diperiksa lagi saat dipublikasikan, jadi publikasi tetap bisa gagal meskipun pra-pemeriksaan sudah lolos.
 
 ## Skor risiko
 
@@ -49,14 +49,14 @@ CAPTCHA yang tidak cukup dilanjutkan dengan login. Login yang tidak cukup dilanj
 
 ### Login yang diingat
 
-Layanan mengingat akun yang terakhir digunakan penulis untuk login. Postingan berikutnya yang memerlukan verifikasi menggunakannya kembali, seolah-olah penulis login lagi, selama penulis terus memposting dengan akun itu setidaknya sekali setiap 30 hari. Jika itu sudah cukup, postingan lolos tanpa CAPTCHA. Ban di komunitas yang terkait dengan akun tersebut mengakhiri hal ini, begitu pula penghapusan penyedianya dari layanan.
+Layanan mengingat akun yang terakhir digunakan penulis untuk login. Postingan berikutnya yang memerlukan verifikasi menggunakannya kembali, seolah-olah penulis login lagi, jika salah satu postingan penulis menggunakannya dalam 30 hari terakhir. Penggunaan kembali dihitung sebagai postingan semacam itu, sehingga 30 hari dimulai ulang pada setiap penggunaan kembali. Jika itu sudah cukup, postingan lolos tanpa CAPTCHA. Ban di komunitas yang terkait dengan akun tersebut mengakhiri hal ini, begitu pula penghapusan penyedianya dari layanan.
 
 ## Kebijakan koneksi
 
 Komunitas dapat membatasi publikasi dari koneksi Tor, VPN (termasuk iCloud Private Relay), proxy, dan pusat data. Pada layanan yang di-hosting:
 
 - **Koneksi VPN, proxy, dan pusat data** dapat memposting setelah login. Halaman tersebut menjelaskan mengapa login diperlukan dan cara memposting tanpa login dengan mematikan VPN. Setelah itu, ban di komunitas juga berlaku untuk akun yang digunakan untuk login.
-- **Akun mapan**, yang telah lolos pemeriksaan pada 3 hari berbeda dari koneksi yang tidak dibatasi, dikecualikan.
+- **Akun mapan** dikecualikan dari pembatasan VPN, proxy, dan pusat data, tetapi tidak dari pembatasan Tor. Sebuah akun menjadi mapan setelah lolos CAPTCHA atau login pada 3 hari berbeda dari koneksi yang tidak dibatasi; postingan yang lolos tanpa CAPTCHA maupun login tidak dihitung. Sebuah jaringan hanya dihitung untuk satu akun: begitu akun lain lolos pemeriksaan dari jaringan itu, jaringan tersebut tidak dihitung untuk akun mana pun dari keduanya. Di komunitas yang menjatuhkan ban kepada akun di salah satu jaringan tersebut, tidak ada satu pun dari riwayat tersebut yang dihitung.
 - **Tor** tetap dibatasi, kecuali bagi penulis dengan pengecualian yang dikonfigurasi komunitas: peran moderator, daftar putih komunitas, atau nama `.bso` yang terverifikasi.
 
 Berkas lampiran yang diunggah ke Forge Images mengikuti aturan yang sama. Melalui koneksi VPN, proxy, atau pusat data, unggahan memerlukan pra-pemeriksaan yang lolos dengan login, atau akun mapan. Melalui Tor, unggahan memerlukan pengecualian yang terverifikasi.

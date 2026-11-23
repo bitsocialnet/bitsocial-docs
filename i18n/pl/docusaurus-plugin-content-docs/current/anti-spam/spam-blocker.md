@@ -17,10 +17,10 @@ Spam Blocker ocenia ryzyko spamu we wpisach, odpowiedziach i głosach, zanim spo
 
 1. Wyzwanie społeczności wysyła podpisaną publikację do usługi, która zwraca punktację ryzyka od 0 do 1.
 2. Poniżej progu automatycznej akceptacji ustalonego przez społeczność publikacja przechodzi. Na progu automatycznego odrzucenia lub powyżej niego zostaje odrzucona, a autor widzi powód.
-3. Pomiędzy tymi progami ponownie wykorzystywane jest logowanie autora z ostatnich 30 dni, jeśli wystarcza. W przeciwnym razie autor dostaje stronę weryfikacji: CAPTCHA, jeśli sama CAPTCHA może wystarczyć, albo logowanie.
+3. Pomiędzy tymi progami ponownie wykorzystywane jest zapamiętane logowanie autora, jeśli wystarcza. W przeciwnym razie autor dostaje stronę weryfikacji: CAPTCHA, jeśli sama CAPTCHA może wystarczyć, albo logowanie. Przy połączeniu przez VPN, proxy lub z centrum danych, które społeczność ogranicza, autor potrzebuje logowania przy każdej punktacji poniżej progu automatycznego odrzucenia, chyba że obowiązuje zwolnienie z sekcji Zasady dotyczące połączeń.
 4. Następnie społeczność sprawdza wynik w usłudze i stosuje własne reguły dotyczące kraju, ryzyka IP i typu połączenia.
 
-Przed przesłaniem załączonego pliku klient może uruchomić tę samą kontrolę jako kontrolę wstępną, dzięki czemu autorzy, którzy zostaliby odrzuceni, w ogóle nie przesyłają pliku.
+Przed przesłaniem załączonego pliku klient może uruchomić tę samą kontrolę jako kontrolę wstępną, dzięki czemu większość autorów, którzy zostaliby odrzuceni, nie musi przesyłać pliku. Publikacja jest sprawdzana ponownie, gdy zostaje opublikowana, więc może zostać odrzucona nawet po zaliczeniu kontroli wstępnej.
 
 ## Punktacja ryzyka
 
@@ -49,14 +49,14 @@ Jeśli CAPTCHA nie wystarcza, po niej następuje logowanie. Jeśli logowanie nie
 
 ### Zapamiętane logowania
 
-Usługa zapamiętuje konto, którym autor ostatnio się zalogował. Późniejszy wpis wymagający weryfikacji wykorzystuje je ponownie, tak jakby autor zalogował się jeszcze raz, o ile autor nadal publikuje z tego konta co najmniej raz na 30 dni. Jeśli to wystarcza, wpis przechodzi bez CAPTCHA. Zapamiętanie przestaje działać po banie w społeczności powiązanym z tym kontem, a także po usunięciu jego dostawcy z usługi.
+Usługa zapamiętuje konto, którym autor ostatnio się zalogował. Późniejszy wpis wymagający weryfikacji wykorzystuje je ponownie, tak jakby autor zalogował się jeszcze raz, jeśli któryś z wpisów autora użył go w ciągu ostatnich 30 dni. Ponowne wykorzystanie liczy się jako taki wpis, więc 30 dni liczy się od nowa po każdym z nich. Jeśli to wystarcza, wpis przechodzi bez CAPTCHA. Zapamiętanie przestaje działać po banie w społeczności powiązanym z tym kontem, a także po usunięciu jego dostawcy z usługi.
 
 ## Zasady dotyczące połączeń
 
 Społeczności mogą ograniczać publikacje przychodzące przez Tor, VPN (w tym iCloud Private Relay), serwery proxy i centra danych. W usłudze hostowanej:
 
 - **Połączenia przez VPN, proxy i z centrów danych** mogą publikować po zalogowaniu. Strona wyjaśnia, dlaczego logowanie jest potrzebne i jak publikować bez niego, wyłączając VPN. Ban w społeczności obejmuje wtedy również konto użyte do logowania.
-- **Konta o ugruntowanej pozycji**, które przeszły kontrolę w 3 różnych dniach z nieograniczonych połączeń, są zwolnione z ograniczeń.
+- **Konta o ugruntowanej pozycji** są zwolnione z ograniczeń dotyczących VPN, proxy i centrów danych, ale nie z ograniczenia dotyczącego sieci Tor. Konto uzyskuje ugruntowaną pozycję, gdy w 3 różnych dniach przejdzie CAPTCHA lub logowanie z nieograniczonych połączeń; wpisy, które przeszły bez żadnego z nich, się nie liczą. Sieć liczy się tylko dla jednego konta: gdy inne konto przejdzie z niej kontrolę, nie liczy się już dla żadnego z nich. W społeczności, która zbanowała konto w jednej z tych sieci, nie liczy się nic z tej historii.
 - **Tor** pozostaje ograniczony, z wyjątkiem autorów objętych zwolnieniem skonfigurowanym przez społeczność: rolą moderatora, białą listą społeczności lub zweryfikowaną nazwą `.bso`.
 
 Załączone pliki przesyłane do Forge Images podlegają tym samym zasadom. Przez VPN, proxy lub połączenie z centrum danych przesłanie wymaga kontroli wstępnej zaliczonej z logowaniem albo konta o ugruntowanej pozycji. Przez Tor wymaga zweryfikowanego zwolnienia.

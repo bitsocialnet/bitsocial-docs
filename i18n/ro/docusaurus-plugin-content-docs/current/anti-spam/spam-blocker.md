@@ -17,10 +17,10 @@ Spam Blocker evaluează riscul de spam al postărilor, răspunsurilor și voturi
 
 1. Provocarea comunității trimite publicarea semnată către serviciu, care returnează un scor de risc între 0 și 1.
 2. Sub pragul de acceptare automată al comunității, publicarea trece. La pragul de respingere automată sau peste acesta, este respinsă, iar autorul vede motivul.
-3. Între cele două praguri, autentificarea autorului din ultimele 30 de zile este refolosită atunci când este suficientă. Altfel, autorul primește o pagină de verificare: un CAPTCHA, când un CAPTCHA singur poate fi suficient, sau o autentificare.
+3. Între cele două praguri, autentificarea memorată a autorului este refolosită atunci când este suficientă. Altfel, autorul primește o pagină de verificare: un CAPTCHA, când un CAPTCHA singur poate fi suficient, sau o autentificare. Printr-o conexiune VPN, proxy sau din centru de date pe care comunitatea o restricționează, autorul are nevoie de o autentificare la orice scor sub pragul de respingere automată, dacă nu se aplică o exceptare din Politici de conexiune.
 4. Apoi comunitatea verifică rezultatul la serviciu și aplică propriile reguli privind țara, riscul IP și tipul de conexiune.
 
-Înainte de a încărca un fișier atașat, un client poate rula aceeași verificare ca verificare preliminară, astfel încât autorii care ar fi respinși să nu mai încarce nimic.
+Înainte de a încărca un fișier atașat, un client poate rula aceeași verificare ca verificare preliminară, ceea ce îi scutește de încărcare pe cei mai mulți autori care ar fi respinși. Publicarea este verificată din nou când este publicată, așa că poate fi totuși respinsă după ce a trecut o verificare preliminară.
 
 ## Scorul de risc
 
@@ -49,14 +49,14 @@ Un CAPTCHA care nu este suficient este urmat de o autentificare. O autentificare
 
 ### Autentificări memorate
 
-Serviciul reține contul cu care un autor s-a autentificat ultima dată. O postare ulterioară care necesită verificare îl refolosește, ca și cum autorul s-ar fi autentificat din nou, atât timp cât autorul continuă să posteze cu el cel puțin o dată la 30 de zile. Când acest lucru este suficient, postarea trece fără CAPTCHA. Un ban în comunitate legat de cont pune capăt acestui mecanism, la fel ca eliminarea furnizorului contului din serviciu.
+Serviciul reține contul cu care un autor s-a autentificat ultima dată. O postare ulterioară care necesită verificare îl refolosește, ca și cum autorul s-ar fi autentificat din nou, dacă una dintre postările autorului l-a folosit în ultimele 30 de zile. O refolosire contează ca o astfel de postare, așa că cele 30 de zile reîncep cu fiecare refolosire. Când acest lucru este suficient, postarea trece fără CAPTCHA. Un ban în comunitate legat de cont pune capăt acestui mecanism, la fel ca eliminarea furnizorului contului din serviciu.
 
 ## Politici de conexiune
 
 Comunitățile pot restricționa publicările care vin prin Tor, VPN (inclusiv iCloud Private Relay), proxy și conexiuni din centre de date. Pe serviciul găzduit:
 
 - **Conexiunile prin VPN, proxy și din centre de date** pot posta după o autentificare. Pagina explică de ce este necesară autentificarea și cum se poate posta fără ea, prin dezactivarea VPN-ului. Un ban în comunitate se aplică apoi și contului folosit la autentificare.
-- **Conturile consacrate**, care au trecut o verificare în 3 zile diferite de pe conexiuni nerestricționate, sunt exceptate.
+- **Conturile consacrate** sunt exceptate de la restricțiile pentru VPN, proxy și centre de date, dar nu și de la cea pentru Tor. Un cont devine consacrat după ce trece un CAPTCHA sau o autentificare în 3 zile diferite de pe conexiuni nerestricționate; postările care au trecut fără niciunul dintre acestea nu contează. O rețea contează pentru un singur cont: odată ce un alt cont trece o verificare de pe ea, nu mai contează pentru niciunul dintre ele. Într-o comunitate care a banat un cont de pe una dintre acele rețele, nimic din acest istoric nu contează.
 - **Tor** rămâne restricționat, cu excepția autorilor care au o exceptare configurată de comunitate: un rol de moderator, lista albă a comunității sau un nume `.bso` verificat.
 
 Fișierele atașate încărcate în Forge Images urmează aceleași reguli. Printr-o conexiune VPN, proxy sau din centru de date, încărcarea necesită o verificare preliminară trecută cu autentificare sau un cont consacrat. Prin Tor, necesită o exceptare verificată.

@@ -17,10 +17,10 @@ Spam Blocker attribue aux posts, réponses et votes un score de risque de spam a
 
 1. Le défi de la communauté envoie la publication signée au service, qui renvoie un score de risque compris entre 0 et 1.
 2. En dessous du seuil d'acceptation automatique de la communauté, la publication est acceptée. À partir de son seuil de rejet automatique, elle est refusée et l'auteur en voit la raison.
-3. Entre les deux, l'authentification de l'auteur au cours des 30 derniers jours est réutilisée si elle suffit. Sinon, l'auteur reçoit une page de vérification : un CAPTCHA lorsqu'un CAPTCHA seul peut suffire, ou une authentification.
+3. Entre les deux, l'authentification mémorisée de l'auteur est réutilisée si elle suffit. Sinon, l'auteur reçoit une page de vérification : un CAPTCHA lorsqu'un CAPTCHA seul peut suffire, ou une authentification. Via une connexion VPN, proxy ou centre de données que la communauté restreint, l'auteur doit s'authentifier pour tout score inférieur au seuil de rejet automatique, sauf si une exemption prévue dans la section Règles selon le type de connexion s'applique.
 4. La communauté vérifie ensuite le résultat auprès du service et applique ses propres règles concernant le pays, le risque IP et le type de connexion.
 
-Avant de téléverser un fichier joint, un client peut lancer la même vérification sous forme de pré-vérification, afin que les auteurs qui seraient rejetés ne téléversent jamais rien.
+Avant de téléverser un fichier joint, un client peut lancer la même vérification sous forme de pré-vérification, ce qui évite un téléversement à la plupart des auteurs qui seraient rejetés. La publication est de nouveau vérifiée au moment où elle est publiée, si bien qu'elle peut encore échouer après une pré-vérification réussie.
 
 ## Score de risque
 
@@ -49,14 +49,14 @@ Un CAPTCHA insuffisant est suivi d'une authentification. Une authentification in
 
 ### Authentifications mémorisées
 
-Le service mémorise le compte avec lequel un auteur s'est authentifié en dernier. Une publication ultérieure qui nécessite une vérification le réutilise, comme si l'auteur s'était de nouveau authentifié, tant que l'auteur continue de publier avec ce compte au moins une fois tous les 30 jours. Lorsque cela suffit, la publication est acceptée sans CAPTCHA. Un bannissement dans la communauté lié au compte y met fin, tout comme le retrait de son fournisseur du service.
+Le service mémorise le compte avec lequel un auteur s'est authentifié en dernier. Une publication ultérieure qui nécessite une vérification le réutilise, comme si l'auteur s'était de nouveau authentifié, si l'une des publications de l'auteur l'a utilisé au cours des 30 derniers jours. Une réutilisation compte comme une telle publication, si bien que les 30 jours repartent à zéro à chaque réutilisation. Lorsque cela suffit, la publication est acceptée sans CAPTCHA. Un bannissement dans la communauté lié au compte y met fin, tout comme le retrait de son fournisseur du service.
 
 ## Règles selon le type de connexion
 
 Les communautés peuvent restreindre les publications provenant de connexions Tor, VPN (y compris iCloud Private Relay), proxy et centre de données. Sur le service hébergé :
 
 - **Les connexions VPN, proxy et centre de données** permettent de publier après une authentification. La page explique pourquoi l'authentification est nécessaire et comment publier sans elle en désactivant le VPN. Un bannissement dans la communauté s'applique alors aussi au compte utilisé pour s'authentifier.
-- **Les comptes établis**, qui ont réussi une vérification à 3 jours différents depuis des connexions non restreintes, en sont exemptés.
+- **Les comptes établis** sont exemptés des restrictions VPN, proxy et centre de données, mais pas de celle visant Tor. Un compte devient établi après avoir réussi un CAPTCHA ou une authentification à 3 jours différents depuis des connexions non restreintes ; les publications acceptées sans l'un ni l'autre ne comptent pas. Un réseau ne compte que pour un seul compte : dès qu'un autre compte réussit une vérification depuis ce réseau, celui-ci ne compte plus pour aucun des deux. Dans une communauté qui a banni un compte sur l'un de ces réseaux, rien de cet historique ne compte.
 - **Tor** reste restreint, sauf pour les auteurs bénéficiant d'une exemption configurée par la communauté : un rôle de modérateur, la liste blanche de la communauté ou un nom `.bso` vérifié.
 
 Les fichiers joints téléversés sur Forge Images suivent les mêmes règles. Via une connexion VPN, proxy ou centre de données, le téléversement nécessite une pré-vérification réussie avec une authentification, ou un compte établi. Via Tor, il nécessite une exemption vérifiée.

@@ -17,10 +17,10 @@ Spam Blocker scores posts, replies and votes for spam risk before a community ac
 
 1. The community's challenge sends the signed publication to the service, which returns a risk score between 0 and 1.
 2. Below the community's auto-accept threshold, the publication passes. At or above its auto-reject threshold, it fails and the author sees why.
-3. In between, the author's sign-in from the past 30 days is reused when it is enough. Otherwise the author gets a verification page: a CAPTCHA when a CAPTCHA alone can pass, or a sign-in.
+3. In between, the author's remembered sign-in is reused when it is enough. Otherwise the author gets a verification page: a CAPTCHA when a CAPTCHA alone can pass, or a sign-in. Through a VPN, proxy or datacenter connection the community restricts, the author needs a sign-in at any score below the auto-reject threshold, unless an exemption under Connection policies applies.
 4. The community then checks the result with the service and applies its own rules for country, IP risk and connection type.
 
-Before uploading an attached file, a client can run the same check as a pre-check, so authors who would be rejected never upload.
+Before uploading an attached file, a client can run the same check as a pre-check, which spares most authors who would be rejected an upload. The publication is checked again when it is published, so it can still fail after a pre-check passed.
 
 ## Risk score
 
@@ -49,14 +49,14 @@ A CAPTCHA that is not enough is followed by a sign-in. A sign-in that is not eno
 
 ### Remembered sign-ins
 
-The service remembers the account an author last signed in with. A later post that needs verification reuses it, as if the author had signed in again, as long as the author keeps posting with it at least once every 30 days. When that is enough, the post passes with no CAPTCHA. This stops when a ban in the community is tied to the account, or when the service stops offering its provider.
+The service remembers the account an author last signed in with. A later post that needs verification reuses it, as if the author had signed in again, when one of the author's posts used it in the past 30 days. A reuse counts as such a post, so the 30 days restart with each one. When that is enough, the post passes with no CAPTCHA. This stops when a ban in the community is tied to the account, or when the service stops offering its provider.
 
 ## Connection policies
 
 Communities can restrict publications from Tor, VPN (including iCloud Private Relay), proxy and datacenter connections. On the hosted service:
 
 - **VPN, proxy and datacenter connections** can post after a sign-in. The page explains why the sign-in is needed and how to post without one by turning off the VPN. A ban in the community then also applies to the account used to sign in.
-- **Established accounts**, which passed a check on 3 separate days from unrestricted connections, are exempt.
+- **Established accounts** are exempt from the VPN, proxy and datacenter restrictions, but not from Tor's. An account is established after it passes a CAPTCHA or sign-in on 3 separate days from unrestricted connections; posts that passed without one do not count. A network counts toward only one account: once another account passes a check from it, it counts for neither. In a community that banned an account on one of those networks, none of the history counts.
 - **Tor** stays restricted, except for authors with an exemption the community has configured: a moderator role, the community's whitelist, or a verified `.bso` name.
 
 Attached files uploaded to Forge Images follow the same rules. Through a VPN, proxy or datacenter connection, the upload needs a pre-check that passed with a sign-in, or an established account. Through Tor, it needs a verified exemption.

@@ -17,10 +17,10 @@ Spam Blocker asigna a las publicaciones, respuestas y votos una puntuación de r
 
 1. El desafío de la comunidad envía la publicación firmada al servicio, que devuelve una puntuación de riesgo entre 0 y 1.
 2. Por debajo del umbral de aceptación automática de la comunidad, la publicación se acepta. En su umbral de rechazo automático o por encima de él, se rechaza y el autor ve el motivo.
-3. Entre ambos umbrales, se reutiliza el inicio de sesión del autor de los últimos 30 días cuando basta. De lo contrario, el autor recibe una página de verificación: un CAPTCHA cuando un CAPTCHA por sí solo puede bastar para aprobar, o un inicio de sesión.
+3. Entre ambos umbrales, se reutiliza el inicio de sesión recordado del autor cuando basta. De lo contrario, el autor recibe una página de verificación: un CAPTCHA cuando un CAPTCHA por sí solo puede bastar para aprobar, o un inicio de sesión. A través de una conexión VPN, proxy o de centro de datos que la comunidad restringe, el autor necesita un inicio de sesión con cualquier puntuación inferior al umbral de rechazo automático, salvo que se aplique alguna exención descrita en Políticas de conexión.
 4. Después, la comunidad comprueba el resultado con el servicio y aplica sus propias reglas de país, riesgo de IP y tipo de conexión.
 
-Antes de subir un archivo adjunto, un cliente puede ejecutar la misma comprobación como verificación previa, de modo que los autores que serían rechazados nunca llegan a subirlo.
+Antes de subir un archivo adjunto, un cliente puede ejecutar la misma comprobación como verificación previa, lo que ahorra la subida a la mayoría de los autores que serían rechazados. La publicación se vuelve a comprobar al publicarse, así que aún puede rechazarse después de haber superado una verificación previa.
 
 ## Puntuación de riesgo
 
@@ -49,14 +49,14 @@ Si un CAPTCHA no basta, le sigue un inicio de sesión. Si un inicio de sesión n
 
 ### Inicios de sesión recordados
 
-El servicio recuerda la cuenta con la que un autor inició sesión por última vez. Una publicación posterior que necesite verificación la reutiliza, como si el autor hubiera vuelto a iniciar sesión, siempre que el autor siga publicando con ella al menos una vez cada 30 días. Cuando eso basta, la publicación se acepta sin CAPTCHA. Esto termina si la comunidad aplica una expulsión vinculada a la cuenta, y también si se retira su proveedor del servicio.
+El servicio recuerda la cuenta con la que un autor inició sesión por última vez. Una publicación posterior que necesite verificación la reutiliza, como si el autor hubiera vuelto a iniciar sesión, si alguna publicación del autor la usó en los últimos 30 días. Cada reutilización cuenta como una de esas publicaciones, así que los 30 días vuelven a empezar con cada una. Cuando eso basta, la publicación se acepta sin CAPTCHA. Esto termina si la comunidad aplica una expulsión vinculada a la cuenta, y también si se retira su proveedor del servicio.
 
 ## Políticas de conexión
 
 Las comunidades pueden restringir las publicaciones procedentes de conexiones Tor, VPN (incluido iCloud Private Relay), proxy y de centros de datos. En el servicio alojado:
 
 - **Las conexiones VPN, proxy y de centros de datos** pueden publicar tras iniciar sesión. La página explica por qué hace falta iniciar sesión y cómo publicar sin hacerlo desactivando la VPN. A partir de entonces, una expulsión en la comunidad también se aplica a la cuenta usada para iniciar sesión.
-- **Las cuentas consolidadas**, que superaron una comprobación en 3 días distintos desde conexiones sin restricciones, están exentas.
+- **Las cuentas consolidadas** están exentas de las restricciones de VPN, proxy y centros de datos, pero no de la de Tor. Una cuenta pasa a estar consolidada después de superar un CAPTCHA o un inicio de sesión en 3 días distintos desde conexiones sin restricciones; las publicaciones aceptadas sin ninguno de los dos no cuentan. Una red solo computa para una cuenta: en cuanto otra cuenta supera una comprobación desde ella, ya no computa para ninguna de las dos. En una comunidad que expulsó una cuenta en una de esas redes, no cuenta nada de ese historial.
 - **Tor** sigue restringido, salvo para los autores con una exención configurada por la comunidad: un rol de moderador, la lista blanca de la comunidad o un nombre `.bso` verificado.
 
 Los archivos adjuntos que se suben a Forge Images siguen las mismas reglas. A través de una conexión VPN, proxy o de centro de datos, la subida necesita una verificación previa superada con un inicio de sesión, o una cuenta consolidada. A través de Tor, necesita una exención verificada.

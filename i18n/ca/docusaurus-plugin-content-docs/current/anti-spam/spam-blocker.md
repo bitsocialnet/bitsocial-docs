@@ -17,10 +17,10 @@ Spam Blocker puntua el risc de correu brossa de les publicacions, les respostes 
 
 1. El repte de la comunitat envia la publicació signada al servei, que retorna una puntuació de risc entre 0 i 1.
 2. Per sota del llindar d'acceptació automàtica de la comunitat, la publicació s'accepta. En el seu llindar de rebuig automàtic o per sobre, es rebutja i l'autor en veu el motiu.
-3. Entre tots dos llindars, es reutilitza l'inici de sessió de l'autor dels últims 30 dies quan és suficient. Altrament, l'autor rep una pàgina de verificació: un CAPTCHA quan un CAPTCHA sol pot bastar per aprovar, o bé un inici de sessió.
+3. Entre tots dos llindars, es reutilitza l'inici de sessió recordat de l'autor quan és suficient. Altrament, l'autor rep una pàgina de verificació: un CAPTCHA quan un CAPTCHA sol pot bastar per aprovar, o bé un inici de sessió. A través d'una connexió VPN, proxy o de centre de dades que la comunitat restringeix, l'autor necessita un inici de sessió amb qualsevol puntuació inferior al llindar de rebuig automàtic, tret que s'hi apliqui alguna exempció descrita a Polítiques de connexió.
 4. Després, la comunitat comprova el resultat amb el servei i aplica les seves pròpies regles de país, risc d'IP i tipus de connexió.
 
-Abans de pujar un fitxer adjunt, un client pot executar la mateixa comprovació com a comprovació prèvia, de manera que els autors que serien rebutjats no arriben a pujar-lo mai.
+Abans de pujar un fitxer adjunt, un client pot executar la mateixa comprovació com a comprovació prèvia, cosa que estalvia la pujada a la majoria dels autors que serien rebutjats. La publicació es torna a comprovar quan es publica, de manera que encara es pot rebutjar després d'haver superat una comprovació prèvia.
 
 ## Puntuació de risc
 
@@ -49,14 +49,14 @@ Si un CAPTCHA no és suficient, el segueix un inici de sessió. Si un inici de s
 
 ### Inicis de sessió recordats
 
-El servei recorda el compte amb què un autor va iniciar sessió per última vegada. Una publicació posterior que necessiti verificació el reutilitza, com si l'autor hagués tornat a iniciar sessió, sempre que l'autor continuï publicant-hi almenys una vegada cada 30 dies. Quan això és suficient, la publicació s'accepta sense CAPTCHA. Això s'acaba si la comunitat aplica una expulsió vinculada al compte, i també si es retira el seu proveïdor del servei.
+El servei recorda el compte amb què un autor va iniciar sessió per última vegada. Una publicació posterior que necessiti verificació el reutilitza, com si l'autor hagués tornat a iniciar sessió, si alguna publicació de l'autor l'ha fet servir en els últims 30 dies. Cada reutilització compta com una d'aquestes publicacions, de manera que els 30 dies tornen a començar amb cadascuna. Quan això és suficient, la publicació s'accepta sense CAPTCHA. Això s'acaba si la comunitat aplica una expulsió vinculada al compte, i també si es retira el seu proveïdor del servei.
 
 ## Polítiques de connexió
 
 Les comunitats poden restringir les publicacions que arriben des de connexions Tor, VPN (inclòs iCloud Private Relay), proxy i de centres de dades. Al servei allotjat:
 
 - **Les connexions VPN, proxy i de centres de dades** poden publicar després d'iniciar sessió. La pàgina explica per què cal iniciar sessió i com publicar sense fer-ho desactivant la VPN. A partir d'aleshores, una expulsió a la comunitat també s'aplica al compte amb què s'ha iniciat sessió.
-- **Els comptes consolidats**, que han superat una comprovació en 3 dies diferents des de connexions sense restriccions, n'estan exempts.
+- **Els comptes consolidats** estan exempts de les restriccions de VPN, proxy i centres de dades, però no de la de Tor. Un compte passa a estar consolidat després de superar un CAPTCHA o un inici de sessió en 3 dies diferents des de connexions sense restriccions; les publicacions acceptades sense cap dels dos no compten. Una xarxa només compta per a un compte: quan un altre compte supera una comprovació des d'aquesta xarxa, ja no compta per a cap dels dos. En una comunitat que ha expulsat un compte en una d'aquestes xarxes, no compta res d'aquest historial.
 - **Tor** continua restringit, excepte per als autors amb una exempció configurada per la comunitat: un rol de moderador, la llista blanca de la comunitat o un nom `.bso` verificat.
 
 Els fitxers adjunts que es pugen a Forge Images segueixen les mateixes regles. A través d'una connexió VPN, proxy o de centre de dades, la pujada necessita una comprovació prèvia superada amb un inici de sessió, o bé un compte consolidat. A través de Tor, necessita una exempció verificada.

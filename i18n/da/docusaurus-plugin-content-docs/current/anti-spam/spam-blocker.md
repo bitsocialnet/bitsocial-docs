@@ -17,10 +17,10 @@ Spam Blocker vurderer spamrisikoen for opslag, svar og stemmer, før et fælless
 
 1. Fællesskabets udfordring sender den signerede publikation til tjenesten, som returnerer en risikoscore mellem 0 og 1.
 2. Under fællesskabets tærskel for automatisk accept går publikationen igennem. På eller over dets tærskel for automatisk afvisning bliver den afvist, og forfatteren kan se hvorfor.
-3. Imellem de to genbruges forfatterens login fra de seneste 30 dage, når det er nok. Ellers får forfatteren en verifikationsside: en CAPTCHA, når en CAPTCHA alene kan være nok til at bestå, eller ellers et login.
+3. Imellem de to genbruges forfatterens huskede login, når det er nok. Ellers får forfatteren en verifikationsside: en CAPTCHA, når en CAPTCHA alene kan være nok til at bestå, eller ellers et login. Via en VPN-, proxy- eller datacenterforbindelse, som fællesskabet begrænser, skal forfatteren logge ind ved enhver score under tærsklen for automatisk afvisning, medmindre en undtagelse under Forbindelsespolitikker gælder.
 4. Derefter tjekker fællesskabet resultatet hos tjenesten og anvender sine egne regler for land, IP-risiko og forbindelsestype.
 
-Før en vedhæftet fil uploades, kan en klient køre det samme tjek som et forhåndstjek, så forfattere, der ville blive afvist, aldrig uploader.
+Før en vedhæftet fil uploades, kan en klient køre det samme tjek som et forhåndstjek, hvilket sparer de fleste forfattere, der ville blive afvist, for en upload. Publikationen tjekkes igen, når den publiceres, så den kan stadig blive afvist, selvom et forhåndstjek er bestået.
 
 ## Risikoscore
 
@@ -49,14 +49,14 @@ En CAPTCHA, der ikke er nok, efterfølges af et login. Et login, der ikke er nok
 
 ### Huskede logins
 
-Tjenesten husker den konto, en forfatter senest loggede ind med. Et senere opslag, der kræver verifikation, genbruger den, som om forfatteren havde logget ind igen, så længe forfatteren bliver ved med at poste med den mindst én gang hver 30. dag. Når det er nok, går opslaget igennem uden CAPTCHA. Det ophører, hvis fællesskabet udsteder en udelukkelse, der er knyttet til kontoen, og ligeledes hvis kontoens udbyder fjernes fra tjenesten.
+Tjenesten husker den konto, en forfatter senest loggede ind med. Et senere opslag, der kræver verifikation, genbruger den, som om forfatteren havde logget ind igen, når et af forfatterens opslag har brugt den inden for de seneste 30 dage. Et genbrug tæller som et sådant opslag, så de 30 dage starter forfra med hvert af dem. Når det er nok, går opslaget igennem uden CAPTCHA. Det ophører, hvis fællesskabet udsteder en udelukkelse, der er knyttet til kontoen, og ligeledes hvis kontoens udbyder fjernes fra tjenesten.
 
 ## Forbindelsespolitikker
 
 Fællesskaber kan begrænse publikationer fra Tor-, VPN- (inklusive iCloud Private Relay), proxy- og datacenterforbindelser. På den hostede tjeneste gælder:
 
 - **VPN-, proxy- og datacenterforbindelser** kan poste efter et login. Siden forklarer, hvorfor login er nødvendigt, og hvordan man kan poste uden ved at slå VPN'en fra. En udelukkelse i fællesskabet gælder derefter også for den konto, der blev brugt til at logge ind.
-- **Etablerede konti**, som har bestået et tjek på 3 forskellige dage fra forbindelser uden begrænsninger, er undtaget.
+- **Etablerede konti** er undtaget fra begrænsningerne for VPN, proxy og datacentre, men ikke fra begrænsningen for Tor. En konto bliver etableret, når den har bestået en CAPTCHA eller et login på 3 forskellige dage fra forbindelser uden begrænsninger; opslag, der gik igennem uden nogen af delene, tæller ikke. Et netværk tæller kun for én konto: Når en anden konto består et tjek fra det, tæller det for ingen af dem. I et fællesskab, der har udelukket en konto på et af disse netværk, tæller intet af historikken.
 - **Tor** forbliver begrænset, undtagen for forfattere med en undtagelse, som fællesskabet har konfigureret: en moderatorrolle, fællesskabets hvidliste eller et verificeret `.bso`-navn.
 
 Vedhæftede filer, der uploades til Forge Images, følger de samme regler. Via en VPN-, proxy- eller datacenterforbindelse kræver uploadet et forhåndstjek, der er bestået med et login, eller en etableret konto. Via Tor kræver det en verificeret undtagelse.

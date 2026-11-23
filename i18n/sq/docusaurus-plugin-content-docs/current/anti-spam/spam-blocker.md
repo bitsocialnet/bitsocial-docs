@@ -17,10 +17,10 @@ Spam Blocker u vë pikë rreziku spami postimeve, përgjigjeve dhe votave përpa
 
 1. Sfida e komunitetit e dërgon publikimin e nënshkruar te shërbimi, i cili kthen një pikë rreziku nga 0 deri në 1.
 2. Nën pragun e pranimit automatik të komunitetit, publikimi kalon. Në pragun e refuzimit automatik ose mbi të, ai dështon dhe autori sheh arsyen.
-3. Ndërmjet dy pragjeve, hyrja e autorit nga 30 ditët e fundit ripërdoret kur mjafton. Përndryshe autori merr një faqe verifikimi: një CAPTCHA, kur mjafton vetëm një CAPTCHA për të kaluar, ose një hyrje.
+3. Ndërmjet dy pragjeve, hyrja e mbajtur mend e autorit ripërdoret kur mjafton. Përndryshe autori merr një faqe verifikimi: një CAPTCHA, kur mjafton vetëm një CAPTCHA për të kaluar, ose një hyrje. Përmes një lidhjeje VPN, proxy ose nga qendër të dhënash që komuniteti e kufizon, autorit i duhet një hyrje për çdo pikë nën pragun e refuzimit automatik, përveç nëse zbatohet një përjashtim nga Politikat për lidhjet.
 4. Më pas komuniteti e kontrollon rezultatin te shërbimi dhe zbaton rregullat e veta për shtetin, rrezikun e IP-së dhe llojin e lidhjes.
 
-Para ngarkimit të një skedari të bashkëngjitur, klienti mund të ekzekutojë të njëjtin kontroll si parakontroll, që autorët që do të refuzoheshin të mos ngarkojnë asgjë.
+Para ngarkimit të një skedari të bashkëngjitur, klienti mund të ekzekutojë të njëjtin kontroll si parakontroll, gjë që shumicës së autorëve që do të refuzoheshin ua kursen ngarkimin. Publikimi kontrollohet sërish kur publikohet, prandaj mund të dështojë edhe pasi një parakontroll ka kaluar.
 
 ## Pikët e rrezikut
 
@@ -49,14 +49,14 @@ Një CAPTCHA që nuk mjafton pasohet nga një hyrje. Një hyrje që nuk mjafton 
 
 ### Hyrjet e mbajtura mend
 
-Shërbimi mban mend llogarinë me të cilën autori hyri për herë të fundit. Një postim i mëvonshëm që ka nevojë për verifikim e ripërdor atë, sikur autori të kishte hyrë sërish, për sa kohë që autori vazhdon të postojë me të të paktën një herë në 30 ditë. Kur kjo mjafton, postimi kalon pa CAPTCHA. Kjo përfundon nëse në komunitet vendoset një ndalim i lidhur me llogarinë, si dhe nëse ofruesi i llogarisë hiqet nga shërbimi.
+Shërbimi mban mend llogarinë me të cilën autori hyri për herë të fundit. Një postim i mëvonshëm që ka nevojë për verifikim e ripërdor atë, sikur autori të kishte hyrë sërish, kur një nga postimet e autorit e ka përdorur në 30 ditët e fundit. Një ripërdorim vlen si një postim i tillë, prandaj 30 ditët nisin nga e para me secilin ripërdorim. Kur kjo mjafton, postimi kalon pa CAPTCHA. Kjo përfundon nëse në komunitet vendoset një ndalim i lidhur me llogarinë, si dhe nëse ofruesi i llogarisë hiqet nga shërbimi.
 
 ## Politikat për lidhjet
 
 Komunitetet mund të kufizojnë publikimet që vijnë nga lidhje Tor, VPN (përfshirë iCloud Private Relay), proxy dhe qendra të dhënash. Në shërbimin e strehuar:
 
 - **Lidhjet VPN, proxy dhe nga qendra të dhënash** mund të postojnë pas një hyrjeje. Faqja shpjegon pse nevojitet hyrja dhe si mund të postohet pa të duke e fikur VPN-në. Një ndalim në komunitet vlen më pas edhe për llogarinë e përdorur për hyrjen.
-- **Llogaritë e konsoliduara**, që kanë kaluar një kontroll në 3 ditë të ndryshme nga lidhje të pakufizuara, përjashtohen.
+- **Llogaritë e konsoliduara** përjashtohen nga kufizimet për VPN, proxy dhe qendra të dhënash, por jo nga kufizimi për Tor. Një llogari bëhet e konsoliduar pasi kalon një CAPTCHA ose hyrje në 3 ditë të ndryshme nga lidhje të pakufizuara; postimet që kaluan pa asnjërën prej tyre nuk llogariten. Një rrjet vlen vetëm për një llogari: sapo një llogari tjetër kalon një kontroll prej tij, ai nuk vlen për asnjërën prej tyre. Në një komunitet që ka ndaluar një llogari në një nga ato rrjete, asgjë nga ky historik nuk vlen.
 - **Tor** mbetet i kufizuar, përveç autorëve me një përjashtim që e ka konfiguruar komuniteti: rolin e moderatorit, listën e bardhë të komunitetit ose një emër `.bso` të verifikuar.
 
 Skedarët e bashkëngjitur që ngarkohen në Forge Images ndjekin të njëjtat rregulla. Përmes një lidhjeje VPN, proxy ose nga qendër të dhënash, ngarkimi kërkon një parakontroll të kaluar me hyrje, ose një llogari të konsoliduar. Përmes Tor, kërkon një përjashtim të verifikuar.

@@ -17,10 +17,10 @@ Spam Blocker chấm điểm rủi ro spam cho bài đăng, trả lời và lư�
 
 1. Thử thách của cộng đồng gửi nội dung đã ký tới dịch vụ, và dịch vụ trả về điểm rủi ro trong khoảng từ 0 đến 1.
 2. Dưới ngưỡng tự động chấp nhận của cộng đồng, nội dung được thông qua. Bằng hoặc trên ngưỡng tự động từ chối, nội dung bị từ chối và tác giả được biết lý do.
-3. Ở khoảng giữa, lần đăng nhập của tác giả trong 30 ngày qua sẽ được dùng lại nếu đủ. Nếu không, tác giả nhận được một trang xác minh: CAPTCHA khi chỉ riêng CAPTCHA là có thể qua, hoặc đăng nhập.
+3. Ở khoảng giữa, lần đăng nhập được ghi nhớ của tác giả sẽ được dùng lại nếu đủ. Nếu không, tác giả nhận được một trang xác minh: CAPTCHA khi chỉ riêng CAPTCHA là có thể qua, hoặc đăng nhập. Qua kết nối VPN, proxy hoặc trung tâm dữ liệu mà cộng đồng hạn chế, tác giả cần đăng nhập ở mọi mức điểm dưới ngưỡng tự động từ chối, trừ khi áp dụng một miễn trừ trong mục Chính sách kết nối.
 4. Sau đó cộng đồng đối chiếu kết quả với dịch vụ và áp dụng quy tắc riêng của mình về quốc gia, rủi ro IP và loại kết nối.
 
-Trước khi tải lên tệp đính kèm, máy khách có thể chạy cùng phép kiểm tra đó dưới dạng kiểm tra trước, để những tác giả sẽ bị từ chối không bao giờ phải tải lên.
+Trước khi tải lên tệp đính kèm, máy khách có thể chạy cùng phép kiểm tra đó dưới dạng kiểm tra trước, nhờ vậy phần lớn những tác giả sẽ bị từ chối không phải tải lên. Nội dung được kiểm tra lại khi được đăng, nên vẫn có thể bị từ chối dù kiểm tra trước đã được thông qua.
 
 ## Điểm rủi ro
 
@@ -49,14 +49,14 @@ Nếu CAPTCHA chưa đủ, bước tiếp theo là đăng nhập. Nếu đăng n
 
 ### Lần đăng nhập được ghi nhớ
 
-Dịch vụ ghi nhớ tài khoản mà tác giả dùng để đăng nhập gần nhất. Một bài đăng sau đó cần xác minh sẽ dùng lại tài khoản này, như thể tác giả vừa đăng nhập lại, miễn là tác giả vẫn đăng bài bằng tài khoản đó ít nhất một lần mỗi 30 ngày. Khi như vậy là đủ, bài đăng được thông qua mà không cần CAPTCHA. Một lệnh cấm trong cộng đồng gắn với tài khoản đó sẽ chấm dứt việc này, và việc gỡ nhà cung cấp của tài khoản khỏi dịch vụ cũng vậy.
+Dịch vụ ghi nhớ tài khoản mà tác giả dùng để đăng nhập gần nhất. Một bài đăng sau đó cần xác minh sẽ dùng lại tài khoản này, như thể tác giả vừa đăng nhập lại, nếu có một bài đăng của tác giả đã dùng tài khoản đó trong 30 ngày qua. Mỗi lần dùng lại cũng được tính là một bài đăng như vậy, nên mốc 30 ngày bắt đầu lại sau mỗi lần. Khi như vậy là đủ, bài đăng được thông qua mà không cần CAPTCHA. Một lệnh cấm trong cộng đồng gắn với tài khoản đó sẽ chấm dứt việc này, và việc gỡ nhà cung cấp của tài khoản khỏi dịch vụ cũng vậy.
 
 ## Chính sách kết nối
 
 Cộng đồng có thể hạn chế nội dung đến từ các kết nối Tor, VPN (bao gồm iCloud Private Relay), proxy và trung tâm dữ liệu. Trên dịch vụ được host:
 
 - **Kết nối VPN, proxy và trung tâm dữ liệu** có thể đăng bài sau khi đăng nhập. Trang xác minh giải thích vì sao cần đăng nhập và cách đăng bài mà không cần đăng nhập bằng cách tắt VPN. Khi đó, lệnh cấm trong cộng đồng cũng áp dụng cho tài khoản đã dùng để đăng nhập.
-- **Tài khoản lâu năm**, tức là tài khoản đã vượt qua kiểm tra vào 3 ngày khác nhau từ các kết nối không bị hạn chế, được miễn.
+- **Tài khoản lâu năm** được miễn các hạn chế đối với VPN, proxy và trung tâm dữ liệu, nhưng không được miễn hạn chế đối với Tor. Một tài khoản trở thành tài khoản lâu năm sau khi vượt qua CAPTCHA hoặc đăng nhập vào 3 ngày khác nhau từ các kết nối không bị hạn chế; các bài đăng được thông qua mà không cần CAPTCHA hay đăng nhập thì không được tính. Một mạng chỉ được tính cho một tài khoản: khi một tài khoản khác vượt qua kiểm tra từ mạng đó, mạng đó không được tính cho tài khoản nào trong hai tài khoản ấy. Trong cộng đồng đã cấm một tài khoản trên một trong các mạng đó, toàn bộ lịch sử này đều không được tính.
 - **Tor** vẫn bị hạn chế, trừ những tác giả có miễn trừ do cộng đồng cấu hình: vai trò người kiểm duyệt, danh sách trắng của cộng đồng, hoặc tên `.bso` đã được xác minh.
 
 Tệp đính kèm tải lên Forge Images tuân theo cùng các quy tắc này. Qua kết nối VPN, proxy hoặc trung tâm dữ liệu, việc tải lên cần một lần kiểm tra trước đã được thông qua nhờ đăng nhập, hoặc một tài khoản lâu năm. Qua Tor, cần có một miễn trừ đã được xác minh.

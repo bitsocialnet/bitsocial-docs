@@ -17,10 +17,10 @@ Spam Blocker hodnotí riziko spamu u příspěvků, odpovědí a hlasů dřív, 
 
 1. Výzva komunity odešle podepsanou publikaci službě, která vrátí skóre rizika mezi 0 a 1.
 2. Pod prahem automatického přijetí komunity publikace projde. Na prahu automatického odmítnutí nebo nad ním neprojde a autor uvidí proč.
-3. Mezi těmito prahy se znovu použije přihlášení autora z posledních 30 dnů, pokud stačí. Jinak autor dostane ověřovací stránku: CAPTCHA, pokud k průchodu může stačit samotná CAPTCHA, jinak přihlášení.
+3. Mezi těmito prahy se znovu použije zapamatované přihlášení autora, pokud stačí. Jinak autor dostane ověřovací stránku: CAPTCHA, pokud k průchodu může stačit samotná CAPTCHA, jinak přihlášení. Přes VPN, proxy nebo připojení z datacentra, které komunita omezuje, potřebuje autor přihlášení při jakémkoli skóre pod prahem automatického odmítnutí, pokud neplatí některá výjimka uvedená v části Zásady pro připojení.
 4. Komunita pak výsledek ověří u služby a uplatní vlastní pravidla pro zemi, riziko IP a typ připojení.
 
-Před nahráním přiloženého souboru může klient spustit stejnou kontrolu jako předběžnou kontrolu, takže autoři, kteří by byli odmítnuti, soubor vůbec nenahrávají.
+Před nahráním přiloženého souboru může klient spustit stejnou kontrolu jako předběžnou kontrolu, čímž většině autorů, kteří by byli odmítnuti, ušetří nahrávání. Při zveřejnění se publikace kontroluje znovu, takže může neprojít, i když předběžná kontrola prošla.
 
 ## Skóre rizika
 
@@ -49,14 +49,14 @@ Pokud CAPTCHA nestačí, následuje přihlášení. Pokud nestačí přihlášen
 
 ### Zapamatovaná přihlášení
 
-Služba si pamatuje účet, se kterým se autor naposledy přihlásil. Pozdější příspěvek, který vyžaduje ověření, jej znovu použije, jako by se autor přihlásil znovu, pokud s ním autor přispívá alespoň jednou za 30 dní. Pokud to stačí, příspěvek projde bez CAPTCHA. Platnost končí, když komunita uloží ban spojený s tímto účtem, a také když je jeho poskytovatel ze služby odebrán.
+Služba si pamatuje účet, se kterým se autor naposledy přihlásil. Pozdější příspěvek, který vyžaduje ověření, jej znovu použije, jako by se autor přihlásil znovu, pokud jej některý z autorových příspěvků použil v posledních 30 dnech. Každé opětovné použití se počítá jako takový příspěvek, takže lhůta 30 dní s každým z nich začíná znovu. Pokud to stačí, příspěvek projde bez CAPTCHA. Platnost končí, když komunita uloží ban spojený s tímto účtem, a také když je jeho poskytovatel ze služby odebrán.
 
 ## Zásady pro připojení
 
 Komunity mohou omezit publikace z připojení přes Tor, VPN (včetně iCloud Private Relay), proxy a datacentra. V hostované službě platí:
 
 - **Připojení přes VPN, proxy a datacentra** mohou přispívat po přihlášení. Stránka vysvětluje, proč je přihlášení potřeba a jak lze přispívat bez něj vypnutím VPN. Ban v komunitě se pak vztahuje i na účet použitý k přihlášení.
-- **Zavedené účty**, které ve 3 různých dnech prošly kontrolou z neomezených připojení, mají výjimku.
+- **Zavedené účty** mají výjimku z omezení pro VPN, proxy a datacentra, ale ne z omezení pro Tor. Účet se stane zavedeným, když ve 3 různých dnech projde CAPTCHA nebo přihlášením z neomezených připojení; příspěvky, které prošly bez CAPTCHA i bez přihlášení, se nezapočítávají. Síť se započítává jen jednomu účtu: jakmile z ní projde kontrolou jiný účet, nezapočítává se ani jednomu z nich. V komunitě, která uložila ban účtu v některé z těchto sítí, se z této historie nezapočítává nic.
 - **Tor** zůstává omezený, s výjimkou autorů, pro které komunita nastavila výjimku: roli moderátora, seznam povolených autorů komunity nebo ověřené jméno `.bso`.
 
 Přiložené soubory nahrávané do Forge Images se řídí stejnými pravidly. Přes VPN, proxy nebo připojení z datacentra vyžaduje nahrání předběžnou kontrolu, která prošla s přihlášením, nebo zavedený účet. Přes Tor vyžaduje ověřenou výjimku.

@@ -17,10 +17,10 @@ Spam Blocker kent berichten, reacties en stemmen een spamrisicoscore toe voordat
 
 1. De uitdaging van de community stuurt de ondertekende publicatie naar de dienst, die een risicoscore tussen 0 en 1 teruggeeft.
 2. Onder de drempel voor automatisch accepteren van de community komt de publicatie erdoor. Op of boven de drempel voor automatisch afwijzen wordt ze afgewezen en ziet de auteur waarom.
-3. Daartussen wordt de aanmelding van de auteur uit de afgelopen 30 dagen hergebruikt als die volstaat. Anders krijgt de auteur een verificatiepagina: een CAPTCHA als een CAPTCHA alleen kan volstaan, en anders een aanmelding.
+3. Daartussen wordt de onthouden aanmelding van de auteur hergebruikt als die volstaat. Anders krijgt de auteur een verificatiepagina: een CAPTCHA als een CAPTCHA alleen kan volstaan, en anders een aanmelding. Via een VPN-, proxy- of datacenterverbinding die de community beperkt, heeft de auteur bij elke score onder de drempel voor automatisch afwijzen een aanmelding nodig, tenzij een vrijstelling onder Verbindingsbeleid van toepassing is.
 4. Daarna controleert de community het resultaat bij de dienst en past ze haar eigen regels toe voor land, IP-risico en verbindingstype.
 
-Voordat een bijgevoegd bestand wordt geüpload, kan een client dezelfde controle als voorcontrole uitvoeren, zodat auteurs die afgewezen zouden worden nooit uploaden.
+Voordat een bijgevoegd bestand wordt geüpload, kan een client dezelfde controle als voorcontrole uitvoeren, waardoor de meeste auteurs die afgewezen zouden worden een upload bespaard blijft. De publicatie wordt opnieuw gecontroleerd wanneer ze wordt gepubliceerd, dus ze kan alsnog worden afgewezen nadat een voorcontrole is geslaagd.
 
 ## Risicoscore
 
@@ -49,14 +49,14 @@ Een CAPTCHA die niet volstaat, wordt gevolgd door een aanmelding. Een aanmelding
 
 ### Onthouden aanmeldingen
 
-De dienst onthoudt het account waarmee een auteur zich het laatst heeft aangemeld. Een later bericht dat verificatie nodig heeft, hergebruikt dat account alsof de auteur zich opnieuw had aangemeld, zolang de auteur er minstens eens per 30 dagen mee blijft posten. Als dat volstaat, komt het bericht erdoor zonder CAPTCHA. Een ban in de community die aan het account gekoppeld is, maakt hier een einde aan, en hetzelfde geldt als de provider van het account uit de dienst wordt verwijderd.
+De dienst onthoudt het account waarmee een auteur zich het laatst heeft aangemeld. Een later bericht dat verificatie nodig heeft, hergebruikt dat account alsof de auteur zich opnieuw had aangemeld, als een van de berichten van de auteur het in de afgelopen 30 dagen heeft gebruikt. Een hergebruik telt als zo'n bericht, dus de 30 dagen beginnen bij elk hergebruik opnieuw. Als dat volstaat, komt het bericht erdoor zonder CAPTCHA. Een ban in de community die aan het account gekoppeld is, maakt hier een einde aan, en hetzelfde geldt als de provider van het account uit de dienst wordt verwijderd.
 
 ## Verbindingsbeleid
 
 Communities kunnen publicaties beperken die binnenkomen via Tor, VPN (inclusief iCloud Private Relay), proxy's en datacenterverbindingen. Op de gehoste dienst geldt:
 
 - **VPN-, proxy- en datacenterverbindingen** kunnen posten na een aanmelding. De pagina legt uit waarom de aanmelding nodig is en hoe er zonder aanmelding gepost kan worden door de VPN uit te zetten. Een ban in de community geldt dan ook voor het account waarmee is aangemeld.
-- **Gevestigde accounts**, die op 3 verschillende dagen een controle hebben doorstaan vanaf onbeperkte verbindingen, zijn vrijgesteld.
+- **Gevestigde accounts** zijn vrijgesteld van de VPN-, proxy- en datacenterbeperkingen, maar niet van die voor Tor. Een account is gevestigd nadat het op 3 verschillende dagen vanaf onbeperkte verbindingen een CAPTCHA of aanmelding heeft doorstaan; berichten die zonder een van beide erdoor kwamen, tellen niet mee. Een netwerk telt maar voor één account mee: zodra een ander account er een controle doorstaat, telt het voor geen van beide mee. In een community die een account op een van die netwerken heeft geband, telt niets van die geschiedenis mee.
 - **Tor** blijft beperkt, behalve voor auteurs met een vrijstelling die de community heeft ingesteld: een moderatorrol, de whitelist van de community of een geverifieerde `.bso`-naam.
 
 Bijgevoegde bestanden die naar Forge Images worden geüpload, volgen dezelfde regels. Via een VPN-, proxy- of datacenterverbinding vereist de upload een voorcontrole die met een aanmelding is geslaagd, of een gevestigd account. Via Tor is een geverifieerde vrijstelling nodig.

@@ -17,10 +17,10 @@ O Spam Blocker avalia o risco de spam de postagens, respostas e votos antes que 
 
 1. O desafio da comunidade envia a publicação assinada ao serviço, que retorna uma pontuação de risco entre 0 e 1.
 2. Abaixo do limiar de aceitação automática da comunidade, a publicação passa. No limiar de rejeição automática ou acima dele, ela é rejeitada e o autor vê o motivo.
-3. Entre os dois limiares, o login do autor feito nos últimos 30 dias é reaproveitado quando basta. Caso contrário, o autor recebe uma página de verificação: um CAPTCHA, quando só um CAPTCHA pode bastar, ou um login.
+3. Entre os dois limiares, o login lembrado do autor é reaproveitado quando basta. Caso contrário, o autor recebe uma página de verificação: um CAPTCHA, quando só um CAPTCHA pode bastar, ou um login. Por uma conexão VPN, proxy ou datacenter que a comunidade restringe, o autor precisa de um login com qualquer pontuação abaixo do limiar de rejeição automática, a menos que se aplique uma isenção descrita em Políticas de conexão.
 4. Em seguida, a comunidade confere o resultado com o serviço e aplica suas próprias regras de país, risco do IP e tipo de conexão.
 
-Antes de enviar um arquivo anexado, um cliente pode executar a mesma verificação como pré-verificação, para que autores que seriam rejeitados nunca façam o upload.
+Antes de enviar um arquivo anexado, um cliente pode executar a mesma verificação como pré-verificação, o que poupa a maioria dos autores que seriam rejeitados de fazer o upload. A publicação é verificada de novo quando é publicada, então ainda pode ser rejeitada depois de passar em uma pré-verificação.
 
 ## Pontuação de risco
 
@@ -49,14 +49,14 @@ Um CAPTCHA que não basta é seguido de um login. Um login que não basta é seg
 
 ### Logins lembrados
 
-O serviço lembra a conta com a qual o autor fez login pela última vez. Uma postagem posterior que precise de verificação reaproveita essa conta, como se o autor tivesse feito login de novo, desde que ele continue postando com ela pelo menos uma vez a cada 30 dias. Quando isso basta, a postagem passa sem CAPTCHA. Um banimento na comunidade vinculado à conta encerra esse reaproveitamento, assim como a remoção do provedor dessa conta do serviço.
+O serviço lembra a conta com a qual o autor fez login pela última vez. Uma postagem posterior que precise de verificação reaproveita essa conta, como se o autor tivesse feito login de novo, quando alguma postagem do autor a usou nos últimos 30 dias. Um reaproveitamento conta como uma postagem desse tipo, então os 30 dias recomeçam a cada um. Quando isso basta, a postagem passa sem CAPTCHA. Um banimento na comunidade vinculado à conta encerra esse reaproveitamento, assim como a remoção do provedor dessa conta do serviço.
 
 ## Políticas de conexão
 
 As comunidades podem restringir publicações vindas de conexões Tor, VPN (incluindo o iCloud Private Relay), proxy e datacenter. No serviço hospedado:
 
 - **Conexões por VPN, proxy e datacenter** podem publicar após um login. A página explica por que o login é necessário e como publicar sem ele desligando a VPN. Um banimento na comunidade passa então a valer também para a conta usada no login.
-- **Contas estabelecidas**, que passaram por uma verificação em 3 dias diferentes a partir de conexões sem restrição, ficam isentas.
+- **Contas estabelecidas** ficam isentas das restrições de VPN, proxy e datacenter, mas não da restrição do Tor. Uma conta se torna estabelecida depois de passar por um CAPTCHA ou login em 3 dias diferentes a partir de conexões sem restrição; postagens aprovadas sem nenhum dos dois não contam. Uma rede só vale para uma conta: quando outra conta passa por uma verificação a partir dela, ela não vale para nenhuma das duas. Em uma comunidade que baniu uma conta em uma dessas redes, nada desse histórico conta.
 - **Tor** continua restrito, exceto para autores com uma isenção configurada pela comunidade: um cargo de moderador, a lista de permissões da comunidade ou um nome `.bso` verificado.
 
 Arquivos anexados enviados ao Forge Images seguem as mesmas regras. Por uma conexão VPN, proxy ou datacenter, o upload exige uma pré-verificação aprovada com login, ou uma conta estabelecida. Pelo Tor, exige uma isenção verificada.

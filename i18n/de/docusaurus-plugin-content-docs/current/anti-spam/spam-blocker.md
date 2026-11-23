@@ -17,10 +17,10 @@ Spam Blocker bewertet Beiträge, Antworten und Votes auf ihr Spam-Risiko, bevor 
 
 1. Die Challenge der Community sendet die signierte Veröffentlichung an den Dienst, der eine Risikobewertung zwischen 0 und 1 zurückgibt.
 2. Liegt sie unter der Schwelle der Community für automatisches Akzeptieren, wird die Veröffentlichung angenommen. Erreicht oder überschreitet sie die Schwelle für automatische Ablehnung, wird sie abgelehnt, und der Autor sieht den Grund.
-3. Dazwischen wird die Anmeldung des Autors aus den letzten 30 Tagen wiederverwendet, wenn sie ausreicht. Andernfalls erhält der Autor eine Verifizierungsseite: ein CAPTCHA, wenn ein CAPTCHA allein zum Bestehen reichen kann, sonst eine Anmeldung.
+3. Dazwischen wird die gespeicherte Anmeldung des Autors wiederverwendet, wenn sie ausreicht. Andernfalls erhält der Autor eine Verifizierungsseite: ein CAPTCHA, wenn ein CAPTCHA allein zum Bestehen reichen kann, sonst eine Anmeldung. Über eine VPN-, Proxy- oder Rechenzentrumsverbindung, die die Community einschränkt, braucht der Autor bei jeder Risikobewertung unterhalb der Schwelle für automatische Ablehnung eine Anmeldung, sofern keine Ausnahme unter Verbindungsrichtlinien greift.
 4. Anschließend prüft die Community das Ergebnis beim Dienst und wendet ihre eigenen Regeln für Land, IP-Risiko und Verbindungstyp an.
 
-Vor dem Hochladen einer angehängten Datei kann ein Client dieselbe Prüfung als Vorabprüfung ausführen, sodass Autoren, die abgelehnt würden, gar nicht erst hochladen.
+Vor dem Hochladen einer angehängten Datei kann ein Client dieselbe Prüfung als Vorabprüfung ausführen, was den meisten Autoren, die abgelehnt würden, das Hochladen erspart. Beim Veröffentlichen wird die Veröffentlichung erneut geprüft, sodass sie auch nach einer bestandenen Vorabprüfung noch abgelehnt werden kann.
 
 ## Risikobewertung
 
@@ -49,14 +49,14 @@ Reicht ein CAPTCHA nicht aus, folgt eine Anmeldung. Reicht eine Anmeldung nicht 
 
 ### Gespeicherte Anmeldungen
 
-Der Dienst merkt sich das Konto, mit dem sich ein Autor zuletzt angemeldet hat. Ein späterer Beitrag, der eine Verifizierung benötigt, verwendet es wieder, als hätte sich der Autor erneut angemeldet, solange der Autor mindestens einmal alle 30 Tage damit postet. Reicht das aus, wird der Beitrag ohne CAPTCHA angenommen. Das endet, wenn die Community eine mit dem Konto verknüpfte Sperre verhängt, und ebenso, wenn der Anbieter des Kontos aus dem Dienst entfernt wird.
+Der Dienst merkt sich das Konto, mit dem sich ein Autor zuletzt angemeldet hat. Ein späterer Beitrag, der eine Verifizierung benötigt, verwendet es wieder, als hätte sich der Autor erneut angemeldet, wenn einer der Beiträge des Autors es in den letzten 30 Tagen verwendet hat. Eine Wiederverwendung zählt als solcher Beitrag, sodass die 30 Tage mit jeder neu beginnen. Reicht das aus, wird der Beitrag ohne CAPTCHA angenommen. Das endet, wenn die Community eine mit dem Konto verknüpfte Sperre verhängt, und ebenso, wenn der Anbieter des Kontos aus dem Dienst entfernt wird.
 
 ## Verbindungsrichtlinien
 
 Communities können Veröffentlichungen über Tor-, VPN- (einschließlich iCloud Private Relay), Proxy- und Rechenzentrumsverbindungen einschränken. Beim gehosteten Dienst gilt:
 
 - **VPN-, Proxy- und Rechenzentrumsverbindungen** können nach einer Anmeldung posten. Die Seite erklärt, warum die Anmeldung nötig ist und wie man ohne sie postet, indem man das VPN ausschaltet. Eine Sperre in der Community gilt dann auch für das Konto, mit dem man sich angemeldet hat.
-- **Etablierte Konten**, die an 3 verschiedenen Tagen eine Prüfung über nicht eingeschränkte Verbindungen bestanden haben, sind ausgenommen.
+- **Etablierte Konten** sind von den Einschränkungen für VPN, Proxy und Rechenzentren ausgenommen, aber nicht von der für Tor. Ein Konto gilt als etabliert, nachdem es an 3 verschiedenen Tagen über nicht eingeschränkte Verbindungen ein CAPTCHA oder eine Anmeldung bestanden hat; Beiträge, die ohne eines davon angenommen wurden, zählen nicht. Ein Netzwerk zählt nur für ein Konto: Sobald ein anderes Konto darüber eine Prüfung besteht, zählt es für keines der beiden. In einer Community, die ein Konto in einem dieser Netzwerke gesperrt hat, zählt nichts von diesem Verlauf.
 - **Tor** bleibt eingeschränkt, außer für Autoren mit einer Ausnahme, die die Community konfiguriert hat: eine Moderatorrolle, die Whitelist der Community oder ein verifizierter `.bso`-Name.
 
 Angehängte Dateien, die zu Forge Images hochgeladen werden, folgen denselben Regeln. Über eine VPN-, Proxy- oder Rechenzentrumsverbindung benötigt der Upload eine Vorabprüfung, die mit einer Anmeldung bestanden wurde, oder ein etabliertes Konto. Über Tor benötigt er eine verifizierte Ausnahme.

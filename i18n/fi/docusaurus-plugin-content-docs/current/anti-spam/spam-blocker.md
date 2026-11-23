@@ -17,10 +17,10 @@ Spam Blocker pisteyttää viestien, vastausten ja äänten roskapostiriskin enne
 
 1. Yhteisön haaste lähettää allekirjoitetun julkaisun palveluun, joka palauttaa riskipisteen 0:n ja 1:n väliltä.
 2. Jos pisteet jäävät yhteisön automaattisen hyväksynnän kynnyksen alle, julkaisu hyväksytään. Jos ne ovat automaattisen hylkäyksen kynnyksellä tai sen yli, julkaisu hylätään ja kirjoittaja näkee syyn.
-3. Näiden välillä käytetään uudelleen kirjoittajan viimeisten 30 päivän aikana tekemää kirjautumista, jos se riittää. Muuten kirjoittaja saa vahvistussivun: CAPTCHAn, kun pelkkä CAPTCHA voi riittää läpäisyyn, tai kirjautumisen.
+3. Näiden välillä käytetään uudelleen kirjoittajan muistettua kirjautumista, jos se riittää. Muuten kirjoittaja saa vahvistussivun: CAPTCHAn, kun pelkkä CAPTCHA voi riittää läpäisyyn, tai kirjautumisen. Jos kirjoittaja käyttää VPN-, välityspalvelin- tai datakeskusyhteyttä, jota yhteisö rajoittaa, hän tarvitsee kirjautumisen millä tahansa automaattisen hylkäyksen kynnyksen alittavalla pistemäärällä, ellei jokin kohdassa Yhteyskäytännöt kuvattu poikkeus päde.
 4. Lopuksi yhteisö tarkistaa tuloksen palvelulta ja soveltaa omia sääntöjään maan, IP-riskin ja yhteystyypin osalta.
 
-Ennen liitetiedoston lähettämistä asiakasohjelma voi suorittaa saman tarkistuksen esitarkistuksena, jolloin kirjoittajat, jotka hylättäisiin, eivät koskaan lähetä tiedostoa.
+Ennen liitetiedoston lähettämistä asiakasohjelma voi suorittaa saman tarkistuksen esitarkistuksena, jolloin useimmat kirjoittajat, jotka hylättäisiin, välttyvät tiedoston lähettämiseltä. Julkaisu tarkistetaan uudelleen, kun se julkaistaan, joten se voidaan silti hylätä, vaikka esitarkistus olisi läpäisty.
 
 ## Riskipisteet
 
@@ -49,14 +49,14 @@ Jos CAPTCHA ei riitä, sitä seuraa kirjautuminen. Jos kirjautuminen ei riitä, 
 
 ### Muistetut kirjautumiset
 
-Palvelu muistaa tilin, jolla kirjoittaja on viimeksi kirjautunut. Myöhempi vahvistusta vaativa viesti käyttää sitä uudelleen, ikään kuin kirjoittaja olisi kirjautunut uudestaan, kunhan kirjoittaja julkaisee sillä vähintään kerran 30 päivässä. Kun se riittää, viesti hyväksytään ilman CAPTCHAa. Tämä päättyy, jos yhteisössä annetaan tiliin liitetty porttikielto, ja samoin, jos tilin palveluntarjoaja poistetaan palvelusta.
+Palvelu muistaa tilin, jolla kirjoittaja on viimeksi kirjautunut. Myöhempi vahvistusta vaativa viesti käyttää sitä uudelleen, ikään kuin kirjoittaja olisi kirjautunut uudestaan, jos jokin kirjoittajan viesteistä on käyttänyt sitä viimeisten 30 päivän aikana. Uudelleenkäyttökin lasketaan tällaiseksi viestiksi, joten 30 päivän jakso alkaa alusta jokaisesta uudelleenkäytöstä. Kun se riittää, viesti hyväksytään ilman CAPTCHAa. Tämä päättyy, jos yhteisössä annetaan tiliin liitetty porttikielto, ja samoin, jos tilin palveluntarjoaja poistetaan palvelusta.
 
 ## Yhteyskäytännöt
 
 Yhteisöt voivat rajoittaa julkaisuja Tor-, VPN- (myös iCloud Private Relay), välityspalvelin- ja datakeskusyhteyksistä. Isännöidyssä palvelussa:
 
 - **VPN-, välityspalvelin- ja datakeskusyhteyksistä** voi julkaista kirjautumisen jälkeen. Sivu kertoo, miksi kirjautuminen tarvitaan ja miten voi julkaista ilman sitä poistamalla VPN:n käytöstä. Yhteisön porttikielto koskee tämän jälkeen myös kirjautumiseen käytettyä tiliä.
-- **Vakiintuneet tilit**, jotka ovat läpäisseet tarkistuksen 3 eri päivänä rajoittamattomista yhteyksistä, on vapautettu rajoituksista.
+- **Vakiintuneet tilit** on vapautettu VPN-, välityspalvelin- ja datakeskusyhteyksien rajoituksista, mutta ei Torin rajoituksesta. Tili on vakiintunut, kun se on läpäissyt CAPTCHAn tai kirjautumisen 3 eri päivänä rajoittamattomista yhteyksistä; viestejä, jotka hyväksyttiin ilman kumpaakaan, ei lasketa. Verkko lasketaan vain yhden tilin hyväksi: kun toinen tili läpäisee tarkistuksen siitä, sitä ei lasketa kummankaan hyväksi. Jos yhteisö on antanut porttikiellon tilille jossakin näistä verkoista, siinä yhteisössä mitään tästä historiasta ei lasketa.
 - **Tor** pysyy rajoitettuna, paitsi kirjoittajilla, joilla on yhteisön määrittämä poikkeus: moderaattorin rooli, yhteisön sallittujen lista tai vahvistettu `.bso`-nimi.
 
 Forge Images -palveluun lähetetyt liitetiedostot noudattavat samoja sääntöjä. VPN-, välityspalvelin- tai datakeskusyhteyden kautta lähettäminen edellyttää kirjautumisella läpäistyä esitarkistusta tai vakiintunutta tiliä. Torin kautta se edellyttää vahvistettua poikkeusta.

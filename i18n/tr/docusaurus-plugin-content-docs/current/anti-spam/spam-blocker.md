@@ -17,10 +17,10 @@ Spam Blocker, bir topluluk kabul etmeden önce gönderileri, yanıtları ve oyla
 
 1. Topluluğun sınaması imzalı yayını hizmete gönderir; hizmet 0 ile 1 arasında bir risk puanı döndürür.
 2. Puan topluluğun otomatik kabul eşiğinin altındaysa yayın geçer. Otomatik ret eşiğinde ya da üzerindeyse yayın reddedilir ve yazar nedenini görür.
-3. İkisinin arasındaysa, yazarın son 30 gün içindeki oturum açması yeterliyse yeniden kullanılır. Aksi hâlde yazara bir doğrulama sayfası gösterilir: tek başına bir CAPTCHA yetebiliyorsa CAPTCHA, yetmiyorsa oturum açma.
+3. İkisinin arasındaysa, yazarın hatırlanan oturum açması yeterliyse yeniden kullanılır. Aksi hâlde yazara bir doğrulama sayfası gösterilir: tek başına bir CAPTCHA yetebiliyorsa CAPTCHA, yetmiyorsa oturum açma. Topluluğun kısıtladığı bir VPN, proxy veya veri merkezi bağlantısı üzerinden yazar, Bağlantı politikaları altındaki bir muafiyet geçerli olmadıkça, otomatik ret eşiğinin altındaki her puanda oturum açmak zorundadır.
 4. Ardından topluluk sonucu hizmetle denetler ve ülke, IP riski ve bağlantı türü için kendi kurallarını uygular.
 
-Ekli bir dosya yüklenmeden önce istemci aynı denetimi bir ön kontrol olarak çalıştırabilir; böylece reddedilecek yazarlar hiç yükleme yapmaz.
+Ekli bir dosya yüklenmeden önce istemci aynı denetimi bir ön kontrol olarak çalıştırabilir; bu, reddedilecek yazarların çoğunu bir yükleme yapmaktan kurtarır. Yayın, yayımlandığında yeniden denetlenir; bu yüzden bir ön kontrolü geçtikten sonra bile reddedilebilir.
 
 ## Risk puanı
 
@@ -49,14 +49,14 @@ Yetmeyen bir CAPTCHA'nın ardından oturum açma gelir. Yetmeyen bir oturum açm
 
 ### Hatırlanan oturum açmalar
 
-Hizmet, yazarın en son hangi hesapla oturum açtığını hatırlar. Yazar bu hesapla en az 30 günde bir gönderi yapmaya devam ettiği sürece, doğrulama gerektiren sonraki bir gönderi bu hesabı, yazar tekrar oturum açmış gibi yeniden kullanır. Bu yeterli olduğunda gönderi CAPTCHA olmadan geçer. Toplulukta hesaba bağlanan bir yasak bu durumu sona erdirir; hesabın sağlayıcısının hizmetten kaldırılması da öyle.
+Hizmet, yazarın en son hangi hesapla oturum açtığını hatırlar. Yazarın gönderilerinden biri son 30 gün içinde bu hesabı kullandıysa, doğrulama gerektiren sonraki bir gönderi bu hesabı, yazar tekrar oturum açmış gibi yeniden kullanır. Her yeniden kullanım da böyle bir gönderi sayılır; bu yüzden 30 gün her seferinde yeniden başlar. Bu yeterli olduğunda gönderi CAPTCHA olmadan geçer. Toplulukta hesaba bağlanan bir yasak bu durumu sona erdirir; hesabın sağlayıcısının hizmetten kaldırılması da öyle.
 
 ## Bağlantı politikaları
 
 Topluluklar Tor, VPN (iCloud Private Relay dâhil), proxy ve veri merkezi bağlantılarından gelen yayınları kısıtlayabilir. Barındırılan hizmette:
 
 - **VPN, proxy ve veri merkezi bağlantıları** oturum açtıktan sonra gönderi yapabilir. Sayfa, oturum açmanın neden gerektiğini ve VPN kapatılarak oturum açmadan nasıl gönderi yapılabileceğini açıklar. Bu durumda topluluktaki bir yasak, oturum açmak için kullanılan hesaba da uygulanır.
-- **Köklü hesaplar**, yani kısıtlanmamış bağlantılardan 3 ayrı günde bir denetimi geçmiş hesaplar, muaftır.
+- **Köklü hesaplar** VPN, proxy ve veri merkezi kısıtlamalarından muaftır, ancak Tor kısıtlamasından muaf değildir. Bir hesap, kısıtlanmamış bağlantılardan 3 ayrı günde bir CAPTCHA'yı veya oturum açmayı geçtikten sonra köklü hâle gelir; CAPTCHA ya da oturum açma olmadan geçen gönderiler sayılmaz. Bir ağ yalnızca tek bir hesap için sayılır: başka bir hesap o ağdan bir denetimi geçtiğinde, ağ iki hesaptan hiçbiri için sayılmaz. Bu ağlardan birindeki bir hesabı yasaklamış bir toplulukta geçmişin hiçbir kısmı sayılmaz.
 - **Tor** kısıtlı kalır; yalnızca topluluğun yapılandırdığı bir muafiyete sahip yazarlar bunun dışındadır: moderatör rolü, topluluğun beyaz listesi ya da doğrulanmış bir `.bso` adı.
 
 Forge Images'a yüklenen ekli dosyalar da aynı kurallara tabidir. VPN, proxy veya veri merkezi bağlantısı üzerinden yükleme için oturum açılarak geçilmiş bir ön kontrol ya da köklü bir hesap gerekir. Tor üzerinden ise doğrulanmış bir muafiyet gerekir.
