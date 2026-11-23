@@ -1,80 +1,87 @@
 ---
 title: Spam Blocker
-description: Serviço centralizado de detecção de spam com pontuação de risco, desafios OAuth e limiares de nível configuráveis.
+description: Detecção de spam hospedada para comunidades Bitsocial, com pontuação de risco, verificações por CAPTCHA e login e políticas de conexão.
 sidebar_position: 1
 ---
 
 # Spam Blocker
 
-O Spam Blocker é um serviço centralizado de detecção de spam que avalia as publicações recebidas e atribui pontuações de risco. Ele é formado por dois pacotes:
+O Spam Blocker avalia o risco de spam de postagens, respostas e votos antes que uma comunidade os aceite. A comunidade instala o pacote de desafio, que envia cada publicação a um serviço de bloqueio de spam. O Bitsocial mantém um em `spamblocker.bitsocial.net`.
 
-- **`@bitsocial/spam-blocker-server`** -- o servidor HTTP que hospeda as APIs de avaliação e de desafio.
-- **`@bitsocial/spam-blocker-challenge`** -- um pacote cliente leve que as comunidades integram para enviar publicações à avaliação.
+- **`@bitsocial/spam-blocker-challenge`** é o pacote de desafio de código aberto que as comunidades instalam. Seu contrato de integração, seus esquemas compartilhados e sua API são públicos.
+- **O serviço hospedado** pontua as publicações e fornece as páginas de CAPTCHA e de login. Seus pesos e heurísticas detalhados são privados, como explica a [política de código-fonte](https://github.com/bitsocialnet/spam-blocker/blob/master/docs/architecture/hosted-service-source-policy.md).
 
 **Código-fonte:** [github.com/bitsocialnet/spam-blocker](https://github.com/bitsocialnet/spam-blocker)
 
-## Como funciona a pontuação de risco
+## Como uma publicação é verificada
 
-Toda publicação enviada ao endpoint `/evaluate` recebe uma pontuação de risco numérica. A pontuação é uma combinação ponderada de vários sinais:
+1. O desafio da comunidade envia a publicação assinada ao serviço, que retorna uma pontuação de risco entre 0 e 1.
+2. Abaixo do limiar de aceitação automática da comunidade, a publicação passa. No limiar de rejeição automática ou acima dele, ela é rejeitada e o autor vê o motivo.
+3. Entre os dois limiares, o login do autor feito nos últimos 30 dias é reaproveitado quando basta. Caso contrário, o autor recebe uma página de verificação: um CAPTCHA, quando só um CAPTCHA pode bastar, ou um login.
+4. Em seguida, a comunidade confere o resultado com o serviço e aplica suas próprias regras de país, risco do IP e tipo de conexão.
 
-| Sinal               | Descrição                                                                                                                        |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Idade da conta      | Contas mais recentes recebem pontuações de risco mais altas.                                                                     |
-| Karma               | O karma acumulado na comunidade reduz o risco.                                                                                   |
-| Reputação do autor  | Dados de reputação coletados pelo indexador de rede em segundo plano.                                                            |
-| Análise do conteúdo | Heurísticas no nível do texto (densidade de links, padrões conhecidos de spam etc.).                                             |
-| Velocidade          | Publicações sucessivas e rápidas do mesmo autor aumentam o risco.                                                                |
-| Inteligência de IP  | Geolocalização em nível de país e consultas a feeds de ameaças. Endereços IP brutos nunca são compartilhados com as comunidades. |
+Antes de enviar um arquivo anexado, um cliente pode executar a mesma verificação como pré-verificação, para que autores que seriam rejeitados nunca façam o upload.
 
-## Limiares de nível
+## Pontuação de risco
 
-A pontuação de risco corresponde a um de quatro níveis configuráveis, que determinam o que acontece em seguida:
+| Sinal              | Descrição                                                                                                                     |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Idade da conta     | Contas mais recentes recebem pontuações de risco mais altas.                                                                  |
+| Karma              | O karma acumulado na comunidade reduz o risco.                                                                                |
+| Reputação do autor | Dados de um indexador em segundo plano que acompanha quais autores são aceitos, removidos ou banidos nas comunidades.         |
+| Conteúdo e links   | Análise de texto e de links, incluindo conteúdo repetido.                                                                     |
+| Velocidade         | Publicações sucessivas e rápidas do mesmo autor aumentam o risco.                                                             |
+| Inteligência de IP | Tipo de conexão (Tor, VPN, proxy, datacenter) e risco do IP. Endereços IP brutos nunca são compartilhados com as comunidades. |
+| Contas vinculadas  | Muitas contas publicando a partir de uma mesma rede aumentam o risco progressivamente.                                        |
+| Verificação social | Logins anteriores na conta do autor reduzem o risco.                                                                          |
 
-1. **Aceitação automática** -- a pontuação é baixa o suficiente para que a publicação seja aprovada sem nenhum desafio.
-2. **OAuth suficiente** -- o autor precisa concluir uma verificação OAuth para prosseguir.
-3. **OAuth e mais** -- o OAuth sozinho não basta; é necessária uma verificação adicional (por exemplo, CAPTCHA).
-4. **Rejeição automática** -- a pontuação é alta demais e a publicação é rejeitada de imediato.
+## Verificação
 
-Todos os valores de limiar são configuráveis por comunidade.
+Cada etapa concluída multiplica a pontuação de risco, e a publicação passa quando o resultado fica abaixo de 0.4.
 
-## Fluxo de desafio
+| Etapa                                    | Multiplicador |
+| ---------------------------------------- | ------------- |
+| CAPTCHA (Cloudflare Turnstile)           | × 0.7         |
+| Login com Google, Apple ou Telegram      | × 0.6         |
+| Login com um segundo provedor, diferente | mais × 0.5    |
 
-Quando uma publicação cai em um nível que exige verificação, o fluxo de desafio começa:
+Um CAPTCHA que não basta é seguido de um login. Um login que não basta é seguido de um CAPTCHA, quando isso conclui a verificação, ou, caso contrário, de um login com um segundo provedor.
 
-1. Primeiro o autor é convidado a se autenticar via **OAuth** (GitHub, Google, Twitter e outros provedores suportados).
-2. Se o OAuth sozinho for insuficiente (nível 3), é apresentado um **CAPTCHA de fallback** baseado no Cloudflare Turnstile.
-3. A identidade OAuth é usada apenas para verificação -- ela **nunca é compartilhada** com a comunidade nem com outros usuários.
+### Logins lembrados
 
-## Endpoints da API
+O serviço lembra a conta com a qual o autor fez login pela última vez. Uma postagem posterior que precise de verificação reaproveita essa conta, como se o autor tivesse feito login de novo, desde que ele continue postando com ela pelo menos uma vez a cada 30 dias. Quando isso basta, a postagem passa sem CAPTCHA. Um banimento na comunidade vinculado à conta encerra esse reaproveitamento, assim como a remoção do provedor dessa conta do serviço.
 
-### `POST /evaluate`
+## Políticas de conexão
 
-Envia uma publicação para avaliação de risco. Retorna a pontuação de risco calculada e o nível de desafio exigido.
+As comunidades podem restringir publicações vindas de conexões Tor, VPN (incluindo o iCloud Private Relay), proxy e datacenter. No serviço hospedado:
 
-### `POST /challenge/verify`
+- **Conexões por VPN, proxy e datacenter** podem publicar após um login. A página explica por que o login é necessário e como publicar sem ele desligando a VPN. Um banimento na comunidade passa então a valer também para a conta usada no login.
+- **Contas estabelecidas**, que passaram por uma verificação em 3 dias diferentes a partir de conexões sem restrição, ficam isentas.
+- **Tor** continua restrito, exceto para autores com uma isenção configurada pela comunidade: um cargo de moderador, a lista de permissões da comunidade ou um nome `.bso` verificado.
 
-Envia o resultado de um desafio concluído (token OAuth, solução de CAPTCHA ou ambos) para verificação.
-
-### `GET /iframe/:sessionId`
-
-Retorna uma página HTML incorporável que renderiza a interface de desafio adequada para a sessão informada.
-
-## Limitação de taxa
-
-Os limites de taxa são aplicados dinamicamente conforme a idade e a reputação do autor. Autores mais novos ou de reputação mais baixa enfrentam limites mais rígidos, enquanto autores estabelecidos contam com limiares mais generosos. Isso evita enxurradas de spam sem penalizar participantes confiáveis.
-
-## Indexador de rede em segundo plano
-
-O servidor executa um indexador em segundo plano que rastreia a rede continuamente para construir e manter os dados de reputação dos autores. Esses dados alimentam diretamente o pipeline de pontuação de risco, o que permite ao sistema reconhecer participantes recorrentes de boa-fé em várias comunidades.
+Arquivos anexados enviados ao Forge Images seguem as mesmas regras. Por uma conexão VPN, proxy ou datacenter, o upload exige uma pré-verificação aprovada com login, ou uma conta estabelecida. Pelo Tor, exige uma isenção verificada.
 
 ## Privacidade
 
-O Spam Blocker foi projetado com a privacidade em mente:
+- **O operador** armazena endereços IP brutos e o conteúdo das publicações para detectar abusos, e envia os endereços IP a um provedor terceirizado para classificação (proxycheck.io por padrão).
+- **As comunidades** recebem apenas o código do país, o risco do IP, a estimativa do tipo de conexão e o resultado de aprovação ou reprovação. Nunca recebem o IP bruto nem a conta de login.
+- **Os logins** não solicitam dados de perfil. O serviço recebe apenas um ID de conta do Google, da Apple ou do Telegram, nunca nome, e-mail ou foto. Ele guarda o ID junto com a postagem, sem exclusão automática, para que um banimento também se aplique à conta.
+- **Autores em uma VPN** mantêm o IP real oculto ao fazer login: o serviço vê apenas o endereço da VPN.
 
-- As identidades OAuth são usadas apenas para a verificação de desafios e **nunca são reveladas** às comunidades.
-- O operador do serviço armazena endereços IP brutos para detectar abusos e os envia a um provedor terceirizado de inteligência de IP para classificação.
-- As comunidades recebem apenas o código do país, o risco do IP e uma estimativa do tipo de conexão, nunca o IP bruto.
+## Limitação de taxa
 
-## Banco de dados
+Antes de pontuar, o serviço rejeita autores que excedem o orçamento por hora ou por dia de postagens, respostas e votos. Os orçamentos crescem com a idade da conta e a boa reputação, e diminuem após banimentos ou remoções.
 
-O servidor usa **SQLite** (via `better-sqlite3`) para a persistência local dos dados de reputação, do estado das sessões e da configuração.
+## API
+
+As principais rotas, relativas a `spamblocker.bitsocial.net/api/v1`:
+
+| Rota                     | Chamador                      | Finalidade                                       |
+| ------------------------ | ----------------------------- | ------------------------------------------------ |
+| `POST /evaluate`         | Iframe do desafio, comunidade | Pontuar uma publicação e criar a sessão dela     |
+| `POST /challenge/verify` | Comunidade                    | Ler o resultado da sessão e a inteligência de IP |
+| `POST /precheck`         | Iframe da pré-verificação     | Pontuar um rascunho antes do upload              |
+| `GET /iframe/:sessionId` | Navegador do autor            | Página de verificação                            |
+| `POST /upload/authorize` | Cliente do autor              | Autorizar um arquivo anexado para o Forge Images |
+
+O contrato completo, incluindo a assinatura das requisições e os esquemas de resposta, está no [README do spam-blocker](https://github.com/bitsocialnet/spam-blocker#api-contract).

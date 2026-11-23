@@ -1,80 +1,87 @@
 ---
 title: Spam Blocker
-description: Serviciu centralizat de detectare a spamului, cu punctare a riscului, provocări OAuth și praguri de nivel configurabile.
+description: Detectare găzduită a spamului pentru comunitățile Bitsocial, cu punctarea riscului, verificări prin CAPTCHA și autentificare și politici de conexiune.
 sidebar_position: 1
 ---
 
 # Spam Blocker
 
-Spam Blocker este un serviciu centralizat de detectare a spamului, care evaluează publicările primite și le atribuie scoruri de risc. Este format din două pachete:
+Spam Blocker evaluează riscul de spam al postărilor, răspunsurilor și voturilor înainte ca o comunitate să le accepte. Comunitatea instalează pachetul de provocare, care trimite fiecare publicare către un serviciu de blocare a spamului. Bitsocial operează unul la `spamblocker.bitsocial.net`.
 
-- **`@bitsocial/spam-blocker-server`** -- serverul HTTP care găzduiește API-urile de evaluare și de provocare.
-- **`@bitsocial/spam-blocker-challenge`** -- un pachet client ușor, pe care comunitățile îl integrează pentru a trimite publicările spre evaluare.
+- **`@bitsocial/spam-blocker-challenge`** este pachetul de provocare open-source pe care îl instalează comunitățile. Contractul său de integrare, schemele partajate și API-ul sunt publice.
+- **Serviciul găzduit** punctează publicările și servește paginile de CAPTCHA și de autentificare. Ponderile și euristicile sale detaliate sunt private, după cum explică [politica privind codul sursă](https://github.com/bitsocialnet/spam-blocker/blob/master/docs/architecture/hosted-service-source-policy.md).
 
 **Cod sursă:** [github.com/bitsocialnet/spam-blocker](https://github.com/bitsocialnet/spam-blocker)
 
-## Cum funcționează punctarea riscului
+## Cum este verificată o publicare
 
-Fiecare publicare trimisă către endpointul `/evaluate` primește un scor numeric de risc. Scorul este o combinație ponderată a mai multor semnale:
+1. Provocarea comunității trimite publicarea semnată către serviciu, care returnează un scor de risc între 0 și 1.
+2. Sub pragul de acceptare automată al comunității, publicarea trece. La pragul de respingere automată sau peste acesta, este respinsă, iar autorul vede motivul.
+3. Între cele două praguri, autentificarea autorului din ultimele 30 de zile este refolosită atunci când este suficientă. Altfel, autorul primește o pagină de verificare: un CAPTCHA, când un CAPTCHA singur poate fi suficient, sau o autentificare.
+4. Apoi comunitatea verifică rezultatul la serviciu și aplică propriile reguli privind țara, riscul IP și tipul de conexiune.
 
-| Semnal               | Descriere                                                                                                                             |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Vechimea contului    | Conturile mai noi primesc scoruri de risc mai mari.                                                                                   |
-| Karma                | Karma acumulată în comunitate reduce riscul.                                                                                          |
-| Reputația autorului  | Date de reputație colectate de indexatorul de rețea care rulează în fundal.                                                           |
-| Analiza conținutului | Euristici la nivel de text (densitatea linkurilor, tipare de spam cunoscute etc.).                                                    |
-| Ritmul de publicare  | Postările rapide și succesive ale aceluiași autor cresc riscul.                                                                       |
-| Informații despre IP | Geolocalizare la nivel de țară și interogări în fluxuri de amenințări. Adresele IP brute nu sunt niciodată partajate cu comunitățile. |
+Înainte de a încărca un fișier atașat, un client poate rula aceeași verificare ca verificare preliminară, astfel încât autorii care ar fi respinși să nu mai încarce nimic.
 
-## Praguri pe niveluri
+## Scorul de risc
 
-Scorul de risc corespunde unuia dintre cele patru niveluri configurabile care determină ce se întâmplă mai departe:
+| Semnal               | Descriere                                                                                                                         |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Vechimea contului    | Conturile mai noi primesc scoruri de risc mai mari.                                                                               |
+| Karma                | Karma acumulată în comunitate reduce riscul.                                                                                      |
+| Reputația autorului  | Date de la un indexator care rulează în fundal și urmărește ce autori sunt acceptați, eliminați sau banați în comunități.         |
+| Conținut și linkuri  | Analiza textului și a linkurilor, inclusiv a conținutului repetat.                                                                |
+| Ritmul de publicare  | Postările rapide și succesive ale aceluiași autor cresc riscul.                                                                   |
+| Informații despre IP | Tipul de conexiune (Tor, VPN, proxy, centru de date) și riscul IP. Adresele IP brute nu sunt niciodată partajate cu comunitățile. |
+| Conturi legate       | Multe conturi care postează din aceeași rețea cresc treptat riscul.                                                               |
+| Verificare socială   | Autentificările anterioare pe contul autorului reduc riscul.                                                                      |
 
-1. **Acceptare automată** -- scorul este suficient de mic încât publicarea este aprobată fără nicio provocare.
-2. **OAuth suficient** -- autorul trebuie să finalizeze o verificare OAuth pentru a putea continua.
-3. **OAuth plus verificări suplimentare** -- OAuth singur nu este suficient; este necesară o verificare în plus (de exemplu, CAPTCHA).
-4. **Respingere automată** -- scorul este prea mare, iar publicarea este respinsă direct.
+## Verificare
 
-Toate valorile de prag sunt configurabile pentru fiecare comunitate în parte.
+Fiecare pas finalizat înmulțește scorul de risc, iar publicarea trece când rezultatul scade sub 0.4.
 
-## Fluxul provocărilor
+| Pas                                             | Multiplicator |
+| ----------------------------------------------- | ------------- |
+| CAPTCHA (Cloudflare Turnstile)                  | × 0.7         |
+| Autentificare cu Google, Apple sau Telegram     | × 0.6         |
+| Autentificare cu un al doilea furnizor, diferit | încă × 0.5    |
 
-Când o publicare ajunge într-un nivel care necesită verificare, începe fluxul de provocare:
+Un CAPTCHA care nu este suficient este urmat de o autentificare. O autentificare care nu este suficientă este urmată de un CAPTCHA, atunci când acesta încheie verificarea, iar altfel de o autentificare cu un al doilea furnizor.
 
-1. Autorului i se cere mai întâi să se autentifice prin **OAuth** (GitHub, Google, Twitter și alți furnizori acceptați).
-2. Dacă OAuth singur nu este suficient (nivelul 3), se afișează o **soluție de rezervă cu CAPTCHA**, bazată pe Cloudflare Turnstile.
-3. Identitatea OAuth este folosită exclusiv pentru verificare -- ea nu este **niciodată partajată** cu comunitatea sau cu alți utilizatori.
+### Autentificări memorate
 
-## Endpointuri API
+Serviciul reține contul cu care un autor s-a autentificat ultima dată. O postare ulterioară care necesită verificare îl refolosește, ca și cum autorul s-ar fi autentificat din nou, atât timp cât autorul continuă să posteze cu el cel puțin o dată la 30 de zile. Când acest lucru este suficient, postarea trece fără CAPTCHA. Un ban în comunitate legat de cont pune capăt acestui mecanism, la fel ca eliminarea furnizorului contului din serviciu.
 
-### `POST /evaluate`
+## Politici de conexiune
 
-Trimite o publicare pentru evaluarea riscului. Returnează scorul de risc calculat și nivelul de provocare necesar.
+Comunitățile pot restricționa publicările care vin prin Tor, VPN (inclusiv iCloud Private Relay), proxy și conexiuni din centre de date. Pe serviciul găzduit:
 
-### `POST /challenge/verify`
+- **Conexiunile prin VPN, proxy și din centre de date** pot posta după o autentificare. Pagina explică de ce este necesară autentificarea și cum se poate posta fără ea, prin dezactivarea VPN-ului. Un ban în comunitate se aplică apoi și contului folosit la autentificare.
+- **Conturile consacrate**, care au trecut o verificare în 3 zile diferite de pe conexiuni nerestricționate, sunt exceptate.
+- **Tor** rămâne restricționat, cu excepția autorilor care au o exceptare configurată de comunitate: un rol de moderator, lista albă a comunității sau un nume `.bso` verificat.
 
-Trimite spre verificare rezultatul unei provocări finalizate (token OAuth, soluție CAPTCHA sau ambele).
-
-### `GET /iframe/:sessionId`
-
-Returnează o pagină HTML încorporabilă, care randează interfața de provocare potrivită pentru sesiunea dată.
-
-## Limitarea ratei
-
-Limitele de rată sunt aplicate dinamic, în funcție de vechimea și de reputația autorului. Autorii mai noi sau cu reputație mai scăzută au limite mai stricte, în timp ce autorii consacrați beneficiază de praguri mai generoase. Astfel se previn valurile de spam fără a-i penaliza pe participanții de încredere.
-
-## Indexatorul de rețea din fundal
-
-Serverul rulează un indexator în fundal, care parcurge continuu rețeaua pentru a construi și a menține datele de reputație ale autorilor. Aceste date alimentează direct fluxul de punctare a riscului, permițând sistemului să recunoască participanții de bună-credință care revin în mai multe comunități.
+Fișierele atașate încărcate în Forge Images urmează aceleași reguli. Printr-o conexiune VPN, proxy sau din centru de date, încărcarea necesită o verificare preliminară trecută cu autentificare sau un cont consacrat. Prin Tor, necesită o exceptare verificată.
 
 ## Confidențialitate
 
-Spam Blocker este proiectat având în vedere confidențialitatea:
+- **Operatorul** stochează adresele IP brute și conținutul publicărilor pentru detectarea abuzurilor și trimite adresele IP unui furnizor terț pentru clasificare (implicit proxycheck.io).
+- **Comunitățile** primesc doar codul țării, riscul IP, estimarea tipului de conexiune și rezultatul (trecut sau respins). Nu primesc niciodată adresa IP brută sau contul de autentificare.
+- **Autentificările** nu solicită date de profil. Serviciul primește doar un ID de cont de la Google, Apple sau Telegram, niciodată un nume, un e-mail sau o fotografie. Păstrează ID-ul împreună cu postarea, fără ștergere automată, astfel încât un ban se aplică și contului.
+- **Autorii care folosesc un VPN** își păstrează adresa IP reală ascunsă când se autentifică: serviciul vede doar adresa VPN-ului.
 
-- Identitățile OAuth sunt folosite doar pentru verificarea provocărilor și nu sunt **niciodată dezvăluite** comunităților.
-- Operatorul serviciului stochează adresele IP brute pentru detectarea abuzurilor și le trimite unui furnizor extern de informații despre IP pentru clasificare.
-- Comunitățile primesc doar codul țării, riscul IP și o estimare a tipului de conexiune, niciodată adresa IP brută.
+## Limitarea ratei
 
-## Bază de date
+Înainte de punctare, serviciul respinge autorii care își depășesc bugetul orar sau zilnic de postări, răspunsuri și voturi. Bugetele cresc odată cu vechimea contului și cu reputația bună și scad după banuri sau eliminări.
 
-Serverul folosește **SQLite** (prin `better-sqlite3`) pentru persistența locală a datelor de reputație, a stării sesiunilor și a configurației.
+## API
+
+Rutele principale, relative la `spamblocker.bitsocial.net/api/v1`:
+
+| Rută                     | Apelant                           | Scop                                                  |
+| ------------------------ | --------------------------------- | ----------------------------------------------------- |
+| `POST /evaluate`         | Iframe-ul provocării, comunitatea | Punctează o publicare și îi creează sesiunea          |
+| `POST /challenge/verify` | Comunitatea                       | Citește rezultatul sesiunii și informațiile despre IP |
+| `POST /precheck`         | Iframe-ul verificării preliminare | Punctează o ciornă înainte de încărcare               |
+| `GET /iframe/:sessionId` | Browserul autorului               | Pagina de verificare                                  |
+| `POST /upload/authorize` | Clientul autorului                | Autorizează un fișier atașat pentru Forge Images      |
+
+Contractul complet, inclusiv semnarea cererilor și schemele de răspuns, se află în [README-ul spam-blocker](https://github.com/bitsocialnet/spam-blocker#api-contract).

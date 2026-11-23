@@ -1,80 +1,87 @@
 ---
-title: Spamblokkering
-description: Gecentraliseerde spamdetectieservice met risicoscores, OAuth-uitdagingen en configureerbare niveaudrempels.
+title: Spam Blocker
+description: Gehoste spamdetectie voor Bitsocial-communities, met risicoscores, CAPTCHA- en aanmeldcontroles en verbindingsbeleid.
 sidebar_position: 1
 ---
 
-# Spamblokkering
+# Spam Blocker
 
-Spam Blocker is een gecentraliseerde spamdetectieservice die binnenkomende publicaties evalueert en risicoscores toekent. Het bestaat uit twee pakketten:
+Spam Blocker kent berichten, reacties en stemmen een spamrisicoscore toe voordat een community ze accepteert. Een community installeert het uitdagingspakket, dat elke publicatie naar een spamblokkeringsdienst stuurt. Bitsocial draait er een op `spamblocker.bitsocial.net`.
 
-- **`@bitsocial/spam-blocker-server`** -- de HTTP-server die de evaluatie- en uitdagings-API's host.
-- **`@bitsocial/spam-blocker-challenge`** - een lichtgewicht clientpakket dat gemeenschappen integreren om publicaties ter evaluatie te verzenden.
+- **`@bitsocial/spam-blocker-challenge`** is het opensource-uitdagingspakket dat communities installeren. Het integratiecontract, de gedeelde schema's en de API ervan zijn openbaar.
+- **De gehoste dienst** beoordeelt publicaties en levert de CAPTCHA- en aanmeldpagina's. De gedetailleerde gewichten en heuristieken ervan zijn privé, zoals het [bronbeleid](https://github.com/bitsocialnet/spam-blocker/blob/master/docs/architecture/hosted-service-source-policy.md) uitlegt.
 
 **Broncode:** [github.com/bitsocialnet/spam-blocker](https://github.com/bitsocialnet/spam-blocker)
 
-## Hoe risicoscores werken
+## Hoe een publicatie wordt gecontroleerd
 
-Elke publicatie die wordt ingediend bij het `/evaluate`-eindpunt krijgt een numerieke risicoscore. De score is een gewogen combinatie van verschillende signalen:
+1. De uitdaging van de community stuurt de ondertekende publicatie naar de dienst, die een risicoscore tussen 0 en 1 teruggeeft.
+2. Onder de drempel voor automatisch accepteren van de community komt de publicatie erdoor. Op of boven de drempel voor automatisch afwijzen wordt ze afgewezen en ziet de auteur waarom.
+3. Daartussen wordt de aanmelding van de auteur uit de afgelopen 30 dagen hergebruikt als die volstaat. Anders krijgt de auteur een verificatiepagina: een CAPTCHA als een CAPTCHA alleen kan volstaan, en anders een aanmelding.
+4. Daarna controleert de community het resultaat bij de dienst en past ze haar eigen regels toe voor land, IP-risico en verbindingstype.
 
-| Signaal              | Beschrijving                                                                                                                   |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Accountleeftijd      | Nieuwere accounts ontvangen hogere risicoscores.                                                                               |
-| Karma                | Geaccumuleerd karma van de gemeenschap vermindert het risico.                                                                  |
-| Reputatie van auteur | Reputatiegegevens verzameld door de achtergrondnetwerkindexer.                                                                 |
-| Inhoudsanalyse       | Heuristieken op tekstniveau (linkdichtheid, bekende spampatronen, enz.).                                                       |
-| Snelheid             | Snel opeenvolgende berichten van dezelfde auteur verhogen het risico.                                                          |
-| IP-intelligentie     | Geolocatie op landniveau en zoekopdrachten naar bedreigingsfeeds. Onbewerkte IP-adressen worden nooit gedeeld met communities. |
+Voordat een bijgevoegd bestand wordt geüpload, kan een client dezelfde controle als voorcontrole uitvoeren, zodat auteurs die afgewezen zouden worden nooit uploaden.
 
-## Niveaudrempels
+## Risicoscore
 
-De risicoscore wordt toegewezen aan een van de vier configureerbare niveaus die bepalen wat er vervolgens gebeurt:
+| Signaal              | Beschrijving                                                                                                             |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Accountleeftijd      | Nieuwere accounts ontvangen hogere risicoscores.                                                                         |
+| Karma                | Geaccumuleerd karma van de community vermindert het risico.                                                              |
+| Reputatie van auteur | Gegevens van een achtergrondindexer die bijhoudt welke auteurs in communities worden geaccepteerd, verwijderd of geband. |
+| Inhoud en links      | Tekst- en linkanalyse, inclusief herhaalde inhoud.                                                                       |
+| Snelheid             | Snel opeenvolgende berichten van dezelfde auteur verhogen het risico.                                                    |
+| IP-intelligentie     | Verbindingstype (Tor, VPN, proxy, datacenter) en IP-risico. Onbewerkte IP-adressen worden nooit gedeeld met communities. |
+| Gekoppelde accounts  | Veel accounts die vanaf één netwerk posten, verhogen het risico stapsgewijs.                                             |
+| Sociale verificatie  | Eerdere aanmeldingen op het account van de auteur verlagen het risico.                                                   |
 
-1. **Automatisch accepteren** -- de score is zo laag dat de publicatie zonder enige uitdaging wordt goedgekeurd.
-2. **OAuth-voldoende**: de auteur moet een OAuth-verificatie voltooien om door te gaan.
-3. **OAuth-plus-more** -- OAuth alleen is niet voldoende; aanvullende verificatie (bijvoorbeeld CAPTCHA) is vereist.
-4. **Automatisch afwijzen** -- score is te hoog; de publicatie wordt ronduit afgewezen.
+## Verificatie
 
-Alle drempelwaarden zijn per gemeenschap configureerbaar.
+Elke voltooide stap vermenigvuldigt de risicoscore, en de publicatie komt erdoor wanneer het resultaat onder 0.4 ligt.
 
-## Uitdagingsstroom
+| Stap                                      | Vermenigvuldiger |
+| ----------------------------------------- | ---------------- |
+| CAPTCHA (Cloudflare Turnstile)            | × 0.7            |
+| Aanmelden met Google, Apple of Telegram   | × 0.6            |
+| Aanmelden met een tweede, andere provider | nog eens × 0.5   |
 
-Wanneer een publicatie in een niveau valt waarvoor verificatie vereist is, begint de uitdagingsstroom:
+Een CAPTCHA die niet volstaat, wordt gevolgd door een aanmelding. Een aanmelding die niet volstaat, wordt gevolgd door een CAPTCHA als die de controle afrondt, en anders door een aanmelding bij een tweede provider.
 
-1. De auteur wordt eerst gevraagd zich te authenticeren via **OAuth** (GitHub, Google, Twitter en andere ondersteunde providers).
-2. Als OAuth alleen onvoldoende is (tier 3), wordt een **CAPTCHA fallback**, mogelijk gemaakt door Cloudflare Turnstile, gepresenteerd.
-3. De OAuth-identiteit wordt uitsluitend gebruikt voor verificatie; deze wordt **nooit gedeeld** met de community of andere gebruikers.
+### Onthouden aanmeldingen
 
-## API-eindpunten
+De dienst onthoudt het account waarmee een auteur zich het laatst heeft aangemeld. Een later bericht dat verificatie nodig heeft, hergebruikt dat account alsof de auteur zich opnieuw had aangemeld, zolang de auteur er minstens eens per 30 dagen mee blijft posten. Als dat volstaat, komt het bericht erdoor zonder CAPTCHA. Een ban in de community die aan het account gekoppeld is, maakt hier een einde aan, en hetzelfde geldt als de provider van het account uit de dienst wordt verwijderd.
 
-### `POST /evaluate`
+## Verbindingsbeleid
 
-Dien een publicatie in voor risicobeoordeling. Retourneert de berekende risicoscore en het vereiste uitdagingsniveau.
+Communities kunnen publicaties beperken die binnenkomen via Tor, VPN (inclusief iCloud Private Relay), proxy's en datacenterverbindingen. Op de gehoste dienst geldt:
 
-### `POST /challenge/verify`
+- **VPN-, proxy- en datacenterverbindingen** kunnen posten na een aanmelding. De pagina legt uit waarom de aanmelding nodig is en hoe er zonder aanmelding gepost kan worden door de VPN uit te zetten. Een ban in de community geldt dan ook voor het account waarmee is aangemeld.
+- **Gevestigde accounts**, die op 3 verschillende dagen een controle hebben doorstaan vanaf onbeperkte verbindingen, zijn vrijgesteld.
+- **Tor** blijft beperkt, behalve voor auteurs met een vrijstelling die de community heeft ingesteld: een moderatorrol, de whitelist van de community of een geverifieerde `.bso`-naam.
 
-Dien het resultaat van een voltooide uitdaging (OAuth-token, CAPTCHA-oplossing of beide) in ter verificatie.
-
-### `GET /iframe/:sessionId`
-
-Retourneert een insluitbare HTML-pagina die de juiste uitdagings-UI voor de gegeven sessie weergeeft.
-
-## Tariefbeperking
-
-Tarieflimieten worden dynamisch toegepast op basis van de leeftijd en reputatie van de auteur. Nieuwere auteurs of auteurs met een lagere reputatie worden geconfronteerd met strengere limieten, terwijl gevestigde auteurs genereuzere drempels genieten. Dit voorkomt spamoverstromingen zonder dat vertrouwde deelnemers worden bestraft.
-
-## Achtergrondnetwerkindexer
-
-De server voert een achtergrondindexeerder uit die voortdurend het netwerk doorzoekt om reputatiegegevens van auteurs op te bouwen en te onderhouden. Deze gegevens worden rechtstreeks in de risicoscorepijplijn ingevoerd, waardoor het systeem terugkerende deelnemers te goeder trouw in gemeenschappen kan herkennen.
+Bijgevoegde bestanden die naar Forge Images worden geüpload, volgen dezelfde regels. Via een VPN-, proxy- of datacenterverbinding vereist de upload een voorcontrole die met een aanmelding is geslaagd, of een gevestigd account. Via Tor is een geverifieerde vrijstelling nodig.
 
 ## Privacy
 
-Spam Blocker is ontworpen met het oog op privacy:
+- **De beheerder** slaat onbewerkte IP-adressen en publicatie-inhoud op om misbruik te detecteren, en stuurt IP-adressen ter classificatie naar een externe aanbieder (standaard proxycheck.io).
+- **Communities** ontvangen alleen de landcode, het IP-risico, de schatting van het verbindingstype en het resultaat (geslaagd of mislukt). Ze ontvangen nooit het onbewerkte IP-adres of het account waarmee is aangemeld.
+- **Aanmeldingen** vragen geen profielgegevens op. De dienst ontvangt alleen een account-ID van Google, Apple of Telegram, nooit een naam, e-mailadres of foto. De dienst bewaart het ID bij het bericht, zonder automatische verwijdering, zodat een ban ook voor het account geldt.
+- **Auteurs op een VPN** houden hun echte IP-adres verborgen wanneer ze zich aanmelden: de dienst ziet alleen het adres van de VPN.
 
-- OAuth-identiteiten worden alleen gebruikt voor uitdagingsverificatie en worden **nooit bekendgemaakt** aan communities.
-- De beheerder van de dienst slaat onbewerkte IP-adressen op om misbruik te detecteren en stuurt ze ter classificatie naar een externe aanbieder van IP-informatie.
-- Communities ontvangen alleen de landcode, het IP-risico en een schatting van het verbindingstype, nooit het onbewerkte IP-adres.
+## Snelheidsbegrenzing
 
-## Database
+Nog vóór het beoordelen weigert de dienst auteurs die hun uur- of dagbudget voor berichten, reacties en stemmen overschrijden. Budgetten groeien met de accountleeftijd en een goede reputatie, en krimpen na bans of verwijderingen.
 
-De server gebruikt **SQLite** (via `better-sqlite3`) voor lokale persistentie van reputatiegegevens, sessiestatus en configuratie.
+## API
+
+De belangrijkste routes, relatief ten opzichte van `spamblocker.bitsocial.net/api/v1`:
+
+| Route                    | Aanroeper                    | Doel                                                      |
+| ------------------------ | ---------------------------- | --------------------------------------------------------- |
+| `POST /evaluate`         | Uitdagings-iframe, community | Een publicatie beoordelen en de sessie ervan aanmaken     |
+| `POST /challenge/verify` | Community                    | De uitkomst van de sessie en de IP-intelligentie uitlezen |
+| `POST /precheck`         | Voorcontrole-iframe          | Een concept vóór het uploaden beoordelen                  |
+| `GET /iframe/:sessionId` | Browser van de auteur        | Verificatiepagina                                         |
+| `POST /upload/authorize` | Client van de auteur         | Een bijgevoegd bestand autoriseren voor Forge Images      |
+
+Het volledige contract, inclusief het ondertekenen van verzoeken en de responsschema's, staat in de [README van spam-blocker](https://github.com/bitsocialnet/spam-blocker#api-contract).

@@ -1,80 +1,87 @@
 ---
 title: Spam Blocker
-description: Központosított spamészlelési szolgáltatás kockázatpontozással, OAuth-kihívásokkal és konfigurálható szintű küszöbértékekkel.
+description: Hosztolt spamészlelés Bitsocial közösségek számára kockázati pontozással, CAPTCHA- és bejelentkezéses ellenőrzéssel, valamint kapcsolati szabályokkal.
 sidebar_position: 1
 ---
 
 # Spam Blocker
 
-A Spam Blocker egy központosított spamészlelő szolgáltatás, amely kiértékeli a beérkező kiadványokat, és kockázati pontszámokat rendel hozzá. Két csomagból áll:
+A Spam Blocker pontozza a bejegyzések, válaszok és szavazatok spamkockázatát, mielőtt egy közösség elfogadná őket. A közösség telepíti a kihíváscsomagot, amely minden közzétételt elküld egy Spam Blocker szolgáltatásnak. A Bitsocial egy ilyen szolgáltatást üzemeltet a `spamblocker.bitsocial.net` címen.
 
-- **`@bitsocial/spam-blocker-server`** – a kiértékelő és kihívást jelentő API-kat kiszolgáló HTTP-kiszolgáló.
-- **`@bitsocial/spam-blocker-challenge`** – egy könnyű klienscsomag, amelyet a közösségek integrálva küldhetnek kiértékelésre.
+- **`@bitsocial/spam-blocker-challenge`** az a nyílt forráskódú kihíváscsomag, amelyet a közösségek telepítenek. Integrációs szerződése, közös sémái és API-ja nyilvánosak.
+- **A hosztolt szolgáltatás** pontozza a közzétételeket, és kiszolgálja a CAPTCHA- és bejelentkezési oldalakat. Részletes súlyai és heurisztikái nem nyilvánosak, ahogy azt a [forráskód-szabályzat](https://github.com/bitsocialnet/spam-blocker/blob/master/docs/architecture/hosted-service-source-policy.md) elmagyarázza.
 
 **Forráskód:** [github.com/bitsocialnet/spam-blocker](https://github.com/bitsocialnet/spam-blocker)
 
-## Hogyan működik a kockázati pontozás
+## Hogyan történik egy közzététel ellenőrzése
 
-Minden, a `/evaluate` végponthoz benyújtott kiadvány numerikus kockázati pontszámot kap. A pontszám több jel súlyozott kombinációja:
+1. A közösség kihívása elküldi az aláírt közzétételt a szolgáltatásnak, amely 0 és 1 közötti kockázati pontszámot ad vissza.
+2. A közösség automatikus elfogadási küszöbe alatt a közzététel átmegy. Az automatikus elutasítási küszöbén vagy afölött elbukik, és a szerző látja, miért.
+3. A kettő között a rendszer újra felhasználja a szerző elmúlt 30 napon belüli bejelentkezését, ha az elegendő. Ellenkező esetben a szerző ellenőrző oldalt kap: CAPTCHA-t, ha egy CAPTCHA önmagában elég lehet az átjutáshoz, különben bejelentkezést.
+4. Ezután a közösség ellenőrzi az eredményt a szolgáltatásnál, és alkalmazza a saját szabályait az országra, az IP-kockázatra és a kapcsolattípusra.
 
-| Jel              | Leírás                                                                                                                                |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Számla kora      | Az újabb fiókok magasabb kockázati pontszámot kapnak.                                                                                 |
-| Karma            | A felhalmozott közösségi karma csökkenti a kockázatot.                                                                                |
-| A szerző hírneve | A háttérhálózati indexelő által gyűjtött hírnévadatok.                                                                                |
-| Tartalomelemzés  | Szövegszintű heurisztika (linksűrűség, ismert spam-minták stb.).                                                                      |
-| Sebesség         | Az ugyanattól a szerzőtől származó gyors, egymást követő bejegyzések növelik a kockázatot.                                            |
-| IP intelligencia | Országszintű földrajzi helymeghatározás és fenyegetés-hírcsatorna keresések. A nyers IP-címeket soha nem osztjuk meg a közösségekkel. |
+Csatolt fájl feltöltése előtt a kliens ugyanezt az ellenőrzést előzetes ellenőrzésként is lefuttathatja, így azok a szerzők, akiket elutasítanának, sosem töltenek fel semmit.
 
-## Szintküszöbök
+## Kockázati pontszám
 
-A kockázati pontszám a négy konfigurálható szint egyikére vonatkozik, amelyek meghatározzák, hogy mi történik ezután:
+| Jel                         | Leírás                                                                                                                                      |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fiók kora                   | Az újabb fiókok magasabb kockázati pontszámot kapnak.                                                                                       |
+| Karma                       | A felhalmozott közösségi karma csökkenti a kockázatot.                                                                                      |
+| A szerző hírneve            | Egy háttérben futó indexelő adatai, amely követi, hogy mely szerzőket fogadják el, távolítják el vagy tiltják ki a különböző közösségekben. |
+| Tartalom és linkek          | Szöveg- és linkelemzés, beleértve az ismétlődő tartalmat.                                                                                   |
+| Sebesség                    | Az ugyanattól a szerzőtől származó gyors, egymást követő bejegyzések növelik a kockázatot.                                                  |
+| IP-információk              | Kapcsolattípus (Tor, VPN, proxy, adatközpont) és IP-kockázat. A nyers IP-címeket soha nem osztjuk meg a közösségekkel.                      |
+| Összekapcsolt fiókok        | Ha sok fiók ugyanarról a hálózatról posztol, a kockázat fokozatosan nő.                                                                     |
+| Közösségi fiókos ellenőrzés | A szerző fiókjával korábban végzett bejelentkezések csökkentik a kockázatot.                                                                |
 
-1. **Automatikus elfogadás** -- a pontszám elég alacsony ahhoz, hogy a kiadványt minden kihívás nélkül jóváhagyják.
-2. **OAuth-megfelelő** -- a szerzőnek OAuth-ellenőrzést kell végeznie a folytatáshoz.
-3. **OAuth-plus-more** -- Az OAuth önmagában nem elegendő; további ellenőrzés (pl. CAPTCHA) szükséges.
-4. **Automatikus elutasítás** -- a pontszám túl magas; a kiadványt végleg elutasítják.
+## Ellenőrzés
 
-Az összes küszöbérték közösségenként konfigurálható.
+Minden elvégzett lépés megszorozza a kockázati pontszámot, és a közzététel akkor megy át, ha az eredmény 0.4 alatt van.
 
-## Challenge Flow
+| Lépés                                             | Szorzó        |
+| ------------------------------------------------- | ------------- |
+| CAPTCHA (Cloudflare Turnstile)                    | × 0.7         |
+| Bejelentkezés Google, Apple vagy Telegram fiókkal | × 0.6         |
+| Bejelentkezés egy második, eltérő szolgáltatóval  | további × 0.5 |
 
-Amikor egy kiadvány olyan szintre kerül, amely ellenőrzést igényel, a kihívás folyamata megkezdődik:
+Ha egy CAPTCHA nem elég, bejelentkezés következik. Ha egy bejelentkezés nem elég, CAPTCHA következik, amennyiben az lezárja az ellenőrzést, ellenkező esetben bejelentkezés egy második szolgáltatóval.
 
-1. A szerzőt először az **OAuth** (GitHub, Google, Twitter és más támogatott szolgáltatók) keresztül kell hitelesíteni.
-2. Ha az OAuth önmagában nem elegendő (3. szint), megjelenik egy **CAPTCHA tartalék**, amelyet a Cloudflare Turnstile hajt.
-3. Az OAuth-identitás kizárólag ellenőrzésre szolgál – **soha nem osztják meg** a közösséggel vagy más felhasználókkal.
+### Megjegyzett bejelentkezések
 
-## API-végpontok
+A szolgáltatás megjegyzi, melyik fiókkal jelentkezett be a szerző legutóbb. Egy későbbi, ellenőrzést igénylő bejegyzés újra felhasználja azt, mintha a szerző ismét bejelentkezett volna, amíg a szerző legalább 30 naponta egyszer posztol vele. Ha ez elég, a bejegyzés CAPTCHA nélkül átmegy. Ennek véget vet a közösségben kiszabott, a fiókhoz kötött kitiltás, és az is, ha a fiók szolgáltatóját eltávolítják a szolgáltatásból.
 
-### `POST /evaluate`
+## Kapcsolati szabályok
 
-Kiadvány benyújtása kockázatértékeléshez. A kiszámított kockázati pontszámot és a szükséges kihívási szintet adja vissza.
+A közösségek korlátozhatják a Tor-, VPN- (beleértve az iCloud Private Relay szolgáltatást), proxy- és adatközponti kapcsolatokról érkező közzétételeket. A hosztolt szolgáltatáson:
 
-### `POST /challenge/verify`
+- **VPN-, proxy- és adatközponti kapcsolatokról** bejelentkezés után lehet posztolni. Az oldal elmagyarázza, miért szükséges a bejelentkezés, és hogyan lehet nélküle posztolni a VPN kikapcsolásával. Ezután a közösségi kitiltás a bejelentkezéshez használt fiókra is vonatkozik.
+- **A bejáratott fiókok**, amelyek 3 különböző napon átmentek egy ellenőrzésen korlátozás alá nem eső kapcsolatokról, mentesülnek.
+- **A Tor** korlátozott marad, kivéve azokat a szerzőket, akiknek a közösség által beállított mentességük van: moderátori szerepkör, a közösség engedélyezőlistája vagy ellenőrzött `.bso` név.
 
-Küldje be a befejezett kihívás eredményét (OAuth-token, CAPTCHA-megoldás vagy mindkettő) ellenőrzésre.
-
-### `GET /iframe/:sessionId`
-
-Egy beágyazható HTML-oldalt ad vissza, amely az adott munkamenethez megfelelő kihívás-kezelőfelületet jelenít meg.
-
-## Rate Limiting
-
-A díjkorlátokat dinamikusan alkalmazzák a szerző életkora és hírneve alapján. Az újabb vagy gyengébb hírnévvel rendelkező szerzők szigorúbb korlátokkal szembesülnek, míg a bevett szerzők bőkezűbb küszöböt élveznek. Ez megakadályozza a kéretlen levelek özönét anélkül, hogy a megbízható résztvevőket megbüntetné.
-
-## Háttér hálózati indexelő
-
-A kiszolgáló egy háttérindexelőt futtat, amely folyamatosan feltérképezi a hálózatot a szerző hírnevének összeállítása és karbantartása érdekében. Ezek az adatok közvetlenül bekerülnek a kockázatpontozási folyamatba, lehetővé téve a rendszer számára, hogy felismerje az ismétlődő jóhiszemű résztvevőket a közösségekben.
+A Forge Images szolgáltatásba feltöltött csatolt fájlokra ugyanezek a szabályok vonatkoznak. VPN-, proxy- vagy adatközponti kapcsolaton keresztül a feltöltéshez bejelentkezéssel teljesített előzetes ellenőrzés vagy bejáratott fiók szükséges. Tor hálózaton keresztül ellenőrzött mentesség kell hozzá.
 
 ## Adatvédelem
 
-A Spam Blocker az adatvédelmet szem előtt tartva készült:
+- **Az üzemeltető** a visszaélések felderítéséhez tárolja a nyers IP-címeket és a közzétételek tartalmát, az IP-címeket pedig besorolásra elküldi egy külső szolgáltatónak (alapértelmezés szerint a proxycheck.io-nak).
+- **A közösségek** csak az országkódot, az IP-kockázatot, a kapcsolattípus becslését és a megfelelt/nem felelt meg eredményt kapják meg. A nyers IP-címet és a bejelentkezéshez használt fiókot soha nem kapják meg.
+- **A bejelentkezések** nem kérnek profiladatokat. A szolgáltatás csak egy fiókazonosítót kap a Google, az Apple vagy a Telegram szolgáltatástól, soha nem nevet, e-mail-címet vagy fényképet. Az azonosítót a bejegyzéssel együtt tárolja, automatikus törlés nélkül, így a kitiltás a fiókra is vonatkozik.
+- **A VPN-t használó szerzők** valódi IP-címe bejelentkezéskor is rejtve marad: a szolgáltatás csak a VPN címét látja.
 
-- Az OAuth-identitásokat csak kihívás-ellenőrzésre használják, és **soha nem hozzák nyilvánosságra** a közösségek számára.
-- A szolgáltatás üzemeltetője a visszaélések felderítéséhez tárolja a nyers IP-címeket, és besorolás céljából elküldi őket egy külső IP-információs szolgáltatónak.
-- A közösségek csak az országkódot, az IP-kockázatot és a kapcsolattípus becslését kapják meg, a nyers IP-címet soha.
+## Sebességkorlátozás
 
-## Adatbázis
+A pontozás előtt a szolgáltatás elutasítja azokat a szerzőket, akik túllépik a bejegyzésekre, válaszokra és szavazatokra vonatkozó óránkénti vagy napi keretüket. A keretek a fiók korával és a jó hírnévvel nőnek, kitiltások vagy eltávolítások után pedig csökkennek.
 
-A kiszolgáló az **SQLite-ot** használja (a `better-sqlite3`-n keresztül) a hírnévadatok, a munkamenet állapotának és a konfigurációnak a helyi fennmaradásához.
+## API
+
+A fő útvonalak, a `spamblocker.bitsocial.net/api/v1` címhez viszonyítva:
+
+| Útvonal                  | Hívó                             | Cél                                                          |
+| ------------------------ | -------------------------------- | ------------------------------------------------------------ |
+| `POST /evaluate`         | A kihívás iframe-je, közösség    | Közzététel pontozása és a munkamenet létrehozása             |
+| `POST /challenge/verify` | Közösség                         | A munkamenet eredményének és az IP-információknak a lekérése |
+| `POST /precheck`         | Az előzetes ellenőrzés iframe-je | Piszkozat pontozása feltöltés előtt                          |
+| `GET /iframe/:sessionId` | A szerző böngészője              | Ellenőrző oldal                                              |
+| `POST /upload/authorize` | A szerző kliense                 | Csatolt fájl engedélyezése a Forge Images számára            |
+
+A teljes szerződés, beleértve a kérések aláírását és a válaszsémákat, a [spam-blocker README-ben](https://github.com/bitsocialnet/spam-blocker#api-contract) található.

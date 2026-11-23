@@ -1,80 +1,87 @@
 ---
-title: Spam-blokering
-description: Centraliseret spam-detektionstjeneste med risikoscoring, OAuth-udfordringer og konfigurerbare niveautærskler.
+title: Spam Blocker
+description: Hostet spamdetektion til Bitsocial-fællesskaber med risikoscoring, CAPTCHA- og login-tjek samt forbindelsespolitikker.
 sidebar_position: 1
 ---
 
-# Spam-blokering
+# Spam Blocker
 
-Spam Blocker er en centraliseret spam-detektionstjeneste, der evaluerer indkommende publikationer og tildeler risikoscore. Den består af to pakker:
+Spam Blocker vurderer spamrisikoen for opslag, svar og stemmer, før et fællesskab accepterer dem. Et fællesskab installerer udfordringspakken, som sender hver publikation til en Spam Blocker-tjeneste. Bitsocial driver en sådan tjeneste på `spamblocker.bitsocial.net`.
 
-- **`@bitsocial/spam-blocker-server`** - HTTP-serveren, der er vært for evaluerings- og udfordrings-API'erne.
-- **`@bitsocial/spam-blocker-challenge`** -- en letvægtsklientpakke, som fællesskaber integrerer for at sende publikationer til evaluering.
+- **`@bitsocial/spam-blocker-challenge`** er den open source-udfordringspakke, som fællesskaber installerer. Dens integrationskontrakt, fælles skemaer og API er offentlige.
+- **Den hostede tjeneste** scorer publikationer og leverer CAPTCHA- og login-siderne. Dens detaljerede vægte og heuristikker er private, som [kildekodepolitikken](https://github.com/bitsocialnet/spam-blocker/blob/master/docs/architecture/hosted-service-source-policy.md) forklarer.
 
 **Kildekode:** [github.com/bitsocialnet/spam-blocker](https://github.com/bitsocialnet/spam-blocker)
 
-## Sådan fungerer risikoscoring
+## Sådan tjekkes en publikation
 
-Hver publikation, der sendes til `/evaluate`-endepunktet, modtager en numerisk risikoscore. Scoren er en vægtet kombination af flere signaler:
+1. Fællesskabets udfordring sender den signerede publikation til tjenesten, som returnerer en risikoscore mellem 0 og 1.
+2. Under fællesskabets tærskel for automatisk accept går publikationen igennem. På eller over dets tærskel for automatisk afvisning bliver den afvist, og forfatteren kan se hvorfor.
+3. Imellem de to genbruges forfatterens login fra de seneste 30 dage, når det er nok. Ellers får forfatteren en verifikationsside: en CAPTCHA, når en CAPTCHA alene kan være nok til at bestå, eller ellers et login.
+4. Derefter tjekker fællesskabet resultatet hos tjenesten og anvender sine egne regler for land, IP-risiko og forbindelsestype.
 
-| Signal            | Beskrivelse                                                                                      |
-| ----------------- | ------------------------------------------------------------------------------------------------ |
-| Kontoens alder    | Nyere konti får højere risikoscore.                                                              |
-| Karma             | Akkumuleret samfundskarma reducerer risikoen.                                                    |
-| Forfatter omdømme | Omdømmedata indsamlet af baggrundsnetværksindekseren.                                            |
-| Indholdsanalyse   | Heuristik på tekstniveau (linkdensitet, kendte spammønstre osv.).                                |
-| Hastighed         | Hurtige på hinanden følgende indlæg fra samme forfatter øger risikoen.                           |
-| IP-intelligens    | Geolocation på landeniveau og trusselsfeed-opslag. Rå IP-adresser deles aldrig med fællesskaber. |
+Før en vedhæftet fil uploades, kan en klient køre det samme tjek som et forhåndstjek, så forfattere, der ville blive afvist, aldrig uploader.
 
-## Niveautærskler
+## Risikoscore
 
-Risikoscoren er knyttet til et af fire konfigurerbare niveauer, der bestemmer, hvad der derefter sker:
+| Signal               | Beskrivelse                                                                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Kontoens alder       | Nyere konti får højere risikoscore.                                                                                                        |
+| Karma                | Akkumuleret fællesskabskarma reducerer risikoen.                                                                                           |
+| Forfatterens omdømme | Data fra en baggrundsindekser, der registrerer, hvilke forfattere der bliver accepteret, fjernet eller udelukket på tværs af fællesskaber. |
+| Indhold og links     | Tekst- og linkanalyse, herunder gentaget indhold.                                                                                          |
+| Hastighed            | Hurtige på hinanden følgende opslag fra samme forfatter øger risikoen.                                                                     |
+| IP-intelligens       | Forbindelsestype (Tor, VPN, proxy, datacenter) og IP-risiko. Rå IP-adresser deles aldrig med fællesskaber.                                 |
+| Forbundne konti      | Mange konti, der poster fra det samme netværk, øger risikoen gradvist.                                                                     |
+| Social verifikation  | Tidligere logins på forfatterens konto sænker risikoen.                                                                                    |
 
-1. **Auto-accept** - scoren er lav nok til, at publikationen godkendes uden nogen udfordring.
-2. **OAuth-tilstrækkelig** -- forfatteren skal gennemføre en OAuth-bekræftelse for at fortsætte.
-3. **OAuth-plus-more** -- OAuth alene er ikke nok; yderligere verifikation (f.eks. CAPTCHA) er påkrævet.
-4. **Auto-afvis** -- scoren er for høj; offentliggørelsen afvises blankt.
+## Verifikation
 
-Alle tærskelværdier kan konfigureres pr. fællesskab.
+Hvert gennemført trin ganger risikoscoren, og publikationen går igennem, når resultatet er under 0.4.
 
-## Udfordr flow
+| Trin                                      | Multiplikator    |
+| ----------------------------------------- | ---------------- |
+| CAPTCHA (Cloudflare Turnstile)            | × 0.7            |
+| Login med Google, Apple eller Telegram    | × 0.6            |
+| Login med en anden udbyder end den første | yderligere × 0.5 |
 
-Når en publikation falder ind i et niveau, der kræver verifikation, begynder udfordringsflowet:
+En CAPTCHA, der ikke er nok, efterfølges af et login. Et login, der ikke er nok, efterfølges af en CAPTCHA, når den afslutter tjekket, og ellers af et login hos en anden udbyder.
 
-1. Forfatteren bliver først bedt om at godkende via **OAuth** (GitHub, Google, Twitter og andre understøttede udbydere).
-2. Hvis OAuth alene er utilstrækkelig (tier 3), præsenteres en **CAPTCHA-faldback** drevet af Cloudflare Turnstile.
-3. OAuth-identiteten bruges udelukkende til bekræftelse -- den deles **aldrig** med fællesskabet eller andre brugere.
+### Huskede logins
 
-## API-endepunkter
+Tjenesten husker den konto, en forfatter senest loggede ind med. Et senere opslag, der kræver verifikation, genbruger den, som om forfatteren havde logget ind igen, så længe forfatteren bliver ved med at poste med den mindst én gang hver 30. dag. Når det er nok, går opslaget igennem uden CAPTCHA. Det ophører, hvis fællesskabet udsteder en udelukkelse, der er knyttet til kontoen, og ligeledes hvis kontoens udbyder fjernes fra tjenesten.
 
-### `POST /evaluate`
+## Forbindelsespolitikker
 
-Indsend en publikation til risikovurdering. Returnerer den beregnede risikoscore og det påkrævede udfordringsniveau.
+Fællesskaber kan begrænse publikationer fra Tor-, VPN- (inklusive iCloud Private Relay), proxy- og datacenterforbindelser. På den hostede tjeneste gælder:
 
-### `POST /challenge/verify`
+- **VPN-, proxy- og datacenterforbindelser** kan poste efter et login. Siden forklarer, hvorfor login er nødvendigt, og hvordan man kan poste uden ved at slå VPN'en fra. En udelukkelse i fællesskabet gælder derefter også for den konto, der blev brugt til at logge ind.
+- **Etablerede konti**, som har bestået et tjek på 3 forskellige dage fra forbindelser uden begrænsninger, er undtaget.
+- **Tor** forbliver begrænset, undtagen for forfattere med en undtagelse, som fællesskabet har konfigureret: en moderatorrolle, fællesskabets hvidliste eller et verificeret `.bso`-navn.
 
-Indsend resultatet af en gennemført udfordring (OAuth-token, CAPTCHA-løsning eller begge dele) til verifikation.
-
-### `GET /iframe/:sessionId`
-
-Returnerer en HTML-side, der kan integreres, og som gengiver den passende udfordrings-UI for den givne session.
-
-## Satsbegrænsende
-
-Satsgrænser anvendes dynamisk baseret på forfatterens alder og omdømme. Nyere eller lavere ansete forfattere står over for strengere grænser, mens etablerede forfattere nyder godt af mere generøse tærskler. Dette forhindrer spam-oversvømmelser uden at straffe betroede deltagere.
-
-## Baggrundsnetværksindeksering
-
-Serveren kører en baggrundsindeksering, der kontinuerligt gennemgår netværket for at opbygge og vedligeholde forfatterens omdømmedata. Disse data føres direkte ind i risikoscoringspipelinen, hvilket gør det muligt for systemet at genkende gentagne deltagere i god tro på tværs af samfund.
+Vedhæftede filer, der uploades til Forge Images, følger de samme regler. Via en VPN-, proxy- eller datacenterforbindelse kræver uploadet et forhåndstjek, der er bestået med et login, eller en etableret konto. Via Tor kræver det en verificeret undtagelse.
 
 ## Privatliv
 
-Spam Blocker er designet med privatliv i tankerne:
+- **Operatøren** gemmer rå IP-adresser og publikationsindhold for at opdage misbrug og sender IP-adresser til en ekstern udbyder til klassificering (som standard proxycheck.io).
+- **Fællesskaber** modtager kun landekoden, IP-risikoen, estimatet af forbindelsestypen og resultatet (bestået eller ikke bestået). De modtager aldrig den rå IP-adresse eller login-kontoen.
+- **Logins** anmoder ikke om profildata. Tjenesten modtager kun et konto-ID fra Google, Apple eller Telegram, aldrig et navn, en e-mail eller et foto. Den gemmer ID'et sammen med opslaget uden automatisk sletning, så en udelukkelse også gælder for kontoen.
+- **Forfattere på en VPN** holder deres rigtige IP-adresse skjult, når de logger ind: Tjenesten ser kun VPN'ens adresse.
 
-- OAuth-identiteter bruges kun til udfordringsbekræftelse og videregives **aldrig** til fællesskaber.
-- Tjenestens operatør gemmer rå IP-adresser for at opdage misbrug og sender dem til en ekstern udbyder af IP-oplysninger til klassificering.
-- Fællesskaber modtager kun landekoden, IP-risikoen og et estimat af forbindelsestypen, aldrig den rå IP-adresse.
+## Hastighedsbegrænsning
 
-## Database
+Før scoringen afviser tjenesten forfattere, der overskrider deres time- eller dagsbudget for opslag, svar og stemmer. Budgetterne vokser med kontoens alder og et godt omdømme og skrumper efter udelukkelser eller fjernelser.
 
-Serveren bruger **SQLite** (via `better-sqlite3`) til lokal persistens af omdømmedata, sessionstilstand og konfiguration.
+## API
+
+De vigtigste ruter, relativt til `spamblocker.bitsocial.net/api/v1`:
+
+| Rute                     | Kalder                         | Formål                                         |
+| ------------------------ | ------------------------------ | ---------------------------------------------- |
+| `POST /evaluate`         | Udfordrings-iframe, fællesskab | Scorer en publikation og opretter dens session |
+| `POST /challenge/verify` | Fællesskab                     | Læser sessionens udfald og IP-intelligens      |
+| `POST /precheck`         | Forhåndstjek-iframe            | Scorer et udkast før upload                    |
+| `GET /iframe/:sessionId` | Forfatterens browser           | Verifikationsside                              |
+| `POST /upload/authorize` | Forfatterens klient            | Godkender en vedhæftet fil til Forge Images    |
+
+Den fulde kontrakt, herunder signering af anmodninger og svarskemaer, findes i [README'en for spam-blocker](https://github.com/bitsocialnet/spam-blocker#api-contract).

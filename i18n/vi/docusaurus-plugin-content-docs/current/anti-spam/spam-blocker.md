@@ -1,80 +1,87 @@
 ---
 title: Spam Blocker
-description: Dịch vụ phát hiện spam tập trung với chấm điểm rủi ro, thử thách OAuth và ngưỡng phân hạng có thể cấu hình.
+description: Dịch vụ phát hiện spam được host sẵn cho các cộng đồng Bitsocial, với chấm điểm rủi ro, kiểm tra bằng CAPTCHA và đăng nhập, cùng các chính sách kết nối.
 sidebar_position: 1
 ---
 
 # Spam Blocker
 
-Spam Blocker là một dịch vụ phát hiện spam tập trung, có nhiệm vụ đánh giá các nội dung được gửi lên và gán cho chúng điểm rủi ro. Dịch vụ này gồm hai gói:
+Spam Blocker chấm điểm rủi ro spam cho bài đăng, trả lời và lượt bình chọn trước khi cộng đồng chấp nhận chúng. Cộng đồng cài đặt gói thử thách, và gói này gửi từng nội dung tới một dịch vụ Spam Blocker. Bitsocial vận hành một dịch vụ như vậy tại `spamblocker.bitsocial.net`.
 
-- **`@bitsocial/spam-blocker-server`** -- máy chủ HTTP cung cấp các API đánh giá và thử thách.
-- **`@bitsocial/spam-blocker-challenge`** -- gói máy khách gọn nhẹ mà các cộng đồng tích hợp để gửi nội dung đi đánh giá.
+- **`@bitsocial/spam-blocker-challenge`** là gói thử thách mã nguồn mở mà các cộng đồng cài đặt. Hợp đồng tích hợp, các schema dùng chung và API của gói đều công khai.
+- **Dịch vụ được host** chấm điểm nội dung và cung cấp các trang CAPTCHA và đăng nhập. Các trọng số và quy tắc suy đoán chi tiết của dịch vụ được giữ kín, như [chính sách mã nguồn](https://github.com/bitsocialnet/spam-blocker/blob/master/docs/architecture/hosted-service-source-policy.md) giải thích.
 
 **Mã nguồn:** [github.com/bitsocialnet/spam-blocker](https://github.com/bitsocialnet/spam-blocker)
 
-## Cách chấm điểm rủi ro
+## Cách một nội dung được kiểm tra
 
-Mọi nội dung gửi tới điểm cuối `/evaluate` đều nhận được một điểm rủi ro dạng số. Điểm này là tổ hợp có trọng số của nhiều tín hiệu khác nhau:
+1. Thử thách của cộng đồng gửi nội dung đã ký tới dịch vụ, và dịch vụ trả về điểm rủi ro trong khoảng từ 0 đến 1.
+2. Dưới ngưỡng tự động chấp nhận của cộng đồng, nội dung được thông qua. Bằng hoặc trên ngưỡng tự động từ chối, nội dung bị từ chối và tác giả được biết lý do.
+3. Ở khoảng giữa, lần đăng nhập của tác giả trong 30 ngày qua sẽ được dùng lại nếu đủ. Nếu không, tác giả nhận được một trang xác minh: CAPTCHA khi chỉ riêng CAPTCHA là có thể qua, hoặc đăng nhập.
+4. Sau đó cộng đồng đối chiếu kết quả với dịch vụ và áp dụng quy tắc riêng của mình về quốc gia, rủi ro IP và loại kết nối.
 
-| Tín hiệu           | Mô tả                                                                                                                       |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| Tuổi tài khoản     | Tài khoản càng mới thì điểm rủi ro càng cao.                                                                                |
-| Karma              | Karma tích lũy trong cộng đồng làm giảm rủi ro.                                                                             |
-| Uy tín tác giả     | Dữ liệu uy tín do bộ lập chỉ mục mạng chạy nền thu thập.                                                                    |
-| Phân tích nội dung | Các quy tắc suy đoán ở mức văn bản (mật độ liên kết, mẫu spam đã biết, v.v.).                                               |
-| Tần suất đăng      | Đăng liên tiếp dồn dập từ cùng một tác giả làm tăng rủi ro.                                                                 |
-| Thông tin về IP    | Định vị ở cấp quốc gia và tra cứu các nguồn dữ liệu về mối đe dọa. Địa chỉ IP thô không bao giờ được chia sẻ với cộng đồng. |
+Trước khi tải lên tệp đính kèm, máy khách có thể chạy cùng phép kiểm tra đó dưới dạng kiểm tra trước, để những tác giả sẽ bị từ chối không bao giờ phải tải lên.
 
-## Ngưỡng phân hạng
+## Điểm rủi ro
 
-Điểm rủi ro được ánh xạ vào một trong bốn hạng có thể cấu hình, quyết định điều gì diễn ra tiếp theo:
+| Tín hiệu                 | Mô tả                                                                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| Tuổi tài khoản           | Tài khoản càng mới thì điểm rủi ro càng cao.                                                                             |
+| Karma                    | Karma tích lũy trong cộng đồng làm giảm rủi ro.                                                                          |
+| Uy tín tác giả           | Dữ liệu từ một bộ lập chỉ mục chạy nền, theo dõi những tác giả nào được chấp nhận, bị gỡ bỏ hoặc bị cấm ở các cộng đồng. |
+| Nội dung và liên kết     | Phân tích văn bản và liên kết, bao gồm cả nội dung lặp lại.                                                              |
+| Tần suất đăng            | Đăng liên tiếp dồn dập từ cùng một tác giả làm tăng rủi ro.                                                              |
+| Thông tin về IP          | Loại kết nối (Tor, VPN, proxy, trung tâm dữ liệu) và rủi ro IP. Địa chỉ IP thô không bao giờ được chia sẻ với cộng đồng. |
+| Tài khoản liên kết       | Nhiều tài khoản đăng bài từ cùng một mạng sẽ làm rủi ro tăng dần.                                                        |
+| Xác minh qua mạng xã hội | Các lần đăng nhập trước đó trên tài khoản của tác giả làm giảm rủi ro.                                                   |
 
-1. **Tự động chấp nhận** -- điểm đủ thấp nên nội dung được duyệt mà không cần thử thách nào.
-2. **OAuth là đủ** -- tác giả phải hoàn tất xác minh OAuth mới được tiếp tục.
-3. **OAuth và thêm nữa** -- chỉ OAuth thì chưa đủ; cần thêm bước xác minh bổ sung (ví dụ CAPTCHA).
-4. **Tự động từ chối** -- điểm quá cao; nội dung bị từ chối ngay lập tức.
+## Xác minh
 
-Mọi giá trị ngưỡng đều có thể cấu hình riêng cho từng cộng đồng.
+Mỗi bước hoàn tất sẽ nhân điểm rủi ro với một hệ số, và nội dung được thông qua khi kết quả dưới 0.4.
 
-## Luồng thử thách
+| Bước                                                           | Hệ số nhân |
+| -------------------------------------------------------------- | ---------- |
+| CAPTCHA (Cloudflare Turnstile)                                 | × 0.7      |
+| Đăng nhập bằng Google, Apple hoặc Telegram                     | × 0.6      |
+| Đăng nhập bằng một nhà cung cấp thứ hai, khác nhà cung cấp đầu | thêm × 0.5 |
 
-Khi một nội dung rơi vào hạng đòi hỏi xác minh, luồng thử thách bắt đầu:
+Nếu CAPTCHA chưa đủ, bước tiếp theo là đăng nhập. Nếu đăng nhập chưa đủ, bước tiếp theo là CAPTCHA khi như vậy là đủ để hoàn tất phép kiểm tra, còn không thì là đăng nhập bằng nhà cung cấp thứ hai.
 
-1. Trước tiên, tác giả được yêu cầu xác thực qua **OAuth** (GitHub, Google, Twitter và các nhà cung cấp được hỗ trợ khác).
-2. Nếu riêng OAuth là chưa đủ (hạng 3), một **CAPTCHA dự phòng** dựa trên Cloudflare Turnstile sẽ được hiển thị.
-3. Danh tính OAuth chỉ dùng cho việc xác minh -- nó **không bao giờ được chia sẻ** với cộng đồng hay với người dùng khác.
+### Lần đăng nhập được ghi nhớ
 
-## Các điểm cuối API
+Dịch vụ ghi nhớ tài khoản mà tác giả dùng để đăng nhập gần nhất. Một bài đăng sau đó cần xác minh sẽ dùng lại tài khoản này, như thể tác giả vừa đăng nhập lại, miễn là tác giả vẫn đăng bài bằng tài khoản đó ít nhất một lần mỗi 30 ngày. Khi như vậy là đủ, bài đăng được thông qua mà không cần CAPTCHA. Một lệnh cấm trong cộng đồng gắn với tài khoản đó sẽ chấm dứt việc này, và việc gỡ nhà cung cấp của tài khoản khỏi dịch vụ cũng vậy.
 
-### `POST /evaluate`
+## Chính sách kết nối
 
-Gửi một nội dung để đánh giá rủi ro. Trả về điểm rủi ro đã tính và hạng thử thách cần thực hiện.
+Cộng đồng có thể hạn chế nội dung đến từ các kết nối Tor, VPN (bao gồm iCloud Private Relay), proxy và trung tâm dữ liệu. Trên dịch vụ được host:
 
-### `POST /challenge/verify`
+- **Kết nối VPN, proxy và trung tâm dữ liệu** có thể đăng bài sau khi đăng nhập. Trang xác minh giải thích vì sao cần đăng nhập và cách đăng bài mà không cần đăng nhập bằng cách tắt VPN. Khi đó, lệnh cấm trong cộng đồng cũng áp dụng cho tài khoản đã dùng để đăng nhập.
+- **Tài khoản lâu năm**, tức là tài khoản đã vượt qua kiểm tra vào 3 ngày khác nhau từ các kết nối không bị hạn chế, được miễn.
+- **Tor** vẫn bị hạn chế, trừ những tác giả có miễn trừ do cộng đồng cấu hình: vai trò người kiểm duyệt, danh sách trắng của cộng đồng, hoặc tên `.bso` đã được xác minh.
 
-Gửi kết quả của một thử thách đã hoàn tất (token OAuth, lời giải CAPTCHA, hoặc cả hai) để xác minh.
-
-### `GET /iframe/:sessionId`
-
-Trả về một trang HTML có thể nhúng, hiển thị giao diện thử thách phù hợp cho phiên tương ứng.
-
-## Giới hạn tần suất
-
-Giới hạn tần suất được áp dụng linh hoạt dựa trên tuổi và uy tín của tác giả. Tác giả mới hoặc có uy tín thấp chịu giới hạn chặt hơn, trong khi tác giả lâu năm được hưởng ngưỡng thoáng hơn. Cách này chặn được các đợt spam ồ ạt mà không gây phiền cho những người tham gia đáng tin cậy.
-
-## Bộ lập chỉ mục mạng chạy nền
-
-Máy chủ chạy một bộ lập chỉ mục nền, liên tục thu thập dữ liệu trên mạng để xây dựng và duy trì dữ liệu uy tín của tác giả. Dữ liệu này được đưa thẳng vào quy trình chấm điểm rủi ro, giúp hệ thống nhận ra những người tham gia thiện chí lặp lại ở nhiều cộng đồng.
+Tệp đính kèm tải lên Forge Images tuân theo cùng các quy tắc này. Qua kết nối VPN, proxy hoặc trung tâm dữ liệu, việc tải lên cần một lần kiểm tra trước đã được thông qua nhờ đăng nhập, hoặc một tài khoản lâu năm. Qua Tor, cần có một miễn trừ đã được xác minh.
 
 ## Quyền riêng tư
 
-Spam Blocker được thiết kế với sự chú trọng vào quyền riêng tư:
+- **Đơn vị vận hành** lưu địa chỉ IP thô và nội dung được đăng để phát hiện lạm dụng, đồng thời gửi địa chỉ IP tới một nhà cung cấp bên thứ ba để phân loại (mặc định là proxycheck.io).
+- **Cộng đồng** chỉ nhận được mã quốc gia, rủi ro IP, ước tính loại kết nối và kết quả đạt hay không đạt. Cộng đồng không bao giờ nhận được IP thô hay tài khoản đăng nhập.
+- **Đăng nhập** không yêu cầu bất kỳ dữ liệu hồ sơ nào. Dịch vụ chỉ nhận một ID tài khoản từ Google, Apple hoặc Telegram, không bao giờ nhận tên, email hay ảnh. Dịch vụ lưu ID cùng với bài đăng, không tự động xóa, để lệnh cấm cũng áp dụng cho tài khoản đó.
+- **Tác giả dùng VPN** vẫn giữ kín địa chỉ IP thật khi đăng nhập: dịch vụ chỉ thấy địa chỉ của VPN.
 
-- Danh tính OAuth chỉ được dùng để xác minh thử thách và **không bao giờ bị tiết lộ** cho các cộng đồng.
-- Đơn vị vận hành dịch vụ lưu địa chỉ IP thô để phát hiện lạm dụng và gửi chúng đến một nhà cung cấp thông tin IP bên thứ ba để phân loại.
-- Cộng đồng chỉ nhận được mã quốc gia, mức rủi ro IP và ước tính loại kết nối, không bao giờ nhận được IP thô.
+## Giới hạn tần suất
 
-## Cơ sở dữ liệu
+Trước khi chấm điểm, dịch vụ từ chối những tác giả vượt quá hạn mức theo giờ hoặc theo ngày cho bài đăng, trả lời và lượt bình chọn. Hạn mức tăng theo tuổi tài khoản và uy tín tốt, và giảm sau các lần bị cấm hoặc bị gỡ bỏ.
 
-Máy chủ dùng **SQLite** (thông qua `better-sqlite3`) để lưu trữ cục bộ dữ liệu uy tín, trạng thái phiên và cấu hình.
+## API
+
+Các đường dẫn chính, tương đối so với `spamblocker.bitsocial.net/api/v1`:
+
+| Đường dẫn                | Bên gọi                     | Mục đích                                            |
+| ------------------------ | --------------------------- | --------------------------------------------------- |
+| `POST /evaluate`         | Iframe thử thách, cộng đồng | Chấm điểm một nội dung và tạo phiên cho nội dung đó |
+| `POST /challenge/verify` | Cộng đồng                   | Đọc kết quả phiên và thông tin về IP                |
+| `POST /precheck`         | Iframe kiểm tra trước       | Chấm điểm bản nháp trước khi tải lên                |
+| `GET /iframe/:sessionId` | Trình duyệt của tác giả     | Trang xác minh                                      |
+| `POST /upload/authorize` | Máy khách của tác giả       | Cấp phép tệp đính kèm cho Forge Images              |
+
+Toàn bộ hợp đồng, bao gồm cách ký yêu cầu và schema phản hồi, có trong [README của spam-blocker](https://github.com/bitsocialnet/spam-blocker#api-contract).
