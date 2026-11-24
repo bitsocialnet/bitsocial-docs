@@ -309,7 +309,7 @@ fellesskapshash. De er ikke IPFS-gatewayer, siden de ikke leverer selve innholde
 oppdagelsen kobler nettleserklienten seg til peers og henter dataene gjennom P2P-stacken.
 
 P2P i nettleseren er nå standardveien på nettet, ikke et eksperiment bak en bryter. 5chan kjører ren
-nettleser-P2P som standard på 5chan.app, og Bitsocial-bloggen på bitsocial.net gjør det samme.
+nettleser-P2P som standard på 5chan.app.
 Nettleser-peers kobler seg opp over sikre WebSockets; `pkc-js` avviser oppkoblinger over WebRTC og
 WebTransport som standard fordi måten de etablerer forbindelser på, er treg og upålitelig i
 nettleseren. Endringen oppstrøms som gjorde publisering fra nettleseren praktisk mulig i 2026, var

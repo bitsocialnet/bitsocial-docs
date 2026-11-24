@@ -314,8 +314,7 @@ contingut en si. Després del descobriment, el client de navegador es connecta a
 dades a través de la pila P2P.
 
 El P2P al navegador ja és el camí web per defecte, no un experiment amagat darrere d'un interruptor.
-5chan funciona amb P2P pur al navegador per defecte a 5chan.app, i el blog de Bitsocial a
-bitsocial.net fa el mateix. Els iguals de navegador es connecten mitjançant WebSockets segurs;
+5chan funciona amb P2P pur al navegador per defecte a 5chan.app. Els iguals de navegador es connecten mitjançant WebSockets segurs;
 `pkc-js` denega per defecte les connexions per WebRTC i WebTransport perquè els seus camins
 d'establiment de connexió són lents i poc fiables al navegador. El canvi upstream que va fer
 practicable la publicació des del navegador el 2026 va ser la correcció del número de seqüència de

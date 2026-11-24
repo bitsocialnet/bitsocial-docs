@@ -312,8 +312,7 @@ si. Depois da descoberta, o cliente de navegador se conecta aos pares e busca os
 P2P.
 
 O P2P no navegador é hoje o caminho web padrão, e não um experimento atrás de uma chave. O 5chan
-roda P2P puro no navegador por padrão em 5chan.app, e o blog do Bitsocial em bitsocial.net faz o
-mesmo. Os pares de navegador discam por WebSockets seguros; o `pkc-js` recusa por padrão as
+roda P2P puro no navegador por padrão em 5chan.app. Os pares de navegador discam por WebSockets seguros; o `pkc-js` recusa por padrão as
 discagens WebRTC e WebTransport, porque seus caminhos de estabelecimento de conexão são lentos e
 pouco confiáveis no navegador. A mudança upstream que tornou a publicação pelo navegador viável em
 2026 foi a correção do número de sequência do gossipsub no `@libp2p/gossipsub` 15.0.21, que impediu

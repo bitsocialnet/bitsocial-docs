@@ -312,8 +312,7 @@ Community-Hash. Sie sind keine IPFS-Gateways, denn sie liefern die Inhalte selbs
 Suche verbindet sich der Browser-Client mit Peers und holt die Daten über den P2P-Stack.
 
 Browser-P2P ist inzwischen der Standardweg im Web und kein Experiment hinter einem Schalter. 5chan
-läuft unter 5chan.app standardmäßig als reines Browser-P2P, und der Bitsocial-Blog auf bitsocial.net
-tut dasselbe. Browser-Peers verbinden sich über sichere WebSockets; `pkc-js` lehnt Verbindungsversuche
+läuft unter 5chan.app standardmäßig als reines Browser-P2P. Browser-Peers verbinden sich über sichere WebSockets; `pkc-js` lehnt Verbindungsversuche
 über WebRTC und WebTransport standardmäßig ab, weil deren Verbindungsaufbau im Browser langsam und
 unzuverlässig ist. Die Upstream-Änderung, die das Veröffentlichen aus dem Browser 2026 praktikabel
 gemacht hat, war die Korrektur der gossipsub-Sequenznummern in `@libp2p/gossipsub` 15.0.21, die dafür

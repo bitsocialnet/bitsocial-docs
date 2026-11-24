@@ -63,7 +63,7 @@ The content is biased toward inference-time lookup, not formal API reference gen
 
 - [Captcha Canvas Challenge](https://docs.bitsocial.net/anti-spam/captcha-canvas-challenge/): Standalone image-based captcha challenge for Bitsocial communities.
 - [EVM Contract Call Challenge](https://docs.bitsocial.net/anti-spam/evm-contract-call/): Anti-spam challenge that verifies on-chain conditions by calling an EVM smart contract.
-- [Spam Blocker](https://docs.bitsocial.net/anti-spam/spam-blocker/): Centralized spam detection service with risk scoring, OAuth challenges, and configurable tier thresholds.
+- [Spam Blocker](https://docs.bitsocial.net/anti-spam/spam-blocker/): Hosted spam detection for Bitsocial communities, with risk scoring, CAPTCHA and sign-in checks, and connection policies.
 - [Voucher Challenge](https://docs.bitsocial.net/anti-spam/voucher-challenge/): Anti-spam challenge that gates publishing behind unique voucher codes distributed by community owners.
 
 ## Infrastructure
@@ -1063,7 +1063,7 @@ hash. They are not IPFS gateways, because they do not serve the content itself. 
 browser client connects to peers and fetches the data through the P2P stack.
 
 Browser P2P is now the default web path, not an experiment behind a switch. 5chan runs pure browser
-P2P by default at 5chan.app, and the Bitsocial blog on bitsocial.net does the same. Browser peers
+P2P by default at 5chan.app. Browser peers
 dial over secure WebSockets; `pkc-js` denies WebRTC and WebTransport dials by default because their
 connection-establishment paths are slow and unreliable in the browser. The upstream change that made
 browser publishing practical in 2026 was the gossipsub sequence-number fix in `@libp2p/gossipsub`
@@ -1844,82 +1844,89 @@ For communities that do not rely on on-chain identity, consider [Spam Blocker](h
 
 Source: https://docs.bitsocial.net/anti-spam/spam-blocker/
 Path: docs/anti-spam/spam-blocker.md
-Description: Centralized spam detection service with risk scoring, OAuth challenges, and configurable tier thresholds.
+Description: Hosted spam detection for Bitsocial communities, with risk scoring, CAPTCHA and sign-in checks, and connection policies.
 
 # Spam Blocker
 
-Spam Blocker is a centralized spam detection service that evaluates incoming publications and assigns risk scores. It consists of two packages:
+Spam Blocker scores posts, replies and votes for spam risk before a community accepts them. A community installs the challenge package, which sends each publication to a spam blocker service. Bitsocial runs one at `spamblocker.bitsocial.net`.
 
-- **`@bitsocial/spam-blocker-server`** -- the HTTP server that hosts the evaluation and challenge APIs.
-- **`@bitsocial/spam-blocker-challenge`** -- a lightweight client package that communities integrate to send publications for evaluation.
+- **`@bitsocial/spam-blocker-challenge`** is the open-source challenge package that communities install. Its integration contract, shared schemas and API are public.
+- **The hosted service** scores publications and serves the CAPTCHA and sign-in pages. Its detailed weights and heuristics are private, as the [source policy](https://github.com/bitsocialnet/spam-blocker/blob/master/docs/architecture/hosted-service-source-policy.md) explains.
 
 **Source code:** [github.com/bitsocialnet/spam-blocker](https://github.com/bitsocialnet/spam-blocker)
 
-## How Risk Scoring Works
+## How a publication is checked
 
-Every publication submitted to the `/evaluate` endpoint receives a numeric risk score. The score is a weighted combination of several signals:
+1. The community's challenge sends the signed publication to the service, which returns a risk score between 0 and 1.
+2. Below the community's auto-accept threshold, the publication passes. At or above its auto-reject threshold, it fails and the author sees why.
+3. In between, the author's remembered sign-in is reused when it is enough. Otherwise the author gets a verification page: a CAPTCHA when a CAPTCHA alone can pass, or a sign-in. Through a VPN, proxy or datacenter connection the community restricts, the author needs a sign-in at any score below the auto-reject threshold, unless an exemption under Connection policies applies.
+4. The community then checks the result with the service and applies its own rules for country, IP risk and connection type.
 
-| Signal            | Description                                                                                            |
-| ----------------- | ------------------------------------------------------------------------------------------------------ |
-| Account age       | Newer accounts receive higher risk scores.                                                             |
-| Karma             | Accumulated community karma reduces risk.                                                              |
-| Author reputation | Reputation data gathered by the background network indexer.                                            |
-| Content analysis  | Text-level heuristics (link density, known spam patterns, etc.).                                       |
-| Velocity          | Rapid successive posts from the same author increase risk.                                             |
-| IP intelligence   | Country-level geolocation and threat-feed lookups. Raw IP addresses are never shared with communities. |
+Before uploading an attached file, a client can run the same check as a pre-check, which spares most authors who would be rejected an upload. The publication is checked again when it is published, so it can still fail after a pre-check passed.
 
-## Tier Thresholds
+## Risk score
 
-The risk score maps to one of four configurable tiers that determine what happens next:
+| Signal              | Description                                                                                                    |
+| ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Account age         | Newer accounts receive higher risk scores.                                                                     |
+| Karma               | Accumulated community karma reduces risk.                                                                      |
+| Author reputation   | Data from a background indexer that tracks which authors get accepted, removed or banned across communities.   |
+| Content and links   | Text and link analysis, including repeated content.                                                            |
+| Velocity            | Rapid successive posts from the same author increase risk.                                                     |
+| IP intelligence     | Connection type (Tor, VPN, proxy, datacenter) and IP risk. Raw IP addresses are never shared with communities. |
+| Linked accounts     | Many accounts posting from one network raise risk progressively.                                               |
+| Social verification | Earlier sign-ins on the author's account lower risk.                                                           |
 
-1. **Auto-accept** -- score is low enough that the publication is approved without any challenge.
-2. **OAuth-sufficient** -- the author must complete an OAuth verification to proceed.
-3. **OAuth-plus-more** -- OAuth alone is not enough; additional verification (e.g., CAPTCHA) is required.
-4. **Auto-reject** -- score is too high; the publication is rejected outright.
+## Verification
 
-All threshold values are configurable per community.
+Each completed step multiplies the risk score, and the publication passes when the result is below 0.4.
 
-## Challenge Flow
+| Step                                      | Multiplier    |
+| ----------------------------------------- | ------------- |
+| CAPTCHA (Cloudflare Turnstile)            | × 0.7         |
+| Sign-in with Google, Apple or Telegram    | × 0.6         |
+| Sign-in with a second, different provider | another × 0.5 |
 
-When a publication falls into a tier that requires verification, the challenge flow begins:
+A CAPTCHA that is not enough is followed by a sign-in. A sign-in that is not enough is followed by a CAPTCHA when that finishes the check, and otherwise by a second provider.
 
-1. The author is first prompted to authenticate via **OAuth** (GitHub, Google, Twitter, and other supported providers).
-2. If OAuth alone is insufficient (tier 3), a **CAPTCHA fallback** powered by Cloudflare Turnstile is presented.
-3. The OAuth identity is used solely for verification -- it is **never shared** with the community or other users.
+### Remembered sign-ins
 
-## API Endpoints
+The service remembers the account an author last signed in with. A later post that needs verification reuses it, as if the author had signed in again, when one of the author's posts used it in the past 30 days. A reuse counts as such a post, so the 30 days restart with each one. When that is enough, the post passes with no CAPTCHA. This stops when a ban in the community is tied to the account, or when the service stops offering its provider.
 
-### `POST /evaluate`
+## Connection policies
 
-Submit a publication for risk evaluation. Returns the computed risk score and the required challenge tier.
+Communities can restrict publications from Tor, VPN (including iCloud Private Relay), proxy and datacenter connections. On the hosted service:
 
-### `POST /challenge/verify`
+- **VPN, proxy and datacenter connections** can post after a sign-in. The page explains why the sign-in is needed and how to post without one by turning off the VPN. A ban in the community then also applies to the account used to sign in.
+- **Established accounts** are exempt from the VPN, proxy and datacenter restrictions, but not from Tor's. An account is established after it passes a CAPTCHA or sign-in on 3 separate days from unrestricted connections; posts that passed without one do not count. A network counts toward only one account: once another account passes a check from it, it counts for neither. In a community that banned an account on one of those networks, none of the history counts.
+- **Tor** stays restricted, except for authors with an exemption the community has configured: a moderator role, the community's whitelist, or a verified `.bso` name.
 
-Submit the result of a completed challenge (OAuth token, CAPTCHA solution, or both) for verification.
-
-### `GET /iframe/:sessionId`
-
-Returns an embeddable HTML page that renders the appropriate challenge UI for the given session.
-
-## Rate Limiting
-
-Rate limits are applied dynamically based on author age and reputation. Newer or lower-reputation authors face stricter limits, while established authors enjoy more generous thresholds. This prevents spam floods without penalizing trusted participants.
-
-## Background Network Indexer
-
-The server runs a background indexer that continuously crawls the network to build and maintain author reputation data. This data feeds directly into the risk scoring pipeline, allowing the system to recognize repeat good-faith participants across communities.
+Attached files uploaded to Forge Images follow the same rules. Through a VPN, proxy or datacenter connection, the upload needs a pre-check that passed with a sign-in, or an established account. Through Tor, it needs a verified exemption.
 
 ## Privacy
 
-Spam Blocker is designed with privacy in mind:
+- **The operator** stores raw IP addresses and publication content for abuse detection, and sends IP addresses to a third-party provider for classification (proxycheck.io by default).
+- **Communities** receive only the country code, the IP risk, the connection type estimate and the pass or fail result. They never receive the raw IP or the sign-in account.
+- **Sign-ins** request no profile data. The service receives only an account ID from Google, Apple or Telegram, never a name, email or photo. It keeps the ID with the post, with no automatic deletion, so a ban also applies to the account.
+- **Authors on a VPN** keep their real IP address hidden when they sign in: the service sees only the VPN's address.
 
-- OAuth identities are used only for challenge verification and are **never disclosed** to communities.
-- The service operator stores raw IP addresses for abuse detection and sends them to a third-party IP intelligence provider for classification.
-- Communities receive only the country code, IP risk, and connection type estimate, never the raw IP.
+## Rate limiting
 
-## Database
+Before scoring, the service rejects authors who exceed their hourly or daily budget for posts, replies and votes. Budgets grow with account age and good reputation, and shrink after bans or removals.
 
-The server uses **SQLite** (via `better-sqlite3`) for local persistence of reputation data, session state, and configuration.
+## API
+
+The main routes, relative to `spamblocker.bitsocial.net/api/v1`:
+
+| Route                    | Caller                      | Purpose                                      |
+| ------------------------ | --------------------------- | -------------------------------------------- |
+| `POST /evaluate`         | Challenge iframe, community | Score a publication and create its session   |
+| `POST /challenge/verify` | Community                   | Read the session outcome and IP intelligence |
+| `POST /precheck`         | Pre-check iframe            | Score a draft before upload                  |
+| `GET /iframe/:sessionId` | Author's browser            | Verification page                            |
+| `POST /upload/authorize` | Author's client             | Authorize an attached file for Forge Images  |
+
+The full contract, including request signing and response schemas, is in the [spam-blocker README](https://github.com/bitsocialnet/spam-blocker#api-contract).
 
 ### Voucher Challenge
 
@@ -4509,235 +4516,24 @@ If an address does not match what is listed here, it is not the official BSO tok
 
 ## Companion project READMEs
 
-### Bitsocial Web
+### bitsocial-web (archived)
 
 Repository: bitsocialnet/bitsocial-web
 Source: https://github.com/bitsocialnet/bitsocial-web#readme
-Description: Bitsocial Web is the public web monorepo for Bitsocial.
+Description: This monorepo was split into one repository per site in November 2026. The sites and their domains are unchanged; only the code location moved.
 
-# Bitsocial Web
+# bitsocial-web (archived)
 
-Bitsocial Web is the public web monorepo for Bitsocial.
+This monorepo was split into one repository per site in November 2026. The sites and their domains are unchanged; only the code location moved.
 
-It currently serves:
+| Site | Domain | Repository |
+| --- | --- | --- |
+| Landing page | [bitsocial.net](https://bitsocial.net) | [bitsocialnet/bitsocial-about](https://github.com/bitsocialnet/bitsocial-about) |
+| Docs | [docs.bitsocial.net](https://docs.bitsocial.net) | [bitsocialnet/bitsocial-docs](https://github.com/bitsocialnet/bitsocial-docs) |
+| Stats | [stats.bitsocial.net](https://stats.bitsocial.net) | [bitsocialnet/bitsocial-stats](https://github.com/bitsocialnet/bitsocial-stats) |
+| Bitsocial Chain landing page | [chain.bitsocial.net](https://chain.bitsocial.net) | [bitsocialnet/bitsocial-chain](https://github.com/bitsocialnet/bitsocial-chain) (`site/`) |
 
-- `https://bitsocial.net/` for the public Bitsocial landing/about site
-- `https://chain.bitsocial.net/` for the Bitsocial Chain landing site (BSO token and L2 appchain)
-- `https://docs.bitsocial.net/` for Docusaurus docs
-- `https://stats.bitsocial.net/` for the live network stats dashboard
-
-Chain, docs, and stats are served on their own subdomains while remaining in this monorepo. Legacy `/docs` and `/stats` paths on `bitsocial.net` redirect permanently to their dedicated subdomains.
-
-## Repo Layout
-
-```text
-about/   Public Bitsocial landing/about site
-chain/   Bitsocial Chain landing site (BSO token and L2 appchain)
-docs/    Docusaurus docs, i18n files, and contributor playbooks
-stats/   Stats dashboard, monitor, Prometheus, Grafana, Docker Compose, and deploy config
-scripts/ Shared repo scripts and agent hooks
-```
-
-Each top-level subproject has its own local documentation:
-
-- [`about/README.md`](https://github.com/bitsocialnet/bitsocial-web/blob/HEAD/about/README.md)
-- [`chain/README.md`](https://github.com/bitsocialnet/bitsocial-web/blob/HEAD/chain/README.md)
-- [`docs/README.md`](https://github.com/bitsocialnet/bitsocial-web/blob/HEAD/docs/README.md)
-- [`stats/README.md`](https://github.com/bitsocialnet/bitsocial-web/blob/HEAD/stats/README.md)
-
-The `chain/` workspace is a standalone Vite app for the Bitsocial Chain marketing site. Run it with `corepack yarn start:chain` or build it with `corepack yarn build:chain`.
-
-The repo root remains the orchestration layer for installs, verification, and cross-project commands.
-
-## Getting Started
-
-Use the pinned Node.js version from [`.nvmrc`](https://github.com/bitsocialnet/bitsocial-web/blob/HEAD/.nvmrc) and Yarn 4 via Corepack.
-
-```bash
-nvm install && nvm use
-corepack enable
-corepack yarn install
-```
-
-The main local URL is:
-
-- `https://bitsocial.localhost`
-
-Portless keeps a stable named local URL. On non-`master` branches, the repo can fall back to a branch-scoped `*.bitsocial.localhost` route so parallel worktrees do not collide.
-
-## Common Commands
-
-```bash
-corepack yarn start
-corepack yarn start:stats
-corepack yarn start:stats-web
-corepack yarn start:android-usb
-corepack yarn start:ios-sim
-corepack yarn llms:generate
-corepack yarn build:verify
-corepack yarn build
-corepack yarn docs:build:verify
-corepack yarn lint
-corepack yarn typecheck
-corepack yarn format:check
-corepack yarn doctor
-corepack yarn build:stats-dashboards
-corepack yarn build:stats-web
-corepack yarn stats:up
-corepack yarn stats:down
-corepack yarn stats:logs
-```
-
-## Verification
-
-Before committing code changes, run:
-
-```bash
-corepack yarn build:verify
-corepack yarn lint
-corepack yarn typecheck
-corepack yarn format:check
-```
-
-Use `corepack yarn build` only when you intentionally need the full production build, including
-the multi-locale docs output.
-
-If you changed React UI logic in `about/src/**`, also run:
-
-```bash
-corepack yarn doctor
-```
-
-If dependencies or manifests changed, also run:
-
-```bash
-corepack yarn deps:check-pinned
-corepack yarn deps:check-hardened
-corepack yarn knip
-```
-
-If public-facing English content changed, regenerate the LLM indexes:
-
-```bash
-corepack yarn llms:generate
-```
-
-This keeps `about/public/llms*.txt`, `chain/public/llms*.txt`, and `docs/static/llms*.txt`
-aligned with the landing pages, docs pages, project directory data, public README text, and
-the generator itself.
-
-## Subproject Notes
-
-### `chain/`
-
-- Contains the Bitsocial Chain landing site for BSO and the proposed L2 appchain
-- Standalone Vite app under `chain/`; served at `https://chain.bitsocial.net/`
-- Is translated into every supported language, including the Chain narrative and FAQ
-
-### `about/`
-
-- Contains the Bitsocial landing/about site
-- Currently also contains the public `/projects` catalog and `/projects/:slug` app detail routes
-- Keeps static assets and translations in `about/public/`
-- Should not be treated as the long-term home for the project catalog or the blog
-
-### `docs/`
-
-- Contains the canonical Docusaurus project
-- Translation source lives in `docs/i18n/`
-- Contributor playbooks and long-running agent state also live here
-
-### `stats/`
-
-- Contains the stats dashboard (`stats/web/`), the monitor service (`stats/monitor/`), Prometheus, Grafana, and deployment files
-- Public traffic is served at `stats.bitsocial.net` by the dashboard on the VPS; Grafana stays on the VPS loopback for operators
-
-### Future Splits
-
-- The existing project catalog at `/projects` is expected to be extracted from `about/` into its own subproject, and later may move to `apps.bitsocial.net`.
-- The blog is also expected to become its own subproject rather than continue to live under `about/`.
-- `about/` should stay focused on explaining Bitsocial as a whole.
-
-## Translations
-
-Landing-site translations live under:
-
-- `about/public/translations/{lang}/default.json`
-
-The Chain site's strings, including its landing narrative and FAQ, live under:
-
-- `chain/public/translations/{lang}/default.json`
-
-English (`en`) is the source: the Chain components read it through i18next keys, and `scripts/generate-llms-files.mjs` builds the Chain `llms.txt` files from it.
-
-Docs translations live under:
-
-- `docs/i18n/{lang}/...`
-
-For translation workflow details, see [`docs/agent-playbooks/translations.md`](https://github.com/bitsocialnet/bitsocial-web/blob/HEAD/docs/agent-playbooks/translations.md).
-
-## AI Contributor Policy
-
-This repo uses tracked AI workflow files and instructions. Read [`AGENTS.md`](https://github.com/bitsocialnet/bitsocial-web/blob/HEAD/AGENTS.md) before making changes.
-
-Relevant local rules also live in:
-
-- [`about/AGENTS.md`](https://github.com/bitsocialnet/bitsocial-web/blob/HEAD/about/AGENTS.md)
-- [`about/src/AGENTS.md`](https://github.com/bitsocialnet/bitsocial-web/blob/HEAD/about/src/AGENTS.md)
-- [`docs/AGENTS.md`](https://github.com/bitsocialnet/bitsocial-web/blob/HEAD/docs/AGENTS.md)
-- [`stats/AGENTS.md`](https://github.com/bitsocialnet/bitsocial-web/blob/HEAD/stats/AGENTS.md)
-- [`scripts/AGENTS.md`](https://github.com/bitsocialnet/bitsocial-web/blob/HEAD/scripts/AGENTS.md)
-
-## Deployment Shape
-
-- `bitsocial.net` is served by Vercel
-- `chain.bitsocial.net` is served from the standalone Chain app
-- `docs.bitsocial.net` is served from the docs build
-- `stats.bitsocial.net` routes to the VPS-hosted stats dashboard
-- Legacy `/docs` and `/stats` paths on `bitsocial.net` return permanent redirects to those subdomains
-- `newsletter.bitsocial.net` remains separate
-
-### Verified App Mirror Deployments
-
-The `/apps` catalog can show a verified check next to app mirrors when a mirror serves
-the same HTML entrypoint hash as an official GitHub release artifact. This is meant to
-attest release parity, not domain ownership.
-
-For 5chan and Seedit verified web links, the Vercel `5chan` and `seedit` projects are
-configured so Git pushes do not automatically create deployments:
-
-```text
-gitProviderOptions.createDeployments = "disabled"
-```
-
-Production domains such as `5chan.cc`, `5channel.org`, `5chan.app`, `seedit.app`,
-`www.seedit.app`, and `p2p.seedit.app` should only be updated from a GitHub release
-or tag deployment. Do not point those domains at a raw `master` deployment unless
-that deployment has first been promoted into an official release and its static HTML
-artifact hash has been checked.
-
-When adding or updating mirror verification metadata in `about/src/lib/apps-data.ts`,
-verify the live mirror HTML against the matching release ZIP before showing the badge.
-If the live hash does not match a GitHub release artifact, leave the mirror unverified
-until the mirror is redeployed from the release or a new release is cut for the served
-artifact.
-
-## Commit Workflow
-
-This repo uses Commitizen for Conventional Commits.
-
-- Interactive: `corepack yarn commit`
-- Non-interactive: `git commit -m "type(scope): message"`
-
-The Husky Commitizen hook prompts only when a terminal is available. In non-interactive shells it
-skips the prompt and the commit uses the message you provided. Use `--no-verify` only when you
-explicitly need to bypass local hooks.
-
-### React diagnostics and performance
-
-Run `yarn agent:verify` for affected builds, automatic Doctor diagnostics, and repeated real-app render budgets. Profiling uses sandboxed system Chrome. Check for Chrome with `yarn perf:install`. To install it system-wide, pass `--force`. `perf:check` includes the collector compatibility selftest, also available alone as `yarn perf:test`. `yarn perf:record --target about` (or `chain`/`docs`) saves JSON and Chrome trace evidence under `.react-perf/`. Scenarios live in `scripts/react-perf/config.mjs`. Development uses a bounded Bippy collector; normal production omits it. For production component timing, build with `yarn build:profile:about`, `build:profile:chain`, or `build:profile:docs` and record against that separate preview URL. See `.agents/skills/profile-browsing/references/measurement.md` for coverage and timing limits.
-
-The about `apps-search` scenario waits for each character to appear in both the `/projects` URL query and input before typing the next. It verifies a sequence of committed changes and does not test rapid-typing responsiveness or rule out lost characters during overlapping router navigation.
+Each new repository keeps the commit history of its part of this one. Open issues and pull requests there.
 
 ### 5chan
 
@@ -5710,11 +5506,11 @@ The equivalent community settings, with pkc-js `exclude` rules to skip the check
 | `autoRejectThreshold` | `0.8`                                      | Reject when the risk score is at or above this value                        |
 | `countryBlacklist`    | _(empty)_                                  | Comma-separated ISO 3166-1 alpha-2 country codes to reject, e.g. `RU,CN,KP` |
 | `maxIpRisk`           | `1.0`                                      | Reject when the IP risk reported by the service exceeds this value          |
-| `blockVpn`            | `false`                                    | Reject publications from VPN IPs                                            |
-| `blockProxy`          | `false`                                    | Reject publications from proxy IPs                                          |
+| `blockVpn`            | `false`                                    | Restrict VPN IPs, including iCloud Private Relay; a sign-in unlocks them    |
+| `blockProxy`          | `false`                                    | Restrict proxy IPs; a sign-in unlocks them                                  |
 | `precheckExemptions`  | empty                                      | Public JSON declaration of supported challenge dependencies (see below)     |
 | `blockTor`            | `false`                                    | Reject publications from Tor exit nodes                                     |
-| `blockDatacenter`     | `false`                                    | Reject publications from datacenter IPs                                     |
+| `blockDatacenter`     | `false`                                    | Restrict datacenter IPs; a sign-in unlocks them                             |
 
 Validation:
 
@@ -5723,7 +5519,7 @@ Validation:
 - An empty or missing value falls back to the default.
 - An unknown country code or any other invalid option makes the challenge throw on every request, so the publication is not accepted.
 
-The country, IP risk, VPN, proxy, Tor, and datacenter rules are applied to the result of `/challenge/verify`, after the user has passed. `blockTor`, `blockVpn`, `blockProxy`, and `blockDatacenter` are also sent in the community-signed evaluation so the service can enforce each connection policy before verification. IP classification is an estimate and can be wrong. Connection-policy rejections name the category actually reported by the service; a datacenter classification is not presented as a detected VPN. Messages list only declared whitelist/verified `.bso` exemptions and unconditional moderator-role exemptions. These policies are not cooldowns: waiting alone does not remove a connection restriction. A policy-enabled challenge requires complete classification evidence from `/challenge/verify`; missing or incomplete evidence fails closed without claiming a connection category. Deploy a compatible service before upgrading policy-enabled challenges. Older services that omit this evidence cannot approve those connections; communities without connection restrictions retain compatibility.
+The country, IP risk, VPN, proxy, Tor, and datacenter rules are applied to the result of `/challenge/verify`, after the user has passed. `blockTor`, `blockVpn`, `blockProxy`, and `blockDatacenter` are also sent in the community-signed evaluation so the service can enforce each connection policy before verification. IP classification is an estimate and can be wrong. Connection-policy rejections name the category actually reported by the service; a datacenter classification is not presented as a detected VPN. Messages list only declared whitelist/verified `.bso` exemptions and unconditional moderator-role exemptions. These policies are not cooldowns: waiting alone does not remove a connection restriction. One exception is decided by the service: an account that passed a CAPTCHA or OAuth on at least 3 separate days from unrestricted connections is exempt from `blockVpn`, `blockProxy` and `blockDatacenter` (never `blockTor`), and `/challenge/verify` reports it as `connectionExemption: "established_account"`. The hosted service also lets a new account post through a VPN, proxy or datacenter connection after it signs in: instead of rejecting the post, its challenge page asks for a sign-in, explains that posting through the connection is restricted due to abuse and how to post without signing in, and a ban in the community then follows the sign-in account. `/challenge/verify` reports that case as `connectionExemption: "sign_in"`. For either exemption it also sets `establishedAccount: true`, which is all challenge versions up to 0.1.14 read (`false` when such a connection does not qualify; rejections explain the passed-days exemption only then, since older services omit the field). Connection rejections give abuse as the reason ("Posting through a VPN has been blocked in this community due to abuse."). Only history from unrestricted connections counts, a network counts only while no other account has passed a challenge from it (one network establishes at most one account), and none counts in a community that banned an account on a network in that history, so the exemption gives nobody a connection or an extra author identity they could not already post with. iCloud Private Relay counts as a VPN; `/challenge/verify` reports `privateRelay: true` for it, and rejections name Private Relay and tell Safari users how to show their IP address to the site. A relay address blocked as a proxy or datacenter network is named with that category. Older challenge versions ignore both fields and keep rejecting those connections. A policy-enabled challenge requires complete classification evidence from `/challenge/verify`; missing or incomplete evidence fails closed without claiming a connection category. Deploy a compatible service before upgrading policy-enabled challenges. Older services that omit this evidence cannot approve those connections; communities without connection restrictions retain compatibility.
 
 **What is public.** pkc-js strips `options` from the public community record. It publishes only `type`, `description`, `challenge`, and `exclude`. Because `challenge` is the [pre-check marker](#pre-check-pass), the server URL, connection policies (`blockTor`, `blockVpn`, `blockProxy`, and `blockDatacenter`, each set to `true` when enabled), and any explicit `precheckExemptions` policy are public. Thresholds, country restrictions, and the IP-risk limit stay private to the community operator.
 
@@ -5735,7 +5531,7 @@ The country, IP risk, VPN, proxy, Tor, and datacenter rules are applied to the r
 4. The service returns a risk score between 0 and 1:
     - below `autoAcceptThreshold`: the session completes;
     - at or above `autoRejectThreshold`: the session fails and the page explains why;
-    - in between: the page redirects to the verification page (OAuth sign-in first, CAPTCHA as a fallback).
+    - in between: the author's sign-in from the past 30 days is reused first, and completes the session when it is enough; otherwise the page redirects to the verification page, which asks for a CAPTCHA when a CAPTCHA alone can pass and for a sign-in otherwise (see [Iframe pages](#iframe-pages)).
 5. The page tells the client the outcome is ready, and the client sends a `ChallengeAnswer` with an empty string.
 6. The community calls `/challenge/verify` with the session id. On success it applies its own IP rules from the options above, then accepts or rejects the publication.
 
@@ -5747,15 +5543,19 @@ author opens iframe -> POST /evaluate -> riskScore
   |
   ├─ <  autoAcceptThreshold -> completed ----------------------------> /challenge/verify -> success
   ├─ >= autoRejectThreshold -> failed -------------------------------> /challenge/verify -> rejected
-  └─ in between -> verification page
+  └─ in between
         |
-        ├─ OAuth sign-in
-        |     ├─ enough -> completed --------------------------------> /challenge/verify -> success
-        |     └─ not enough -> second OAuth provider, or CAPTCHA
+        ├─ remembered sign-in is enough -> completed ----------------> /challenge/verify -> success
         |
-        └─ "I don't have a social account" -> CAPTCHA
-              ├─ enough -> completed --------------------------------> /challenge/verify -> success
-              └─ not enough -> OAuth required
+        └─ otherwise -> verification page
+              |
+              ├─ CAPTCHA, when a CAPTCHA alone can pass
+              |     ├─ enough -> completed --------------------------> /challenge/verify -> success
+              |     └─ not enough -> sign-in
+              |
+              └─ sign-in, for a restricted connection or a higher score
+                    ├─ enough -> completed --------------------------> /challenge/verify -> success
+                    └─ not enough -> CAPTCHA if it finishes, else second provider
 ```
 
 Other behavior of the challenge package:
@@ -5800,7 +5600,7 @@ A pass is single use and is accepted only for the author signer and community th
 
 ### Tor-blocking communities
 
-A successful pass still opens a brief lazy iframe when publishing, so the server can check the current connection. Earned CAPTCHA and OAuth credit is kept. This stops an author from passing a pre-check on one network and then publishing through Tor.
+Redeeming a pass adds no check of the current connection. The pass carries the connection its pre-check confirmed in the author's browser under the same rules, so a redemption that decides the post returns `completed` or `failed` without an iframe. The lazy iframe opens only as the table above describes: for a post that still needs verification, or after an error or timeout. The spam blocker only sees the network of the browser that opens its pages, and the author chooses that network for the pre-check as for any later page, so a second check could not stop a post through Tor. A community check without a pass still opens a brief lazy iframe so the server can check the current connection.
 
 Community-side exemptions remain authoritative. Operators can set `options.precheckExemptions` to a JSON string declaring exactly the known challenge dependencies they use:
 
@@ -5824,6 +5624,17 @@ The server verifies the author's signing identity, checks ownership of a claimed
 
 The final community still verifies eligibility. An early exemption is not a reusable authorization to bypass other communities, challenges, or upload policies. The Tor rejection explains the configured whitelist and verified-name exceptions when this policy is present.
 
+### Attached files
+
+Forge Images asks the hosted service before it accepts an attached file. The author's client sends an author-signed `POST /upload/authorize` naming the community, the pre-check session id and the file's SHA-256, size and type, and gets a single-use token bound to that file for five minutes. Forge checks the token with the service when the upload arrives.
+
+- From an unrestricted connection, a completed pre-check by that author for that community authorizes the file.
+- Through a VPN, proxy or datacenter connection, the pre-check authorizes it only when it passed with a sign-in that no ban in the community is linked to, or when the author is an established account there. That is the same exemption `/challenge/verify` reports as `connectionExemption`.
+- Through Tor, only a verified exemption authorizes it: a moderator role, the community's whitelist, or a verified `.bso` name, on a community the operator has approved.
+- An upload sent to Forge Images without a token is allowed only from a connection confirmed as none of the four restricted types.
+
+A pre-check authorizes at most 25 files, and a signer at most 30 per hour.
+
 ## API contract
 
 All routes are relative to `serverUrl`, for example `https://spamblocker.bitsocial.net/api/v1`. Response schemas for `/evaluate` and `/challenge/verify` are exported from [`packages/shared/src/types.ts`](https://github.com/bitsocialnet/spam-blocker/blob/HEAD/packages/shared/src/types.ts).
@@ -5838,13 +5649,16 @@ All routes are relative to `serverUrl`, for example `https://spamblocker.bitsoci
 | `GET /iframe/:sessionId/precheck`  | Author's browser        | Bootstrap page that calls `/precheck`               |
 | `GET /iframe/:sessionId`           | Author's browser        | Verification page (OAuth and CAPTCHA)               |
 | `POST /challenge/complete`         | Verification page       | Submit a solved CAPTCHA                             |
-| `GET /oauth/:provider/start`       | Verification page       | Start an OAuth sign-in                              |
+| `GET /oauth/:provider/open`        | Verification page       | Sign-in window that waits for the page's grant      |
+| `POST /oauth/:provider/begin`      | Sign-in window          | Start an OAuth sign-in with that grant              |
+| `GET /oauth/:provider/start`       | Sign-in window          | Start a sign-in without a grant (same network only) |
 | `GET /oauth/:provider/callback`    | OAuth provider          | Finish an OAuth sign-in                             |
 | `GET /oauth/status/:sessionId`     | Verification page       | Poll OAuth progress                                 |
+| `POST /upload/authorize`           | Author's client         | Authorize one attached file for Forge Images        |
 
 ### Signed CBOR requests
 
-`/evaluate`, `/challenge/verify`, and `/precheck` take `Content-Type: application/cbor` bodies. CBOR keeps `Uint8Array` values intact, which signature verification depends on. Responses are JSON.
+`/evaluate`, `/challenge/verify`, `/precheck`, and `/upload/authorize` take `Content-Type: application/cbor` bodies. CBOR keeps `Uint8Array` values intact, which signature verification depends on. Responses are JSON.
 
 To sign a request, CBOR-encode an object holding the signed properties, sign those bytes with Ed25519, and add:
 
@@ -5857,7 +5671,7 @@ signature: {
 }
 ```
 
-`/evaluate` and `/challenge/verify` are signed by the community signer. This stops parties unrelated to the community from querying the service about its authors. The hosted service checks that the signer matches the community, resolving domain addresses through pkc-js. `/precheck` is signed by the author.
+`/evaluate` and `/challenge/verify` are signed by the community signer. This stops parties unrelated to the community from querying the service about its authors. The hosted service checks that the signer matches the community, resolving domain addresses through pkc-js. `/precheck` and `/upload/authorize` are signed by the author.
 
 ### POST /evaluate
 
@@ -5928,6 +5742,9 @@ Response:
     ipTypeEstimation?: string; // Legacy primary category; do not use alone to enforce connection policy
     connectionTypes?: ("tor" | "proxy" | "vpn" | "datacenter")[]; // Every positively detected category
     ipClassificationComplete?: boolean; // Confirmed user origin and all four classification flags known
+    privateRelay?: boolean; // The origin is an iCloud Private Relay egress address (also reported as "vpn")
+    connectionExemption?: "established_account" | "sign_in"; // Set when the author is exempt from VPN, proxy and datacenter policies for this publication
+    establishedAccount?: boolean; // Set when a VPN, proxy or datacenter connection is detected; true when connectionExemption is set (read by challenge versions up to 0.1.14)
 }
 ```
 
@@ -5975,6 +5792,68 @@ Response:
 
 The pre-check is not a security boundary. Redemption re-scores the real signed publication, and the community still applies its verify-time rules. Pre-check sessions never count as publishing history. The endpoint is rate-limited per client IP. Repeating a request for an existing session by the same author returns its current state, and any other reuse of the id returns 409.
 
+### POST /upload/authorize
+
+Called from the author's client before it uploads an attached file to Forge Images, with the session id of the comment's completed pre-check. Who may upload through a restricted connection is described in [Attached files](#attached-files). The route answers cross-origin browser requests.
+
+Request:
+
+```typescript
+{
+    communityAddress: string; // Domain or IPNS address the comment is for
+    authorAddress: string; // Address derived from the signing public key; anything else is rejected
+    authorName?: string; // The author's .bso name, checked for a verified-name exemption
+    precheckSessionId?: string; // "precheck-<lowercase uuid v4>" of the comment's completed pre-check
+    parentCid?: string; // The parent comment, for a reply
+    upload: {
+        sha256: string; // SHA-256 of the file's bytes, 64 lowercase hex characters
+        byteLength: number; // File size in bytes, at most 50 MiB
+        mimeType: string; // Declared MIME type, at most 128 characters
+    };
+    nonce: string; // UUID, never reused by this signer
+    timestamp: number; // Unix seconds, within 5 minutes of server time
+    signature: {
+        // Author's signer. signedPropertyNames must list every other field the request carries
+    };
+}
+```
+
+Response:
+
+```typescript
+{
+    token: string; // 43 base64url characters, valid once
+    expiresAt: number; // Unix seconds, 5 minutes after issue
+}
+```
+
+A refusal is JSON `{ allowed: false, code, message, error, connectionType?, retryAt? }`:
+
+| Status | `code`                                  | Meaning                                                                                                      |
+| ------ | --------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 400    | `invalid_request`                       | The body does not match the schema, including unknown fields                                                 |
+| 401    | `invalid_signature`, `invalid_author`   | The signature does not cover every field, or `authorAddress` is not the signer's                             |
+| 403    | `connection_blocked`, `tor_blocked`     | The connection is restricted and nothing exempts this upload; `connectionType` names it                      |
+| 409    | `precheck_required`, `replayed_request` | No usable pre-check for this author and community, or the nonce was already used                             |
+| 429    | `rate_limited`                          | A per-IP, per-signer or per-pre-check limit was reached; `retryAt` (Unix seconds) and `Retry-After` say when |
+| 503    | `unavailable`                           | The connection or an exemption could not be verified                                                         |
+
+To upload, send the file to Forge Images with the header `X-Bitsocial-Upload-Authorization` set to the base64url encoding of a JSON object holding the token and the same file metadata, and no other properties:
+
+```typescript
+const authorization = Buffer.from(
+    JSON.stringify({
+        token, // from the response above
+        sha256: upload.sha256, // the same values as in the request
+        byteLength: upload.byteLength,
+        mimeType: upload.mimeType
+    })
+).toString("base64url");
+// headers: { "X-Bitsocial-Upload-Authorization": authorization }
+```
+
+Forge checks the token with the service before reading the file, then rejects a file whose size or SHA-256 differs from the authorized one. A token is consumed even if the upload then fails.
+
 ### GET /challenge/status/:sessionId
 
 Returns `{ completed, status, outcome?, warning? }` and sends `Access-Control-Allow-Origin: *`, so a client can read a pre-check's result after the cross-origin iframe posts its answer.
@@ -5986,11 +5865,18 @@ Returns `{ completed, status, outcome?, warning? }` and sends `Access-Control-Al
 
 - **`/iframe/:sessionId/lazy`** does not create a session by itself. Its script reads the signed payload from the URL fragment and posts it to `/evaluate`. It then completes, redirects to the verification page, or shows why the publication was rejected until the author presses Close.
 - **`/iframe/:sessionId/precheck`** does the same for a `precheck-` session id, posting to `/precheck`.
-- **`/iframe/:sessionId`** shows OAuth sign-in buttons. If a CAPTCHA alone can pass at the session's score, it also shows an "I don't have a social account" link. When no OAuth provider is configured, it serves a CAPTCHA only.
+- **`/iframe/:sessionId`** is the verification page, for a check the author's remembered sign-in did not already pass (see below). It shows a CAPTCHA when a CAPTCHA alone can pass at the session's score. It asks for a sign-in instead for a VPN, proxy or datacenter connection the community restricts, for a score a CAPTCHA cannot bring under the pass threshold, and after a CAPTCHA that was not enough. A sign-in that is not enough is followed by a CAPTCHA when that finishes the check, and otherwise by a sign-in with a second provider. Without a configured CAPTCHA it always asks for a sign-in; without a configured sign-in provider it serves a CAPTCHA only. Every configured provider is offered, including ones the author used before. Before any of this, a check that waits for verification reuses the author's last sign-in from the past 30 days, unless a ban in the community is linked to that account or its provider is no longer offered. When that sign-in is enough, the post completes with no CAPTCHA from any connection; when it is not, the page continues from it as after a sign-in that is not enough.
+- **Sign-in windows.** The verification page loads only from the address its session is bound to. It hands the sign-in window it opens a signed grant, which the service requires to start the sign-in. So the sign-in works when iCloud Private Relay or a VPN gives that window another address, and knowing a session ID is not enough to sign in to it. A sign-in link opened any other way must start on the same network as the page (the same IPv4 address or IPv6 /64), so a challenge link cannot be signed in from another network.
 
 Challenge pages post `{ type: "challengeCompletionManaged", sessionId }` to the parent window on load. This tells the client that the page sends the answer itself, as `{ type: "challengeAnswer", challengeAnswers: [""], sessionId }`, once the author has seen the outcome.
 
-The hosted service supports GitHub, Google, Twitter, Yandex, TikTok, Discord, and Reddit sign-in, and Cloudflare Turnstile as the CAPTCHA.
+The hosted service offers Google, Apple, and Telegram sign-in, and Cloudflare Turnstile as the CAPTCHA.
+
+It does not offer GitHub or Discord, which the server supports, for three reasons:
+
+- **New accounts cost nothing.** Both need only an email address, so a banned author could sign up again for free. Apple and Telegram accounts require a phone number, and Google usually asks for one. GitHub and Discord do report when an account was created, so they could be accepted for old accounts only, but old accounts are sold cheaply.
+- **Privacy.** Their sign-ins send profile data with the account ID; GitHub's profile includes the name, public email and avatar. The service could then no longer say it receives only an account ID.
+- **Ban evasion.** Every extra provider is one more account a banned author can come back with.
 
 ## Risk scoring and enforcement
 
@@ -6011,7 +5897,7 @@ Each completed verification step multiplies the risk score. The session passes w
 | OAuth + CAPTCHA                      | score × 0.6 × 0.7      | about 0.95                         |
 | OAuth + a second, different provider | score × 0.6 × 0.5      | any score that was not rejected    |
 
-A CAPTCHA that is not enough returns `oauthRequired`, and the page goes back to the sign-in view.
+A CAPTCHA that is not enough returns `oauthRequired`, and the page switches to the sign-in view.
 
 ### Rate limiting
 
@@ -6061,7 +5947,10 @@ This is a defense local to the hosted service. It is not a protocol-wide identit
 - The hosted operator stores raw IP addresses and publication content for abuse detection. All of it is visible to the operator.
 - IP addresses are sent to a third-party provider for classification: proxycheck.io by default, or ipapi.is when the operator configures an ipapi.is key.
 - Communities receive only the country code, the IP risk, the network type estimate, and the pass or fail result. They never receive the raw IP.
-- OAuth identities (`provider:userId`) are stored by the operator and never shared with communities. The service only confirms that a sign-in succeeded.
+- OAuth identities (`provider:userId`) are stored by the operator with the publication and its network record, with no automatic deletion, so a ban also applies to the account. They are never shared with communities, which learn only that a sign-in succeeded.
+- Sign-ins request no profile data: Google and Telegram get only the `openid` scope and Apple no scopes, so the service receives only an account ID, never a name, email, or photo. Telegram's confirmation screen still says the site receives your name, username, and photo.
+- Google's and Telegram's account IDs are the same for every site that uses them. Apple issues its ID per developer team, so sites of other developers cannot match it.
+- Signing in through a VPN, proxy, or relay does not reveal the author's real IP address: the service sees only the address of that connection.
 - The `explanation` field gives the reasoning behind a score.
 
 ## Known limitations
@@ -7040,11 +6929,32 @@ An automatic challenge for `@pkcprotocol/pkc-js` communities that verifies an au
 
 When an author publishes to a community with this challenge enabled, the community node calls a read-only smart contract method with the author's wallet address as the argument and compares the return value against a configured condition (e.g. `>1000`). The challenge tries three sources for the wallet address:
 
-1. **Wallet address** — the `author.wallets[chainTicker]` address, verified via EIP-191 signature
+1. **Wallet address** — the `author.wallets[chainTicker]` address, verified with a [BSIP-22](https://github.com/bitsocialnet/BSIPs/blob/master/BSIPS/bsip-22.md) wallet proof (see [Wallet proofs](#wallet-proofs))
 2. **ENS/BSO domain** — if the author's address is a `.eth` or `.bso` domain, it resolves to an on-chain address
-3. **NFT avatar** — the current owner of the author's avatar NFT
+3. **NFT avatar** — currently **disabled**. The avatar proof is signed over `author.address` with a legacy `plebbit-` separator, and there is no BSIP for avatar proofs yet (BSIP-22 covers wallets only). The code stays in the repository and will be re-enabled once a BSIP defines the proof ([BSIP discussion](https://github.com/bitsocialnet/BSIPs/issues/40), [tracking issue](https://github.com/bitsocialnet/evm-contract-challenge/issues/11)).
 
 If any source produces a wallet that passes the contract call condition, the challenge succeeds. No user interaction is required.
+
+## Wallet proofs
+
+The wallet source follows [BSIP-22, Author Wallet Proofs](https://github.com/bitsocialnet/BSIPs/blob/master/BSIPS/bsip-22.md). The wallet signs this exact string with EIP-191 (`personal_sign`), and `signature.type` is `eip191`:
+
+```
+{"domainSeparator":"bitsocial-author-wallet","authorPublicKey":"<key address>","walletAddress":"<wallet address>","timestamp":<timestamp>}
+```
+
+- `authorPublicKey` is the key address (`12D3KooW…`) of the author's **signing key**, which pkc-js exposes as `author.publicKey`. **Do not use `author.address`.** It is `author.name || publicKey`, so it follows a name when the name is repointed to another key.
+- `walletAddress` is the wallet entry's `address` in lowercase.
+- `timestamp` is the entry's `timestamp`, an unquoted integer. It may be at most 300 seconds ahead of the community node's clock.
+- The field order is fixed and there is no whitespace. Build the string by concatenation, not with a serializer whose key order you have not confirmed.
+
+Verification is stateless and needs no RPC: there is no "newest timestamp wins" and nothing is stored per wallet or per author. A signature with `v` other than 27 or 28, or with `s` in the upper half of the curve order, is rejected. A wallet entry with a `signature.type` other than `eip191` is unproven and does not satisfy this challenge, but it does not reject the publication: the ENS source can still pass.
+
+A publication whose `author.wallets` contains an **invalid** entry, for any chain, is rejected outright, as BSIP-22 requires of a community. It does not fall through to the ENS source, and the reason names the chain ticker of the failing entry. A proof counts only when the signature of the publication that carries it is valid too, which pkc-js checks before the challenge runs. The `address` of an `eip191` entry must be `0x` followed by 40 hex digits, not a name. An entry of another type is unproven before its address is looked at, so it may use another chain's address format. Every entry, whatever its type, must still have the shape `{ address: string, timestamp: integer, signature: { signature: string, type: string } }`, or it is invalid.
+
+Proofs signed with the old `plebbit-author-wallet` or `pkc-author-wallet` separators, over `author.address`, or without `walletAddress` are not accepted. Authors re-sign.
+
+One wallet can still back several author keys. Whether to limit that is a separate question for this challenge, not a part of wallet-proof validity ([#12](https://github.com/bitsocialnet/evm-contract-challenge/issues/12)).
 
 ## Requirements
 
@@ -8185,7 +8095,7 @@ EXAMPLES
   $ bitsocial challenge install ./my-local-challenge
 ```
 
-_See code: [src/cli/commands/challenge/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/challenge/install.ts)_
+_See code: [src/cli/commands/challenge/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/challenge/install.ts)_
 
 ## `bitsocial challenge list`
 
@@ -8211,7 +8121,7 @@ EXAMPLES
   $ bitsocial challenge list -q
 ```
 
-_See code: [src/cli/commands/challenge/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/challenge/list.ts)_
+_See code: [src/cli/commands/challenge/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/challenge/list.ts)_
 
 ## `bitsocial challenge ls`
 
@@ -8271,7 +8181,7 @@ EXAMPLES
   $ bitsocial challenge remove my-challenge --force
 ```
 
-_See code: [src/cli/commands/challenge/remove.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/challenge/remove.ts)_
+_See code: [src/cli/commands/challenge/remove.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/challenge/remove.ts)_
 
 ## `bitsocial challenge rm NAME`
 
@@ -8403,7 +8313,7 @@ EXAMPLES
     $ bitsocial community create --jsonFile ./create-options.json
 ```
 
-_See code: [src/cli/commands/community/create.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/community/create.ts)_
+_See code: [src/cli/commands/community/create.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/create.ts)_
 
 ## `bitsocial community delete ADDRESSES`
 
@@ -8428,7 +8338,7 @@ EXAMPLES
   $ bitsocial community delete 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/community/delete.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/community/delete.ts)_
+_See code: [src/cli/commands/community/delete.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/delete.ts)_
 
 ## `bitsocial community edit ADDRESS`
 
@@ -8505,7 +8415,7 @@ EXAMPLES
     $ bitsocial community edit bitsocial.bso --jsonFile ./edit-options.json
 ```
 
-_See code: [src/cli/commands/community/edit.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/community/edit.ts)_
+_See code: [src/cli/commands/community/edit.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/edit.ts)_
 
 ## `bitsocial community export [ADDRESS]`
 
@@ -8546,7 +8456,7 @@ EXAMPLES
   $ bitsocial community export --publicKey 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/community/export.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/community/export.ts)_
+_See code: [src/cli/commands/community/export.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/export.ts)_
 
 ## `bitsocial community get [ADDRESS]`
 
@@ -8577,7 +8487,7 @@ EXAMPLES
   $ bitsocial community get --publicKey 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/community/get.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/community/get.ts)_
+_See code: [src/cli/commands/community/get.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/get.ts)_
 
 ## `bitsocial community list`
 
@@ -8600,7 +8510,7 @@ EXAMPLES
   $ bitsocial community list
 ```
 
-_See code: [src/cli/commands/community/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/community/list.ts)_
+_See code: [src/cli/commands/community/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/list.ts)_
 
 ## `bitsocial community start ADDRESSES`
 
@@ -8634,7 +8544,7 @@ EXAMPLES
     $ bitsocial community start $(bitsocial community list -q) --concurrency 1
 ```
 
-_See code: [src/cli/commands/community/start.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/community/start.ts)_
+_See code: [src/cli/commands/community/start.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/start.ts)_
 
 ## `bitsocial community stop ADDRESSES`
 
@@ -8659,7 +8569,7 @@ EXAMPLES
   $ bitsocial community stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 
-_See code: [src/cli/commands/community/stop.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/community/stop.ts)_
+_See code: [src/cli/commands/community/stop.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/stop.ts)_
 
 ## `bitsocial daemon`
 
@@ -8709,7 +8619,7 @@ EXAMPLES
   $ bitsocial daemon --no-allowPrivateKeyExport
 ```
 
-_See code: [src/cli/commands/daemon.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/daemon.ts)_
+_See code: [src/cli/commands/daemon.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/daemon.ts)_
 
 ## `bitsocial help [COMMAND]`
 
@@ -8773,7 +8683,7 @@ EXAMPLES
   $ bitsocial logs --stdout -f
 ```
 
-_See code: [src/cli/commands/logs.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/logs.ts)_
+_See code: [src/cli/commands/logs.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/logs.ts)_
 
 ## `bitsocial page-sort add PACKAGE`
 
@@ -8865,7 +8775,7 @@ EXAMPLES
   $ bitsocial page-sort install ./my-local-page-sort
 ```
 
-_See code: [src/cli/commands/page-sort/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/page-sort/install.ts)_
+_See code: [src/cli/commands/page-sort/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/page-sort/install.ts)_
 
 ## `bitsocial page-sort list`
 
@@ -8891,7 +8801,7 @@ EXAMPLES
   $ bitsocial page-sort list -q
 ```
 
-_See code: [src/cli/commands/page-sort/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/page-sort/list.ts)_
+_See code: [src/cli/commands/page-sort/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/page-sort/list.ts)_
 
 ## `bitsocial page-sort ls`
 
@@ -8949,7 +8859,7 @@ EXAMPLES
   $ bitsocial page-sort remove @pkcprotocol/active-page-sort --force
 ```
 
-_See code: [src/cli/commands/page-sort/remove.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/page-sort/remove.ts)_
+_See code: [src/cli/commands/page-sort/remove.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/page-sort/remove.ts)_
 
 ## `bitsocial page-sort rm NAME`
 
@@ -9070,7 +8980,7 @@ EXAMPLES
   $ bitsocial reachability disable --purge
 ```
 
-_See code: [src/cli/commands/reachability/disable.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/reachability/disable.ts)_
+_See code: [src/cli/commands/reachability/disable.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/reachability/disable.ts)_
 
 ## `bitsocial reachability enable`
 
@@ -9090,7 +9000,7 @@ EXAMPLES
   $ bitsocial reachability enable
 ```
 
-_See code: [src/cli/commands/reachability/enable.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/reachability/enable.ts)_
+_See code: [src/cli/commands/reachability/enable.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/reachability/enable.ts)_
 
 ## `bitsocial reachability setup`
 
@@ -9127,7 +9037,7 @@ EXAMPLES
   $ bitsocial reachability setup --non-interactive
 ```
 
-_See code: [src/cli/commands/reachability/setup.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/reachability/setup.ts)_
+_See code: [src/cli/commands/reachability/setup.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/reachability/setup.ts)_
 
 ## `bitsocial reachability status`
 
@@ -9153,7 +9063,7 @@ EXAMPLES
   $ bitsocial reachability status --json
 ```
 
-_See code: [src/cli/commands/reachability/status.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/reachability/status.ts)_
+_See code: [src/cli/commands/reachability/status.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/reachability/status.ts)_
 
 ## `bitsocial update check`
 
@@ -9170,7 +9080,7 @@ EXAMPLES
   $ bitsocial update check
 ```
 
-_See code: [src/cli/commands/update/check.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/update/check.ts)_
+_See code: [src/cli/commands/update/check.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/update/check.ts)_
 
 ## `bitsocial update install [VERSION]`
 
@@ -9202,7 +9112,7 @@ EXAMPLES
   $ bitsocial update install --no-restart-daemons
 ```
 
-_See code: [src/cli/commands/update/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/update/install.ts)_
+_See code: [src/cli/commands/update/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/update/install.ts)_
 
 ## `bitsocial update versions`
 
@@ -9224,7 +9134,7 @@ EXAMPLES
   $ bitsocial update versions --limit 5
 ```
 
-_See code: [src/cli/commands/update/versions.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.144/src/cli/commands/update/versions.ts)_
+_See code: [src/cli/commands/update/versions.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/update/versions.ts)_
 
 ## Contribution
 
@@ -10044,6 +9954,34 @@ as its redacted tombstone, though only for the bare lookup: with `author`,
 `site`, `url`, `self` or `selftext` set, tombstones stay hidden as in text
 search, since a yes/no answer over redacted content would leak it. A CID mixed
 with other words is an ordinary text search.
+
+## Snapshots
+
+`npm run snapshot -- <output-dir>` (or `node dist/snapshot.js <output-dir>` in
+the Docker image) writes a downloadable copy of everything the instance serves:
+
+| File | Contents |
+|------|----------|
+| `communities.jsonl.gz` | One community per line, as `GET /api/communities` returns it |
+| `comments.jsonl.gz` | One comment per line, as `GET /api/posts/:cid` returns it, grouped by thread with the original post first |
+| `manifest.json` | Format name and version, creation time, and record count, size and SHA-256 of each file |
+
+A snapshot holds only what the API serves. Mod-queue comments are left out.
+Removed, deleted and taken-down comments stay as tombstones with their content
+nulled, so threads keep their shape. With `BLOCKLIST_SOURCE` set, the file is
+read again and applied on top of the takedowns already stored, so an entry the
+server has not polled yet is still redacted. If that file cannot be read, no
+snapshot is written. The export only reads the database. With
+`BLOCKLIST_SOURCE` unset, only stored takedowns apply.
+
+The export runs in one read transaction while the crawler keeps writing. It
+never overwrites: the output directory must not exist yet, and a failed run
+leaves nothing behind. In Docker, run it next to the server, for example
+`docker compose exec server node dist/snapshot.js /data/snapshots/2026-11-23`.
+
+Content taken down after a snapshot is published remains in that copy. Publish
+snapshots somewhere you can replace them, and generate a new one after each
+takedown.
 
 ## Running your own instance
 
@@ -11766,7 +11704,7 @@ Four things follow from that design:
 - **The community cannot intercept a tip.** The money moves before the reply is published, straight to the recipient.
 - **The community can hide a tip but cannot fake one.** The verified result includes the transaction hash, so any client can check it against the chain.
 - **A payment is made for one comment.** The transaction carries a suffix naming the parent comment, so it cannot back a tip on another comment or in another community. See [The parent binding](#the-parent-binding).
-- **Replies without a tip are not affected.** The challenge never prompts anyone. It passes everything that carries no tip claim.
+- **Replies without a tip are not affected.** The challenge never prompts anyone. It passes everything that carries no tip claim, except a comment that carries its own `tip` field. See [A comment cannot carry `tip`](#a-comment-cannot-carry-tip).
 
 ## The `tipping/v1` contract
 
@@ -11790,7 +11728,7 @@ This package is one implementation. Anything that publishes `tipping/v1/tokens` 
 | `chainId` | yes | The numeric chain ID, as a JSON number: `1` for Ethereum mainnet, `8453` for Base. A positive integer, never a string |
 | `type` | yes | `native`, `erc20` or `erc721` |
 | `address` | for `erc20` and `erc721` | The token contract. Left out for `native` |
-| `minAmount` | no | Smallest tip accepted. Not allowed for `erc721` |
+| `minAmount` | no | Smallest tip accepted. Not allowed for `erc721`. Set it on every `erc20` entry: see below |
 | `fee` | no | The community fee for a tip in this token. Leave out to charge nothing |
 
 `fee` is one of:
@@ -11812,13 +11750,15 @@ Rules that apply to the whole list:
 
 A percentage fee is rounded **down**: `fee = floor(amount × percent / 100)`. A client may pay more. When the result is 0, no fee is owed.
 
+**Set `minAmount` to keep out zero-amount tips.** An ERC-20 `transfer` of 0 succeeds and emits a `Transfer` event, so on an `erc20` entry without `minAmount` it verifies as a tip with `amount: "0"`, and a percentage fee on it rounds down to nothing. It costs the tipper only gas. A native coin tip must already have a value above 0, but a tip of one unit is as cheap, so a `minAmount` is recommended there too.
+
 Example. The first ERC-20 is Bitsocial's $BSO on Ethereum mainnet. The other contract addresses are placeholders, not real tokens:
 
 ```json
 [
   { "chainId": 1, "type": "native", "minAmount": "1000000000000000", "fee": { "percent": "2" } },
-  { "chainId": 1, "type": "erc20", "address": "0xB50cea4c109dc223A10d44c14f521CaeD91DaB5A", "fee": { "percent": "2.5" } },
-  { "chainId": 1, "type": "erc20", "address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0002", "fee": { "amount": "500000000000000000" } },
+  { "chainId": 1, "type": "erc20", "address": "0xB50cea4c109dc223A10d44c14f521CaeD91DaB5A", "minAmount": "1000000000000000000", "fee": { "percent": "2.5" } },
+  { "chainId": 1, "type": "erc20", "address": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0002", "minAmount": "1000000000000000000", "fee": { "amount": "500000000000000000" } },
   { "chainId": 1, "type": "erc721", "address": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0001", "fee": { "amount": "1000000", "token": "0xB50cea4c109dc223A10d44c14f521CaeD91DaB5A" } },
   { "chainId": 1, "type": "erc721", "address": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0002" }
 ]
@@ -11845,6 +11785,14 @@ challengeAnswers: {
 **What the challenge reads.** pkc-js hands the challenge the answer at its own index as `challengeAnswer`. No answer means no claim, and the reply passes untouched. The claim is not part of the signed comment, so it is not stored with the reply and not visible to other peers. Only the community node that receives the request sees it.
 
 The claim carries only those three keys. Any other key is rejected, so a claim cannot carry fields that look like the verified result. An answer that is not JSON, or not an object, is rejected.
+
+### A comment cannot carry `tip`
+
+The verified result is written to the comment update under `tip`. pkc-js keeps unknown fields of a signed comment and shows them on the `Comment` instance under the same name, so an author could sign a comment that carries its own `tip` field and send no claim.
+
+So the challenge rejects any comment, post or reply, whose signed publication has a top-level `tip` field. This is checked first, with or without a claim, and before the settings or the chain are read. A claim sent along with it is not verified and its transaction is not marked as used.
+
+This does not replace the client rule in [Display verified tips only](#5-display-verified-tips-only). The challenge does not run for an author excused by an `exclude` rule, and it never saw comments published before it was configured.
 
 ### What a valid tip is
 
@@ -12056,7 +12004,7 @@ Proofs signed with the earlier draft string that does not name `walletAddress`, 
 - **No sponsored gas.** [The tipper sends every claimed transaction](#who-sends-the-transaction), so the tipper's wallet needs the chain's native coin for gas, even for an ERC-20 or ERC-721 tip. Relayers, paymasters and ERC-4337 bundlers cannot submit a tip.
 - **A tip payment is recognisable on chain.** The suffix marks the transaction as a tip, whether or not the community shows it. Anyone who holds a comment's CID can hash it and match the payment to that comment, even when the reply was rejected or the tip is hidden.
 - **Communities that hide authors.** The recipient's wallet proof is checked against the signing key stored with the parent comment. A community that replaces author identities (pseudonymity) may store a different key there, in which case tips are rejected. This combination has not been tested.
-- **Excluded authors.** An author excused from this challenge by an `exclude` rule skips verification. No verified result is written for their reply, so a tip they paid does not show.
+- **Excluded authors.** An author excused from this challenge by an `exclude` rule skips verification. No verified result is written for their reply, so a tip they paid does not show. The check that [a comment cannot carry `tip`](#a-comment-cannot-carry-tip) is skipped for them too, which is why clients read the comment update only.
 
 ## For UI client developers
 
@@ -12233,7 +12181,9 @@ Show a tip only when both are true:
 
 Do not display from the author's claim. In a community that does not run this challenge, anyone can publish a reply with any `tip` field they like, and nothing has checked it.
 
-The claim is not stored with the reply. The verified result sits at the top level of the comment update, so on a `Comment` instance it is `comment.tip`.
+The claim is not stored with the reply. The verified result sits at the top level of the comment update, so read it from there: `comment.raw.commentUpdate?.tip`. `raw.commentUpdate` is missing until the first update arrives, and a missing update means no verified tip. A comment loaded from a page carries `raw` too.
+
+**Do not read `comment.tip`.** pkc-js copies unknown fields of the signed comment onto the `Comment` instance as well, so when the comment update has no `tip`, `comment.tip` is whatever the author signed. The challenge [rejects a comment that carries `tip`](#a-comment-cannot-carry-tip), but it does not run for an author excused by an `exclude` rule, and it never saw comments published before it was configured. Only the comment update is written by the community.
 
 Before displaying a tip, verify the wallets it names: `tip.from` must be the address of a valid `author.wallets` entry of the reply's author, and `tip.to` the address of a valid entry of the tipped comment's author. That check needs no network.
 
@@ -12243,11 +12193,99 @@ To show a total on a comment, sum the verified tips of its loaded replies, per `
 
 ## Installation
 
+The challenge runs on the community node. The node needs Node.js 22.19 or later, which is what pkc-js requires, and the package is ESM-only. Install it in one of the ways below, then set it on the community as [Configuration](#configuration) describes.
+
+### With bitsocial-cli
+
+```bash
+bitsocial challenge install @bitsocial/tipping-challenge
+```
+
+If the daemon was started with a custom `--pkcOptions.dataPath`, pass the same `--pkcOptions.dataPath` to `bitsocial challenge install`. Otherwise the package lands in the default data path, where the daemon does not look.
+
+The token list is a JSON string, which is awkward to pass as a command line flag, so put the edit in a file:
+
+```json
+{
+  "settings": {
+    "challenges": [
+      {
+        "name": "@bitsocial/tipping-challenge",
+        "options": {
+          "tipping/v1/tokens": "[{\"chainId\":1,\"type\":\"native\",\"minAmount\":\"1000000000000000\"}]"
+        },
+        "publicOptions": ["tipping/v1/tokens"]
+      }
+    ]
+  }
+}
+```
+
+```bash
+bitsocial community edit your-community.bso --jsonFile tipping.json
+```
+
+The CLI merges the file into the community's current settings, so other settings are kept. Arrays are the exception: `--jsonFile` replaces the whole `settings.challenges` array, so list the community's other challenges in the file too.
+
+### With pkc-js over RPC
+
+Install the challenge on the machine that runs the RPC server, with the daemon's `--pkcOptions.dataPath` if it has one:
+
+```bash
+bitsocial challenge install @bitsocial/tipping-challenge
+```
+
+The RPC client then sets the challenge by name. It does not install or register the package itself:
+
+```ts
+import PKC from "@pkcprotocol/pkc-js";
+
+const pkc = await PKC({ pkcRpcClientsOptions: ["ws://localhost:9138"] });
+// pkc-js has no default error listener. Without one, an emitted error crashes the process.
+pkc.on("error", (error) => console.error(error));
+const community = await pkc.createCommunity({ address: "your-community.bso" });
+
+const tipping = {
+  name: "@bitsocial/tipping-challenge",
+  options: {
+    "tipping/v1/tokens": JSON.stringify([{ chainId: 1, type: "native", minAmount: "1000000000000000" }])
+  },
+  publicOptions: ["tipping/v1/tokens"]
+};
+
+// Keep the other challenges. Drop an earlier tipping entry so that running this twice does not add it twice.
+const others = (community.settings?.challenges ?? []).filter((challenge) => challenge.name !== tipping.name);
+
+await community.edit({
+  settings: {
+    ...community.settings,
+    challenges: [...others, tipping]
+  }
+});
+```
+
+`community.edit` replaces the whole `settings` object, not only `settings.challenges`. An edit that passes `settings: { challenges: [tipping] }` removes the community's other challenges and its other settings, such as `settings.pages`. That is why the example spreads the current settings and adds to the current challenges.
+
+### With pkc-js, without RPC
+
+A node that runs pkc-js in its own process installs the package from npm and registers it before it starts the community:
+
 ```bash
 npm install @bitsocial/tipping-challenge
 ```
 
-Then register the package with your node the way your pkc-js setup loads challenge packages. To build from a clone instead, run `npm install` and `npm run build`.
+```ts
+import PKC from "@pkcprotocol/pkc-js";
+import tippingChallenge from "@bitsocial/tipping-challenge";
+
+PKC.challenges["@bitsocial/tipping-challenge"] = tippingChallenge;
+```
+
+Then call `community.edit` as in the RPC example above, keeping the current settings and challenges the same way.
+
+### From a clone
+
+Run `npm install` and `npm run build`, then register the default export of `dist/index.js` the same way.
 
 ## Configuration
 
@@ -12259,7 +12297,7 @@ Add the challenge to the community's `settings.challenges`. Option values are st
   options: {
     "tipping/v1/tokens": JSON.stringify([
       { chainId: 1, type: "native", minAmount: "1000000000000000" },
-      { chainId: 1, type: "erc20", address: "0xB50cea4c109dc223A10d44c14f521CaeD91DaB5A", fee: { percent: "2.5" } }
+      { chainId: 1, type: "erc20", address: "0xB50cea4c109dc223A10d44c14f521CaeD91DaB5A", minAmount: "1000000000000000000", fee: { percent: "2.5" } }
     ]),
     "tipping/v1/feeRecipient": "0x…",
     rpcUrls: JSON.stringify({ "1": "https://your-eth-node.example" })
@@ -14976,6 +15014,8 @@ There is deliberately **no L1 contract** in the intent path: an intent is any tr
 | `resolver/` | `@bitsocial/bso-chain-resolver` | Minimal resolver SDK, shape-compatible with `@bitsocial/bso-resolver` |
 | `demo/`     | `@bitsocial/bso-chain-demo`     | Runnable end-to-end demo on a local L1 dev chain |
 
+[`site/`](https://github.com/bitsocialnet/bitsocial-chain/blob/HEAD/site) holds the landing site served at [chain.bitsocial.net](https://chain.bitsocial.net). It is a standalone Yarn project outside the npm workspaces above, so the root `npm` commands never touch it; see [site/README.md](https://github.com/bitsocialnet/bitsocial-chain/blob/HEAD/site/README.md).
+
 Docs: [SPEC.md](https://github.com/bitsocialnet/bitsocial-chain/blob/HEAD/SPEC.md) (normative protocol rules) · [DESIGN.md](https://github.com/bitsocialnet/bitsocial-chain/blob/HEAD/DESIGN.md) (rationale and roadmap fit) · [POC_LIMITATIONS.md](https://github.com/bitsocialnet/bitsocial-chain/blob/HEAD/POC_LIMITATIONS.md) (shortcuts taken).
 
 Research: [RESEARCH_NATIVE_ROLLUPS.md](https://github.com/bitsocialnet/bitsocial-chain/blob/HEAD/RESEARCH_NATIVE_ROLLUPS.md) (production architecture candidate and a `.gwei` fork for names) · [RESEARCH_EEZ.md](https://github.com/bitsocialnet/bitsocial-chain/blob/HEAD/RESEARCH_EEZ.md) (Ethereum Economic Zone, synchronous composability with L1) · [RESEARCH_AZTEC_VS_FACET.md](https://github.com/bitsocialnet/bitsocial-chain/blob/HEAD/RESEARCH_AZTEC_VS_FACET.md) (privacy lane) · [RESEARCH_INTERFOLD_CRISP.md](https://github.com/bitsocialnet/bitsocial-chain/blob/HEAD/RESEARCH_INTERFOLD_CRISP.md) (sealed-bid auctions, secret ballots) · [ECONOMICS_DISCUSSION.md](https://github.com/bitsocialnet/bitsocial-chain/blob/HEAD/ECONOMICS_DISCUSSION.md) (burn vs. liquidity, AgoraSwap, community tokens).
@@ -15059,4 +15099,7 @@ This POC follows Stage-2-shaped design targets — no sequencer required for cor
 
 ## License
 
-[GPL-3.0-or-later](https://github.com/bitsocialnet/bitsocial-chain/blob/HEAD/LICENSE)
+This repository holds code under two licenses:
+
+- Everything outside `site/` (the proof of concept and the research docs): [GPL-3.0-or-later](https://github.com/bitsocialnet/bitsocial-chain/blob/HEAD/LICENSE).
+- The landing site in `site/`: [AGPL-3.0-only](https://github.com/bitsocialnet/bitsocial-chain/blob/HEAD/site/LICENSE), the license it had in bitsocialnet/bitsocial-web.

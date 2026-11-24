@@ -305,8 +305,7 @@ adreslerini döndürürler. IPFS ağ geçidi değildirler, çünkü içeriğin k
 sonra tarayıcı istemcisi eşlere bağlanır ve veriyi P2P yığını üzerinden alır.
 
 Tarayıcı P2P'si artık bir düğmenin arkasındaki deney değil, varsayılan web yoludur. 5chan,
-5chan.app adresinde varsayılan olarak saf tarayıcı P2P'si çalıştırır; bitsocial.net üzerindeki
-Bitsocial blogu da aynısını yapar. Tarayıcı eşleri güvenli WebSockets üzerinden bağlanır; `pkc-js`
+5chan.app adresinde varsayılan olarak saf tarayıcı P2P'si çalıştırır. Tarayıcı eşleri güvenli WebSockets üzerinden bağlanır; `pkc-js`
 WebRTC ve WebTransport bağlantı denemelerini varsayılan olarak reddeder, çünkü bu yöntemlerin
 bağlantı kurma yolları tarayıcıda yavaş ve güvenilmezdir. 2026'da tarayıcıdan yayımlamayı pratik
 hâle getiren yukarı akış değişikliği, `@libp2p/gossipsub` 15.0.21 sürümündeki gossipsub sıra numarası

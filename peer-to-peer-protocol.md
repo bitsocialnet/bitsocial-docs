@@ -304,7 +304,7 @@ hash. They are not IPFS gateways, because they do not serve the content itself. 
 browser client connects to peers and fetches the data through the P2P stack.
 
 Browser P2P is now the default web path, not an experiment behind a switch. 5chan runs pure browser
-P2P by default at 5chan.app, and the Bitsocial blog on bitsocial.net does the same. Browser peers
+P2P by default at 5chan.app. Browser peers
 dial over secure WebSockets; `pkc-js` denies WebRTC and WebTransport dials by default because their
 connection-establishment paths are slow and unreliable in the browser. The upstream change that made
 browser publishing practical in 2026 was the gossipsub sequence-number fix in `@libp2p/gossipsub`

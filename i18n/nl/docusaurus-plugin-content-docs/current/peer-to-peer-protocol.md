@@ -315,7 +315,7 @@ een community-hash. Het zijn geen IPFS-gateways, want ze leveren de inhoud zelf 
 peers gevonden zijn, verbindt de browserclient met die peers en haalt hij de data op via de P2P-stack.
 
 P2P in de browser is nu het standaardpad voor het web, geen experiment achter een schakelaar. 5chan
-draait standaard puur browser-P2P op 5chan.app, en de Bitsocial-blog op bitsocial.net doet hetzelfde.
+draait standaard puur browser-P2P op 5chan.app.
 Browserpeers verbinden via beveiligde WebSockets; `pkc-js` weigert standaard verbindingspogingen via
 WebRTC en WebTransport, omdat het opzetten van die verbindingen in de browser traag en onbetrouwbaar
 is. De upstream-wijziging die publiceren vanuit de browser in 2026 praktisch maakte, was de correctie

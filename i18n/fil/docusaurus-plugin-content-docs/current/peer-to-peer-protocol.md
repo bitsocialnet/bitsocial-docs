@@ -322,8 +322,7 @@ inihahatid ang nilalaman mismo. Pagkatapos ng pagtuklas, kumokonekta ang kliyent
 peer at kinukuha ang data sa pamamagitan ng P2P stack.
 
 Ang browser P2P na ngayon ang default na landas sa web, hindi isang eksperimentong nakatago sa likod
-ng isang switch. Purong browser P2P ang default na takbo ng 5chan sa 5chan.app, at ganoon din ang
-blog ng Bitsocial sa bitsocial.net. Nagda-dial ang mga browser peer sa pamamagitan ng secure na
+ng isang switch. Purong browser P2P ang default na takbo ng 5chan sa 5chan.app. Nagda-dial ang mga browser peer sa pamamagitan ng secure na
 WebSockets; tinatanggihan ng `pkc-js` ang mga dial sa WebRTC at WebTransport bilang default dahil
 mabagal at hindi maaasahan sa browser ang kanilang mga landas sa pagtatatag ng koneksyon. Ang
 pagbabago sa upstream na nagpapraktikal sa paglalathala mula sa browser noong 2026 ay ang pag-aayos

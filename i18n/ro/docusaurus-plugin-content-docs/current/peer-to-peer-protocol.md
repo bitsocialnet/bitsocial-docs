@@ -314,8 +314,7 @@ furnizorilor pentru hash-ul unei comunități. Nu sunt gateway-uri IPFS, pentru 
 prin stiva P2P.
 
 P2P în browser este acum calea web implicită, nu un experiment ascuns în spatele unui comutator.
-5chan rulează implicit P2P pur din browser la 5chan.app, iar blogul Bitsocial de pe bitsocial.net
-face la fel. Nodurile din browser se conectează prin WebSockets securizate; `pkc-js` refuză implicit
+5chan rulează implicit P2P pur din browser la 5chan.app. Nodurile din browser se conectează prin WebSockets securizate; `pkc-js` refuză implicit
 conexiunile WebRTC și WebTransport, pentru că modul lor de stabilire a conexiunii este lent și
 nesigur în browser. Modificarea din upstream care a făcut publicarea din browser practicabilă în 2026
 a fost corectarea numerelor de secvență gossipsub din `@libp2p/gossipsub` 15.0.21, care a oprit

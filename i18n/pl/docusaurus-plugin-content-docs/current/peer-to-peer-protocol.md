@@ -306,8 +306,7 @@ społeczności. Nie są bramami IPFS, ponieważ same nie serwują treści. Po od
 przeglądarce łączy się z peerami i pobiera dane przez stos P2P.
 
 P2P w przeglądarce jest teraz domyślną ścieżką webową, a nie eksperymentem ukrytym za przełącznikiem.
-5chan domyślnie działa w czystym trybie P2P w przeglądarce pod adresem 5chan.app, a blog Bitsocial na
-bitsocial.net robi to samo. Peery w przeglądarce łączą się przez bezpieczne WebSockets; `pkc-js`
+5chan domyślnie działa w czystym trybie P2P w przeglądarce pod adresem 5chan.app. Peery w przeglądarce łączą się przez bezpieczne WebSockets; `pkc-js`
 domyślnie odrzuca połączenia WebRTC i WebTransport, ponieważ ich ścieżki nawiązywania połączenia są w
 przeglądarce wolne i zawodne. Zmianą po stronie upstreamu, dzięki której publikowanie z przeglądarki
 stało się w 2026 roku praktyczne, była poprawka numerów sekwencyjnych gossipsub w

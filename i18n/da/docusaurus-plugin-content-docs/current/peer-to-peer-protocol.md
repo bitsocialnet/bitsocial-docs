@@ -308,7 +308,7 @@ fællesskabs hash. De er ikke IPFS-gateways, for de leverer ikke selve indholdet
 forbinder browserklienten til peers og henter dataene gennem P2P-stakken.
 
 P2P i browseren er nu standardvejen på nettet og ikke et eksperiment bag en kontakt. 5chan kører som
-standard ren browser-P2P på 5chan.app, og Bitsocial-bloggen på bitsocial.net gør det samme.
+standard ren browser-P2P på 5chan.app.
 Browser-peers ringer op over sikre WebSockets; `pkc-js` afviser som standard opkald via WebRTC og
 WebTransport, fordi deres forbindelsesopbygning er langsom og upålidelig i browseren. Den
 opstrømsændring, der gjorde publicering fra browseren praktisk mulig i 2026, var rettelsen af

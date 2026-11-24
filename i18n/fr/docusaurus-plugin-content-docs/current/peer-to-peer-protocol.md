@@ -319,8 +319,7 @@ servent pas le contenu eux-mêmes. Après la découverte, le client navigateur s
 récupère les données via la pile P2P.
 
 Le P2P dans le navigateur est aujourd'hui le chemin web par défaut, et non une expérimentation
-cachée derrière un interrupteur. 5chan fonctionne par défaut en P2P navigateur pur sur 5chan.app, et
-le blog Bitsocial sur bitsocial.net fait de même. Les pairs navigateur se connectent via des
+cachée derrière un interrupteur. 5chan fonctionne par défaut en P2P navigateur pur sur 5chan.app. Les pairs navigateur se connectent via des
 WebSockets sécurisés ; `pkc-js` refuse par défaut les connexions WebRTC et WebTransport, car leurs
 procédures d'établissement de connexion sont lentes et peu fiables dans le navigateur. Le changement
 en amont qui a rendu la publication depuis le navigateur praticable en 2026 est la correction du

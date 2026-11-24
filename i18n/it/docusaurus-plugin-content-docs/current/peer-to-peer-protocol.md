@@ -310,8 +310,7 @@ fornitori per l'hash di una comunità. Non sono gateway IPFS, perché non servon
 Dopo la scoperta, il client browser si collega ai peer e recupera i dati attraverso lo stack P2P.
 
 Il P2P nel browser è ormai il percorso web predefinito, non un esperimento nascosto dietro un
-interruttore. 5chan usa in modo predefinito il P2P puro nel browser su 5chan.app, e il blog di
-Bitsocial su bitsocial.net fa lo stesso. I peer nel browser stabiliscono connessioni tramite
+interruttore. 5chan usa in modo predefinito il P2P puro nel browser su 5chan.app. I peer nel browser stabiliscono connessioni tramite
 WebSockets sicuri; `pkc-js` rifiuta in modo predefinito le connessioni WebRTC e WebTransport perché i
 loro percorsi di apertura della connessione sono lenti e inaffidabili nel browser. La modifica
 upstream che nel 2026 ha reso pratica la pubblicazione dal browser è stata la correzione del numero

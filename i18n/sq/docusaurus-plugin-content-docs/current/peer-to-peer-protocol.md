@@ -312,8 +312,7 @@ e një komuniteti. Ata nuk janë gateway IPFS, sepse nuk e shërbejnë vetë pë
 klienti në shfletues lidhet me nyjet dhe i merr të dhënat përmes grumbullit P2P.
 
 P2P në shfletues tani është rruga e parazgjedhur e uebit, jo një eksperiment pas një çelësi. 5chan
-funksionon si parazgjedhje me P2P të pastër në shfletues te 5chan.app, dhe blogu i Bitsocial në
-bitsocial.net bën të njëjtën gjë. Nyjet në shfletues lidhen përmes WebSockets të sigurta; `pkc-js` i
+funksionon si parazgjedhje me P2P të pastër në shfletues te 5chan.app. Nyjet në shfletues lidhen përmes WebSockets të sigurta; `pkc-js` i
 refuzon si parazgjedhje thirrjet WebRTC dhe WebTransport, sepse rrugët e tyre për vendosjen e lidhjes
 janë të ngadalta dhe të pabesueshme në shfletues. Ndryshimi në rrjedhën e sipërme që e bëri praktik
 publikimin nga shfletuesi në vitin 2026 ishte rregullimi i numrit sekuencial të gossipsub-it në

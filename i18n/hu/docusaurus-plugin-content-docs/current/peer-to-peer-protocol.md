@@ -314,8 +314,7 @@ címeket adnak vissza. Nem IPFS-átjárók, mert magát a tartalmat nem szolgál
 a böngészőkliens csatlakozik a társakhoz, és a P2P-készleten keresztül kéri le az adatokat.
 
 A böngészős P2P mostanra az alapértelmezett webes út, nem pedig kapcsoló mögé rejtett kísérlet. Az
-5chan alapértelmezés szerint tiszta böngészős P2P-vel fut az 5chan.app címen, és ugyanezt teszi a
-bitsocial.net oldalon futó Bitsocial blog is. A böngészőben futó társak biztonságos WebSocketeken
+5chan alapértelmezés szerint tiszta böngészős P2P-vel fut az 5chan.app címen. A böngészőben futó társak biztonságos WebSocketeken
 keresztül építenek kapcsolatot; a `pkc-js` alapértelmezés szerint elutasítja a WebRTC- és
 WebTransport-kapcsolódásokat, mert ezek kapcsolatfelépítési útvonalai lassúak és megbízhatatlanok a
 böngészőben. Az a felsőbb szintű változás, amely 2026-ban gyakorlativá tette a böngészőből való

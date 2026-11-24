@@ -305,8 +305,7 @@ en community-hash. De är inte IPFS-gateways, eftersom de inte levererar själva
 upptäckten ansluter webbläsarklienten till peers och hämtar datan via P2P-stacken.
 
 P2P i webbläsaren är numera standardvägen på webben, inte ett experiment bakom en inställning. 5chan
-kör ren webbläsar-P2P som standard på 5chan.app, och Bitsocial-bloggen på bitsocial.net gör samma
-sak. Webbläsarens peers kopplar upp sig över säkra WebSockets; `pkc-js` nekar som standard
+kör ren webbläsar-P2P som standard på 5chan.app. Webbläsarens peers kopplar upp sig över säkra WebSockets; `pkc-js` nekar som standard
 uppkopplingar via WebRTC och WebTransport, eftersom deras sätt att upprätta anslutningar är långsamt
 och opålitligt i webbläsaren. Den uppströmsändring som gjorde publicering från webbläsaren praktiskt
 användbar under 2026 var korrigeringen av gossipsubs sekvensnummer i `@libp2p/gossipsub` 15.0.21, som

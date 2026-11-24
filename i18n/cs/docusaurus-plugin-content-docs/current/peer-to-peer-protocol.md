@@ -300,8 +300,7 @@ komunity. Nejsou to IPFS brány, protože samotný obsah nedoručují. Po naleze
 v prohlížeči k peerům připojí a stáhne data přes P2P vrstvu.
 
 P2P v prohlížeči je nyní výchozí webová cesta, ne experiment schovaný za přepínačem. 5chan běží ve
-výchozím nastavení jako čisté prohlížečové P2P na 5chan.app a blog Bitsocial na bitsocial.net dělá
-totéž. Peeři v prohlížeči navazují spojení přes zabezpečené WebSockets; `pkc-js` ve výchozím
+výchozím nastavení jako čisté prohlížečové P2P na 5chan.app. Peeři v prohlížeči navazují spojení přes zabezpečené WebSockets; `pkc-js` ve výchozím
 nastavení odmítá spojení přes WebRTC a WebTransport, protože jejich navazování je v prohlížeči
 pomalé a nespolehlivé. Upstreamovou změnou, díky které bylo publikování z prohlížeče v roce 2026
 prakticky použitelné, byla oprava sekvenčních čísel gossipsubu v `@libp2p/gossipsub` 15.0.21, po níž

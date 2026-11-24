@@ -308,8 +308,7 @@ sebuah komunitas. Router bukan gateway IPFS, karena tidak menyajikan kontennya s
 penemuan, klien browser terhubung ke peer dan mengambil datanya lewat tumpukan P2P.
 
 P2P di browser kini menjadi jalur web bawaan, bukan eksperimen di balik sakelar. 5chan menjalankan
-P2P browser murni secara bawaan di 5chan.app, dan blog Bitsocial di bitsocial.net melakukan hal yang
-sama. Peer browser melakukan dial lewat WebSockets aman; `pkc-js` menolak dial WebRTC dan
+P2P browser murni secara bawaan di 5chan.app. Peer browser melakukan dial lewat WebSockets aman; `pkc-js` menolak dial WebRTC dan
 WebTransport secara bawaan karena jalur pembentukan koneksinya lambat dan tidak andal di browser.
 Perubahan upstream yang membuat publikasi dari browser jadi praktis pada 2026 adalah perbaikan nomor
 urut gossipsub di `@libp2p/gossipsub` 15.0.21, yang menghentikan peer Kubo membuang pesan yang

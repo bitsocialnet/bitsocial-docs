@@ -306,8 +306,7 @@ hash của một cộng đồng. Chúng không phải gateway IPFS, vì chúng k
 bước khám phá, client trong trình duyệt kết nối tới các peer và lấy dữ liệu qua tầng P2P.
 
 P2P trong trình duyệt hiện là đường đi mặc định trên web, không còn là thử nghiệm nằm sau một công
-tắc. 5chan chạy P2P thuần trong trình duyệt theo mặc định tại 5chan.app, và blog Bitsocial trên
-bitsocial.net cũng vậy. Các peer trong trình duyệt kết nối qua WebSockets bảo mật; `pkc-js` mặc định
+tắc. 5chan chạy P2P thuần trong trình duyệt theo mặc định tại 5chan.app. Các peer trong trình duyệt kết nối qua WebSockets bảo mật; `pkc-js` mặc định
 từ chối các lượt kết nối WebRTC và WebTransport vì quá trình thiết lập kết nối của chúng chậm và
 thiếu tin cậy trong trình duyệt. Thay đổi ở thượng nguồn giúp việc đăng bài từ trình duyệt trở nên
 thực dụng vào năm 2026 là bản sửa lỗi số thứ tự thông điệp của gossipsub trong `@libp2p/gossipsub`

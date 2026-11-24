@@ -309,8 +309,7 @@ tarjoajaosoitteet. Ne eivät ole IPFS-yhdyskäytäviä, koska ne eivät tarjoile
 Löytämisen jälkeen selainasiakas yhdistää vertaisiin ja hakee datan P2P-pinon kautta.
 
 Selain-P2P on nyt oletusarvoinen verkkopolku, ei kytkimen takana piilevä kokeilu. 5chan ajaa
-oletuksena puhdasta selain-P2P:tä osoitteessa 5chan.app, ja Bitsocialin blogi bitsocial.net-sivustolla
-tekee saman. Selainvertaiset muodostavat yhteydet suojattujen WebSocketien yli; `pkc-js` estää
+oletuksena puhdasta selain-P2P:tä osoitteessa 5chan.app. Selainvertaiset muodostavat yhteydet suojattujen WebSocketien yli; `pkc-js` estää
 oletuksena WebRTC- ja WebTransport-yhteydenotot, koska niiden yhteydenmuodostus on selaimessa hidasta
 ja epäluotettavaa. Vuonna 2026 selaimesta julkaisemisen teki käytännölliseksi gossipsubin
 järjestysnumerokorjaus paketissa `@libp2p/gossipsub` 15.0.21, joka lopetti sen, että Kubo-vertaiset

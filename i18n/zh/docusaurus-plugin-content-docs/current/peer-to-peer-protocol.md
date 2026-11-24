@@ -276,7 +276,7 @@ HTTP 路由器对内容发现依然重要：它们会返回某个社区哈希的
 不提供内容本身。发现完成之后，浏览器客户端连接对等点，通过 P2P 栈取回数据。
 
 浏览器 P2P 现在已经是默认的网页路径，而不是藏在开关后面的实验。5chan 在 5chan.app 上默认运行纯浏览
-器 P2P，bitsocial.net 上的 Bitsocial 博客也是如此。浏览器对等点通过安全 WebSockets 拨号；`pkc-js`
+器 P2P。浏览器对等点通过安全 WebSockets 拨号；`pkc-js`
 默认拒绝 WebRTC 与 WebTransport 拨号，因为它们在浏览器里的连接建立过程既慢又不可靠。让浏览器端发布
 在 2026 年真正可行的上游改动，是 `@libp2p/gossipsub` 15.0.21 中的 gossipsub 序列号修复，它让 Kubo
 对等点不再丢弃 JavaScript 节点发布的消息。

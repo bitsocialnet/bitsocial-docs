@@ -290,7 +290,7 @@ graph TB
 연결해 P2P 스택으로 데이터를 가져옵니다.
 
 브라우저 P2P는 이제 스위치 뒤에 숨겨진 실험이 아니라 기본 웹 경로입니다. 5chan은 5chan.app에서 기본적으로
-순수 브라우저 P2P로 동작하고, bitsocial.net의 Bitsocial 블로그도 마찬가지입니다. 브라우저 피어는 보안
+순수 브라우저 P2P로 동작합니다. 브라우저 피어는 보안
 WebSockets로 다이얼합니다. `pkc-js`는 WebRTC와 WebTransport 다이얼을 기본적으로 거부하는데, 브라우저에서
 이들의 연결 수립 경로가 느리고 불안정하기 때문입니다. 2026년에 브라우저 발행을 실용적으로 만든 업스트림
 변경은 `@libp2p/gossipsub` 15.0.21의 gossipsub 시퀀스 번호 수정이었고, 이 수정으로 Kubo 피어가 JavaScript
