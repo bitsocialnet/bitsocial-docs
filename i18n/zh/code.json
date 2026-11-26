@@ -519,7 +519,7 @@
     "description": "Anti-spam card eyebrow for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.title": {
-    "message": "垃圾邮件拦截器",
+    "message": "SpamBlocker",
     "description": "Anti-spam card title for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.body": {
