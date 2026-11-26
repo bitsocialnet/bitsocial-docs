@@ -516,15 +516,15 @@
   },
   "docs.home.antispam.card.spamBlocker.eyebrow": {
     "message": "Riskipisteytys",
-    "description": "Anti-spam card eyebrow for Spam Blocker."
+    "description": "Anti-spam card eyebrow for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.title": {
     "message": "Roskapostin esto",
-    "description": "Anti-spam card title for Spam Blocker."
+    "description": "Anti-spam card title for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.body": {
     "message": "Keskitetty riskinarviointipalvelu, jossa on OAuth- ja CAPTCHA-haasteita, dynaaminen nopeuden rajoitus ja verkkoindeksointi.",
-    "description": "Anti-spam card description for Spam Blocker."
+    "description": "Anti-spam card description for SpamBlocker."
   },
   "docs.home.antispam.card.captcha.eyebrow": {
     "message": "Kuva captcha",

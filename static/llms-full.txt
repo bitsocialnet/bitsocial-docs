@@ -63,7 +63,7 @@ The content is biased toward inference-time lookup, not formal API reference gen
 
 - [Captcha Canvas Challenge](https://docs.bitsocial.net/anti-spam/captcha-canvas-challenge/): Standalone image-based captcha challenge for Bitsocial communities.
 - [EVM Contract Call Challenge](https://docs.bitsocial.net/anti-spam/evm-contract-call/): Anti-spam challenge that verifies on-chain conditions by calling an EVM smart contract.
-- [Spam Blocker](https://docs.bitsocial.net/anti-spam/spam-blocker/): Hosted spam detection for Bitsocial communities, with risk scoring, CAPTCHA and sign-in checks, and connection policies.
+- [SpamBlocker](https://docs.bitsocial.net/anti-spam/spamblocker/): Hosted spam detection for Bitsocial communities, with risk scoring, CAPTCHA and sign-in checks, and connection policies.
 - [Voucher Challenge](https://docs.bitsocial.net/anti-spam/voucher-challenge/): Anti-spam challenge that gates publishing behind unique voucher codes distributed by community owners.
 
 ## Infrastructure
@@ -1838,22 +1838,22 @@ EVM Contract Call Challenge is ideal for:
 - **NFT-gated access** where ownership of a specific NFT is required.
 - **DAO governance spaces** where participation is limited to governance token holders.
 
-For communities that do not rely on on-chain identity, consider [Spam Blocker](https://docs.bitsocial.net/anti-spam/spam-blocker/) or [Voucher Challenge](https://docs.bitsocial.net/anti-spam/voucher-challenge/) instead.
+For communities that do not rely on on-chain identity, consider [SpamBlocker](https://docs.bitsocial.net/anti-spam/spamblocker/) or [Voucher Challenge](https://docs.bitsocial.net/anti-spam/voucher-challenge/) instead.
 
-### Spam Blocker
+### SpamBlocker
 
-Source: https://docs.bitsocial.net/anti-spam/spam-blocker/
-Path: docs/anti-spam/spam-blocker.md
+Source: https://docs.bitsocial.net/anti-spam/spamblocker/
+Path: docs/anti-spam/spamblocker.md
 Description: Hosted spam detection for Bitsocial communities, with risk scoring, CAPTCHA and sign-in checks, and connection policies.
 
-# Spam Blocker
+# SpamBlocker
 
-Spam Blocker scores posts, replies and votes for spam risk before a community accepts them. A community installs the challenge package, which sends each publication to a spam blocker service. Bitsocial runs one at `spamblocker.bitsocial.net`.
+SpamBlocker scores posts, replies and votes for spam risk before a community accepts them. A community installs the challenge package, which sends each publication to a spam blocker service. Bitsocial runs one at `spamblocker.bitsocial.net`.
 
 - **`@bitsocial/spam-blocker-challenge`** is the open-source challenge package that communities install. Its integration contract, shared schemas and API are public.
-- **The hosted service** scores publications and serves the CAPTCHA and sign-in pages. Its detailed weights and heuristics are private, as the [source policy](https://github.com/bitsocialnet/spam-blocker/blob/master/docs/architecture/hosted-service-source-policy.md) explains.
+- **The hosted service** scores publications and serves the CAPTCHA and sign-in pages. Its detailed weights and heuristics are private, as the [source policy](https://github.com/bitsocialnet/spamblocker/blob/master/docs/architecture/hosted-service-source-policy.md) explains.
 
-**Source code:** [github.com/bitsocialnet/spam-blocker](https://github.com/bitsocialnet/spam-blocker)
+**Source code:** [github.com/bitsocialnet/spamblocker](https://github.com/bitsocialnet/spamblocker)
 
 ## How a publication is checked
 
@@ -1926,7 +1926,7 @@ The main routes, relative to `spamblocker.bitsocial.net/api/v1`:
 | `GET /iframe/:sessionId` | Author's browser            | Verification page                            |
 | `POST /upload/authorize` | Author's client             | Authorize an attached file for Forge Images  |
 
-The full contract, including request signing and response schemas, is in the [spam-blocker README](https://github.com/bitsocialnet/spam-blocker#api-contract).
+The full contract, including request signing and response schemas, is in the [spamblocker README](https://github.com/bitsocialnet/spamblocker#api-contract).
 
 ### Voucher Challenge
 
@@ -1972,7 +1972,7 @@ Voucher Challenge is best suited for:
 - **Curated spaces** where the owner personally vets every participant.
 - **High-trust environments** where automated spam scoring is unnecessary or undesirable.
 
-Because it requires manual code distribution, it does not scale to large open communities. For those scenarios, consider [Spam Blocker](https://docs.bitsocial.net/anti-spam/spam-blocker/) or [EVM Contract Call Challenge](https://docs.bitsocial.net/anti-spam/evm-contract-call/) instead.
+Because it requires manual code distribution, it does not scale to large open communities. For those scenarios, consider [SpamBlocker](https://docs.bitsocial.net/anti-spam/spamblocker/) or [EVM Contract Call Challenge](https://docs.bitsocial.net/anti-spam/evm-contract-call/) instead.
 
 ### BSO Resolver
 
@@ -4814,6 +4814,7 @@ bitbones works like a browser's devtools for the [Bitsocial protocol](https://bi
 | Platform | Where | Notes |
 | --- | --- | --- |
 | Web | [bitbones.app](https://bitbones.app) | static client, content comes from peers |
+| Web, latest `master` | [bitbones-master.vercel.app](https://bitbones-master.vercel.app) | rebuilt on every push to `master`, may include unreleased changes |
 | Mac, Windows, Linux | [release page](https://github.com/bitsocialnet/bitbones/releases/latest) | runs a full peer-to-peer Bitsocial node and seeds automatically |
 | Android | [release page](https://github.com/bitsocialnet/bitbones/releases/latest) | |
 
@@ -5415,17 +5416,21 @@ npm run type-check
 
 GPL-3.0-or-later. This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. See [LICENSE](https://github.com/bitsocialnet/image-classifier-bitsocial-moderator-bot/blob/HEAD/LICENSE).
 
-### Bitsocial Spam Blocker
+### Bitsocial SpamBlocker
 
-Repository: bitsocialnet/spam-blocker
-Source: https://github.com/bitsocialnet/spam-blocker#readme
-Description: Bitsocial Spam Blocker scores posts, replies, and votes for spam risk before a community accepts them. A community installs the challenge package, which sends each publication to a spam blocker service. Low risk publications pass, high risk ones are rejected, and the rest are asked to verify with an OAuth sign in or a CAPTCHA.
+Repository: bitsocialnet/spamblocker
+Source: https://github.com/bitsocialnet/spamblocker#readme
+Description: Risk scoring that keeps spam and ban evasion out of Bitsocial communities.
 
-# Bitsocial Spam Blocker
+# Bitsocial SpamBlocker
 
-Bitsocial Spam Blocker scores posts, replies, and votes for spam risk before a community accepts them. A community installs the challenge package, which sends each publication to a spam blocker service. Low-risk publications pass, high-risk ones are rejected, and the rest are asked to verify with an OAuth sign-in or a CAPTCHA.
+Risk scoring that keeps spam and ban evasion out of Bitsocial communities.
 
-This repository is the public integration surface: the challenge package, the shared schemas, and the API contract. The official hosted service at `https://spamblocker.bitsocial.net/api/v1` is closed source and lives in a separate private repository. See [Hosted Spam Blocker Source Policy](https://github.com/bitsocialnet/spam-blocker/blob/HEAD/docs/architecture/hosted-service-source-policy.md) for the reasoning.
+[Quick start](#quick-start) · [Challenge options](#challenge-options) · [API contract](#api-contract) · [npm package](https://www.npmjs.com/package/@bitsocial/spam-blocker-challenge)
+
+SpamBlocker scores posts, replies, and votes for spam risk before a community accepts them. A community installs the challenge package, which sends each publication to a spam blocker service. Low-risk publications pass, high-risk ones are rejected, and the rest are asked to verify with an OAuth sign-in or a CAPTCHA.
+
+This repository is the public integration surface: the challenge package, the shared schemas, and the API contract. The official hosted service at `https://spamblocker.bitsocial.net/api/v1` is closed source and lives in a separate private repository. See [Hosted Spam Blocker Source Policy](https://github.com/bitsocialnet/spamblocker/blob/HEAD/docs/architecture/hosted-service-source-policy.md) for the reasoning.
 
 ## Contents
 
@@ -5445,8 +5450,8 @@ This repository is the public integration surface: the challenge package, the sh
 
 | Package                                                     | Path                 | License            | Purpose                                                               |
 | ----------------------------------------------------------- | -------------------- | ------------------ | --------------------------------------------------------------------- |
-| [`@bitsocial/spam-blocker-challenge`](https://github.com/bitsocialnet/spam-blocker/blob/HEAD/packages/challenge) | `packages/challenge` | `GPL-3.0-or-later` | pkc-js challenge that community owners install                        |
-| [`@bitsocial/spam-blocker-shared`](https://github.com/bitsocialnet/spam-blocker/blob/HEAD/packages/shared)       | `packages/shared`    | `MIT`              | Zod schemas and response types shared by the challenge and the server |
+| [`@bitsocial/spam-blocker-challenge`](https://github.com/bitsocialnet/spamblocker/blob/HEAD/packages/challenge) | `packages/challenge` | `GPL-3.0-or-later` | pkc-js challenge that community owners install                        |
+| [`@bitsocial/spam-blocker-shared`](https://github.com/bitsocialnet/spamblocker/blob/HEAD/packages/shared)       | `packages/shared`    | `MIT`              | Zod schemas and response types shared by the challenge and the server |
 
 ## Quick start
 
@@ -5517,7 +5522,8 @@ Validation:
 - Thresholds and `maxIpRisk` must be between 0 and 1, and `autoAcceptThreshold` cannot exceed `autoRejectThreshold`.
 - Boolean options accept only `true` or `false`.
 - An empty or missing value falls back to the default.
-- An unknown country code or any other invalid option makes the challenge throw on every request, so the publication is not accepted.
+- On pkc-js 0.0.85 or later the community checks these rules when settings are saved: an invalid option, such as an unknown country code or a server URL that is not http or https, rejects the edit or the community creation. A community that already holds invalid options logs the error when it starts.
+- While options are invalid, the challenge throws on every publication it evaluates, so the publication is not accepted. Comment edits, comment moderation and community edits skip the evaluation and still pass.
 
 The country, IP risk, VPN, proxy, Tor, and datacenter rules are applied to the result of `/challenge/verify`, after the user has passed. `blockTor`, `blockVpn`, `blockProxy`, and `blockDatacenter` are also sent in the community-signed evaluation so the service can enforce each connection policy before verification. IP classification is an estimate and can be wrong. Connection-policy rejections name the category actually reported by the service; a datacenter classification is not presented as a detected VPN. Messages list only declared whitelist/verified `.bso` exemptions and unconditional moderator-role exemptions. These policies are not cooldowns: waiting alone does not remove a connection restriction. One exception is decided by the service: an account that passed a CAPTCHA or OAuth on at least 3 separate days from unrestricted connections is exempt from `blockVpn`, `blockProxy` and `blockDatacenter` (never `blockTor`), and `/challenge/verify` reports it as `connectionExemption: "established_account"`. The hosted service also lets a new account post through a VPN, proxy or datacenter connection after it signs in: instead of rejecting the post, its challenge page asks for a sign-in, explains that posting through the connection is restricted due to abuse and how to post without signing in, and a ban in the community then follows the sign-in account. `/challenge/verify` reports that case as `connectionExemption: "sign_in"`. For either exemption it also sets `establishedAccount: true`, which is all challenge versions up to 0.1.14 read (`false` when such a connection does not qualify; rejections explain the passed-days exemption only then, since older services omit the field). Connection rejections give abuse as the reason ("Posting through a VPN has been blocked in this community due to abuse."). Only history from unrestricted connections counts, a network counts only while no other account has passed a challenge from it (one network establishes at most one account), and none counts in a community that banned an account on a network in that history, so the exemption gives nobody a connection or an extra author identity they could not already post with. iCloud Private Relay counts as a VPN; `/challenge/verify` reports `privateRelay: true` for it, and rejections name Private Relay and tell Safari users how to show their IP address to the site. A relay address blocked as a proxy or datacenter network is named with that category. Older challenge versions ignore both fields and keep rejecting those connections. A policy-enabled challenge requires complete classification evidence from `/challenge/verify`; missing or incomplete evidence fails closed without claiming a connection category. Deploy a compatible service before upgrading policy-enabled challenges. Older services that omit this evidence cannot approve those connections; communities without connection restrictions retain compatibility.
 
@@ -5525,7 +5531,7 @@ The country, IP risk, VPN, proxy, Tor, and datacenter rules are applied to the r
 
 ## How it works
 
-1. An author publishes a post, reply, or vote. The community's `getChallenge()` signs an evaluation payload with the community signer and returns a `url/iframe` challenge pointing at `<serverUrl>/iframe/<sessionId>/lazy#payload=...`. No request reaches the service yet.
+1. An author publishes a post, reply, or vote. The community's `getChallenge()` signs an evaluation payload with the community signer and returns a `url/iframe` challenge pointing at `<serverUrl>/iframe/<sessionId>/lazy#payload=...`. The payload does not reach the service yet; the community only checks that the service is [reachable](#when-the-service-is-down).
 2. The Bitsocial client asks the author before opening the iframe.
 3. Once opened, the iframe posts the signed payload to `/evaluate`. The payload sits in the URL fragment, so it is not sent with the initial iframe request.
 4. The service returns a risk score between 0 and 1:
@@ -5536,7 +5542,7 @@ The country, IP risk, VPN, proxy, Tor, and datacenter rules are applied to the r
 6. The community calls `/challenge/verify` with the session id. On success it applies its own IP rules from the options above, then accepts or rejects the publication.
 
 ```text
-getChallenge() -> lazy iframe URL (no request to the service)
+getChallenge() -> lazy iframe URL (only a cached GET /health to the service)
   |
   v
 author opens iframe -> POST /evaluate -> riskScore
@@ -5561,9 +5567,19 @@ author opens iframe -> POST /evaluate -> riskScore
 Other behavior of the challenge package:
 
 - `commentEdit`, `commentModeration`, and `communityEdit` requests are accepted locally without contacting the service.
-- If the service is unreachable or returns an invalid response during verify, the challenge fails with the error. It never silently accepts or rejects.
+- If the service is unreachable or returns an invalid response during verify, the challenge fails with an error. It never silently accepts or rejects.
 - A missing community signer fails the challenge.
 - `author.community` in the forwarded request is `undefined` for authors who have never published in the community. The community fills it from its own history.
+
+### When the service is down
+
+Before it returns the iframe, `getChallenge()` checks that the service answers [`GET /health`](#api-contract) with its JSON status. It reuses the result for 60 seconds, or for 15 seconds after a failure, and gives up on a probe after 5 seconds. A network error, an error status, or any other page (such as a parked domain's) counts as down.
+
+When the service is down, the challenge fails at once instead of returning an iframe that could not load:
+
+> Bitsocial Spam Blocker (spamblocker.bitsocial.net) is unreachable right now, so its check cannot run. You can still post by meeting one of this community's other requirements, or try again later.
+
+The second sentence is only `Try again later.` when no `exclude` entry names other challenges. Clients show this error next to the errors of the community's other challenges, so an author who has a `.bso` name or is whitelisted, where this challenge excludes on those challenges, still posts as usual. The same message replaces the raw error when `/challenge/verify` fails on a network error or a gateway status (502 to 504, or Cloudflare's 520 to 530) after the iframe opened.
 
 ## Pre-check pass
 
@@ -5637,7 +5653,7 @@ A pre-check authorizes at most 25 files, and a signer at most 30 per hour.
 
 ## API contract
 
-All routes are relative to `serverUrl`, for example `https://spamblocker.bitsocial.net/api/v1`. Response schemas for `/evaluate` and `/challenge/verify` are exported from [`packages/shared/src/types.ts`](https://github.com/bitsocialnet/spam-blocker/blob/HEAD/packages/shared/src/types.ts).
+All routes are relative to `serverUrl`, for example `https://spamblocker.bitsocial.net/api/v1`. Response schemas for `/evaluate` and `/challenge/verify` are exported from [`packages/shared/src/types.ts`](https://github.com/bitsocialnet/spamblocker/blob/HEAD/packages/shared/src/types.ts).
 
 | Route                              | Caller                  | Purpose                                             |
 | ---------------------------------- | ----------------------- | --------------------------------------------------- |
@@ -5655,6 +5671,8 @@ All routes are relative to `serverUrl`, for example `https://spamblocker.bitsoci
 | `GET /oauth/:provider/callback`    | OAuth provider          | Finish an OAuth sign-in                             |
 | `GET /oauth/status/:sessionId`     | Verification page       | Poll OAuth progress                                 |
 | `POST /upload/authorize`           | Author's client         | Authorize one attached file for Forge Images        |
+
+`GET /health` is served at the origin root, not under `serverUrl` (for example `https://spamblocker.bitsocial.net/health`). It returns `{ "status": "ok" | "degraded", ... }`; the challenge package reads it to tell whether the service is [reachable](#when-the-service-is-down).
 
 ### Signed CBOR requests
 
@@ -5880,7 +5898,7 @@ It does not offer GitHub or Discord, which the server supports, for three reason
 
 ## Risk scoring and enforcement
 
-Everything in this section describes the hosted service, not the challenge package. Fine-grained weights and heuristics are private. See the [source policy](https://github.com/bitsocialnet/spam-blocker/blob/HEAD/docs/architecture/hosted-service-source-policy.md).
+Everything in this section describes the hosted service, not the challenge package. Fine-grained weights and heuristics are private. See the [source policy](https://github.com/bitsocialnet/spamblocker/blob/HEAD/docs/architecture/hosted-service-source-policy.md).
 
 ### Risk score
 
@@ -5989,14 +6007,14 @@ docs/
 └── agent-playbooks/  # Workflow notes for AI agents
 ```
 
-AI agent rules live in [`AGENTS.md`](https://github.com/bitsocialnet/spam-blocker/blob/HEAD/AGENTS.md), with setup notes in [`docs/agent-playbooks/`](https://github.com/bitsocialnet/spam-blocker/blob/HEAD/docs/agent-playbooks/).
+AI agent rules live in [`AGENTS.md`](https://github.com/bitsocialnet/spamblocker/blob/HEAD/AGENTS.md), with setup notes in [`docs/agent-playbooks/`](https://github.com/bitsocialnet/spamblocker/blob/HEAD/docs/agent-playbooks/).
 
 ## License
 
 Licensing is per package:
 
-- [`packages/challenge`](https://github.com/bitsocialnet/spam-blocker/blob/HEAD/packages/challenge/LICENSE): `GPL-3.0-or-later`
-- [`packages/shared`](https://github.com/bitsocialnet/spam-blocker/blob/HEAD/packages/shared/LICENSE): `MIT`
+- [`packages/challenge`](https://github.com/bitsocialnet/spamblocker/blob/HEAD/packages/challenge/LICENSE): `GPL-3.0-or-later`
+- [`packages/shared`](https://github.com/bitsocialnet/spamblocker/blob/HEAD/packages/shared/LICENSE): `MIT`
 
 The repository root is marked `UNLICENSED` so the workspace metadata does not imply a single license for the whole repository. The hosted server implementation is not distributed here.
 
@@ -7651,7 +7669,7 @@ Description: What is Bitsocial?
 -   Runs an IPFS and Bitsocial node
 -   Command Line interface to manage Bitsocial communities
 -   WebSocket RPC to access and control your communities and publications
--   Includes Web UIs like 5chan and Seedit where you can browse the network and manage your community
+-   Includes Web UIs like 5chan and Seedit where you can browse the network and manage your community, and Bitbones, a developer UI that shows the protocol data behind every view
 
 ## Install
 
@@ -7869,7 +7887,7 @@ WebUI (seedit - Similar to old reddit UI): http://<your-ip>:9138/<auth-key>/seed
 
 ```
 
-Once `bitsocial daemon` is running, open one of the printed WebUI URLs in your normal browser to browse the network and to create and manage your communities, through either seedit or 5chan. You don't need the separate 5chan or Seedit desktop apps: the daemon runs the full P2P node and serves the web UIs itself. All the interfaces are interoperable. If you're a power user and prefer CLI, then you can take a look at the commands below.
+Once `bitsocial daemon` is running, open one of the printed WebUI URLs in your normal browser to browse the network and to create and manage your communities, through either seedit or 5chan. Developers can open bitbones to see the protocol data behind every view. You don't need the separate 5chan or Seedit desktop apps: the daemon runs the full P2P node and serves the web UIs itself. All the interfaces are interoperable. If you're a power user and prefer CLI, then you can take a look at the commands below.
 
 If you need to view detailed protocol or IPFS logs for debugging, you can use `bitsocial logs`. For example, `bitsocial logs --tail 50` shows the last 50 entries, or `bitsocial logs --since 1h` shows logs from the past hour.
 
@@ -8095,7 +8113,7 @@ EXAMPLES
   $ bitsocial challenge install ./my-local-challenge
 ```
 
-_See code: [src/cli/commands/challenge/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/challenge/install.ts)_
+_See code: [src/cli/commands/challenge/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/challenge/install.ts)_
 
 ## `bitsocial challenge list`
 
@@ -8121,7 +8139,7 @@ EXAMPLES
   $ bitsocial challenge list -q
 ```
 
-_See code: [src/cli/commands/challenge/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/challenge/list.ts)_
+_See code: [src/cli/commands/challenge/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/challenge/list.ts)_
 
 ## `bitsocial challenge ls`
 
@@ -8181,7 +8199,7 @@ EXAMPLES
   $ bitsocial challenge remove my-challenge --force
 ```
 
-_See code: [src/cli/commands/challenge/remove.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/challenge/remove.ts)_
+_See code: [src/cli/commands/challenge/remove.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/challenge/remove.ts)_
 
 ## `bitsocial challenge rm NAME`
 
@@ -8313,7 +8331,7 @@ EXAMPLES
     $ bitsocial community create --jsonFile ./create-options.json
 ```
 
-_See code: [src/cli/commands/community/create.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/create.ts)_
+_See code: [src/cli/commands/community/create.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/community/create.ts)_
 
 ## `bitsocial community delete ADDRESSES`
 
@@ -8338,7 +8356,7 @@ EXAMPLES
   $ bitsocial community delete 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/community/delete.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/delete.ts)_
+_See code: [src/cli/commands/community/delete.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/community/delete.ts)_
 
 ## `bitsocial community edit ADDRESS`
 
@@ -8415,7 +8433,7 @@ EXAMPLES
     $ bitsocial community edit bitsocial.bso --jsonFile ./edit-options.json
 ```
 
-_See code: [src/cli/commands/community/edit.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/edit.ts)_
+_See code: [src/cli/commands/community/edit.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/community/edit.ts)_
 
 ## `bitsocial community export [ADDRESS]`
 
@@ -8456,7 +8474,7 @@ EXAMPLES
   $ bitsocial community export --publicKey 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/community/export.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/export.ts)_
+_See code: [src/cli/commands/community/export.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/community/export.ts)_
 
 ## `bitsocial community get [ADDRESS]`
 
@@ -8487,7 +8505,7 @@ EXAMPLES
   $ bitsocial community get --publicKey 12D3KooWG3XbzoVyAE6Y9vHZKF64Yuuu4TjdgQKedk14iYmTEPWu
 ```
 
-_See code: [src/cli/commands/community/get.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/get.ts)_
+_See code: [src/cli/commands/community/get.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/community/get.ts)_
 
 ## `bitsocial community list`
 
@@ -8510,7 +8528,7 @@ EXAMPLES
   $ bitsocial community list
 ```
 
-_See code: [src/cli/commands/community/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/list.ts)_
+_See code: [src/cli/commands/community/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/community/list.ts)_
 
 ## `bitsocial community start ADDRESSES`
 
@@ -8544,7 +8562,7 @@ EXAMPLES
     $ bitsocial community start $(bitsocial community list -q) --concurrency 1
 ```
 
-_See code: [src/cli/commands/community/start.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/start.ts)_
+_See code: [src/cli/commands/community/start.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/community/start.ts)_
 
 ## `bitsocial community stop ADDRESSES`
 
@@ -8569,7 +8587,7 @@ EXAMPLES
   $ bitsocial community stop Qmb99crTbSUfKXamXwZBe829Vf6w5w5TktPkb6WstC9RFW
 ```
 
-_See code: [src/cli/commands/community/stop.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/community/stop.ts)_
+_See code: [src/cli/commands/community/stop.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/community/stop.ts)_
 
 ## `bitsocial daemon`
 
@@ -8619,7 +8637,7 @@ EXAMPLES
   $ bitsocial daemon --no-allowPrivateKeyExport
 ```
 
-_See code: [src/cli/commands/daemon.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/daemon.ts)_
+_See code: [src/cli/commands/daemon.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/daemon.ts)_
 
 ## `bitsocial help [COMMAND]`
 
@@ -8683,7 +8701,7 @@ EXAMPLES
   $ bitsocial logs --stdout -f
 ```
 
-_See code: [src/cli/commands/logs.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/logs.ts)_
+_See code: [src/cli/commands/logs.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/logs.ts)_
 
 ## `bitsocial page-sort add PACKAGE`
 
@@ -8775,7 +8793,7 @@ EXAMPLES
   $ bitsocial page-sort install ./my-local-page-sort
 ```
 
-_See code: [src/cli/commands/page-sort/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/page-sort/install.ts)_
+_See code: [src/cli/commands/page-sort/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/page-sort/install.ts)_
 
 ## `bitsocial page-sort list`
 
@@ -8801,7 +8819,7 @@ EXAMPLES
   $ bitsocial page-sort list -q
 ```
 
-_See code: [src/cli/commands/page-sort/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/page-sort/list.ts)_
+_See code: [src/cli/commands/page-sort/list.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/page-sort/list.ts)_
 
 ## `bitsocial page-sort ls`
 
@@ -8859,7 +8877,7 @@ EXAMPLES
   $ bitsocial page-sort remove @pkcprotocol/active-page-sort --force
 ```
 
-_See code: [src/cli/commands/page-sort/remove.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/page-sort/remove.ts)_
+_See code: [src/cli/commands/page-sort/remove.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/page-sort/remove.ts)_
 
 ## `bitsocial page-sort rm NAME`
 
@@ -8980,7 +8998,7 @@ EXAMPLES
   $ bitsocial reachability disable --purge
 ```
 
-_See code: [src/cli/commands/reachability/disable.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/reachability/disable.ts)_
+_See code: [src/cli/commands/reachability/disable.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/reachability/disable.ts)_
 
 ## `bitsocial reachability enable`
 
@@ -9000,7 +9018,7 @@ EXAMPLES
   $ bitsocial reachability enable
 ```
 
-_See code: [src/cli/commands/reachability/enable.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/reachability/enable.ts)_
+_See code: [src/cli/commands/reachability/enable.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/reachability/enable.ts)_
 
 ## `bitsocial reachability setup`
 
@@ -9037,7 +9055,7 @@ EXAMPLES
   $ bitsocial reachability setup --non-interactive
 ```
 
-_See code: [src/cli/commands/reachability/setup.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/reachability/setup.ts)_
+_See code: [src/cli/commands/reachability/setup.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/reachability/setup.ts)_
 
 ## `bitsocial reachability status`
 
@@ -9063,7 +9081,7 @@ EXAMPLES
   $ bitsocial reachability status --json
 ```
 
-_See code: [src/cli/commands/reachability/status.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/reachability/status.ts)_
+_See code: [src/cli/commands/reachability/status.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/reachability/status.ts)_
 
 ## `bitsocial update check`
 
@@ -9080,7 +9098,7 @@ EXAMPLES
   $ bitsocial update check
 ```
 
-_See code: [src/cli/commands/update/check.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/update/check.ts)_
+_See code: [src/cli/commands/update/check.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/update/check.ts)_
 
 ## `bitsocial update install [VERSION]`
 
@@ -9112,7 +9130,7 @@ EXAMPLES
   $ bitsocial update install --no-restart-daemons
 ```
 
-_See code: [src/cli/commands/update/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/update/install.ts)_
+_See code: [src/cli/commands/update/install.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/update/install.ts)_
 
 ## `bitsocial update versions`
 
@@ -9134,7 +9152,7 @@ EXAMPLES
   $ bitsocial update versions --limit 5
 ```
 
-_See code: [src/cli/commands/update/versions.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.147/src/cli/commands/update/versions.ts)_
+_See code: [src/cli/commands/update/versions.ts](https://github.com/bitsocialnet/bitsocial-cli/blob/v0.19.148/src/cli/commands/update/versions.ts)_
 
 ## Contribution
 
@@ -10308,12 +10326,12 @@ npm test             # routing + HTML unit tests (no network/install needed for 
 ## Deploy (Caddy)
 
 Deployed under `/opt/bitsocial-previewer` like the box's other services. Config
-(gateways, port) is inline in [`docker-compose.yml`](https://github.com/bitsocialnet/bitsocial-previewer/blob/HEAD/docker-compose.yml). The
-previewer resolves shared comments through the public IPFS gateways the 5chan app
-uses — a fetch is sub-second once a gateway has the content, and a hard timeout
-falls back to a generic card so a request never hangs. (A box's local IPFS node
-generally can't resolve arbitrary shared comment cids: thinly peered, and it
-doesn't pin individual comment blocks.)
+(RPC URL, port) is inline in [`docker-compose.yml`](https://github.com/bitsocialnet/bitsocial-previewer/blob/HEAD/docker-compose.yml). The
+previewer resolves shared comments through the box's pkc daemon over loopback RPC
+(`PKC_RPC_URLS=ws://127.0.0.1:9138`); a fetch takes tens of milliseconds, and a
+hard timeout falls back to a generic card so a request never hangs. Public IPFS
+gateways (`IPFS_GATEWAY_URLS`) answer 404/429 or time out for current comment
+cids, and pkc-js ignores them while `PKC_RPC_URLS` is set.
 
 ```bash
 # on the box, in /opt/bitsocial-previewer (source synced or git-cloned):
@@ -10398,7 +10416,7 @@ A JSON array of `CommunityChallengeSetting`, the same shape pkc-js accepts in `c
     "difficulty": "2"
   },
   "exclude": [                        // any matching group lets the author bypass
-    { "role": ["moderator", "admin", "owner"] },
+    { "roles": ["moderator", "admin", "owner"] },
     { "postCount": 10, "firstCommentTimestamp": 604800, "rateLimit": 3, "rateLimitChallengeSuccess": true },
     { "publicationType": { "reply": true } }
   ]
@@ -10417,7 +10435,7 @@ Anything not in that list — `captcha-canvas-v3`, `evm-contract-call`, `mintpas
 
 ## Features
 
-- **Seedit-style editor**: add/remove/reorder challenges, edit name/path/options/description/pendingApproval, manage exclude rules (roles, post/reply counts, account age, rate limit, publication type, author addresses).
+- **Seedit-style editor**: add/remove/reorder challenges, edit name/path/options/description/pendingApproval, manage exclude rules (roles, post/reply counts, account age, rate limit, publication type, author public keys and names).
 - **Presets dropdown**: ships with `5chan board defaults`, `captcha only`, and `empty`.
 - **Paste JSONC** dialog, **file upload** (`.json` / `.jsonc`), and **download** as `challenges.jsonc`.
 - **Export CLI**: emits a `bitsocial challenge install …` + `bitsocial community edit …` shell script tailored to the current settings, flagging unknown challenge names with a TODO for the operator.
@@ -10446,7 +10464,7 @@ src/
 
 ## TODO
 
-- **Scenario simulator.** For each challenge in the current settings, simulate which publications and author profiles would be challenged vs. excluded, across a library of mock authors (brand-new account, moderator, high-karma user, rate-limited user, wallet holder, banned author address, …). Should exercise every branch of `ChallengeExcludeSchema` — role / postCount / replyCount / postScore / replyScore / firstCommentTimestamp / rateLimit / rateLimitChallengeSuccess / publicationType / address / community / challenges.
+- **Scenario simulator.** For each challenge in the current settings, simulate which publications and author profiles would be challenged vs. excluded, across a library of mock authors (brand-new account, moderator, high-karma user, rate-limited user, wallet holder, banned author address, …). Should exercise every branch of `ChallengeExcludeSchema` — roles / postCount / replyCount / postScore / replyScore / firstCommentTimestamp / rateLimit / rateLimitChallengeSuccess / publicationType / publicKeys / names / community / challenges.
 - Inline zod validation errors attached to the specific offending field (currently shown in the JSON preview panel only).
 - Drag-and-drop reordering for challenges (the reducer has `MOVE_CHALLENGE` and Move up/down buttons; drag handles are not yet wired up).
 
@@ -12839,7 +12857,7 @@ EXAMPLES
   $ 5chan board add my-board.bso --apply-defaults --defaults-preset ./my-preset.json
 ```
 
-_See code: [src/commands/board/add.ts](https://github.com/bitsocialnet/5chan-board-manager/blob/v0.2.36/src/commands/board/add.ts)_
+_See code: [src/commands/board/add.ts](https://github.com/bitsocialnet/5chan-board-manager/blob/v0.2.37/src/commands/board/add.ts)_
 
 ## `5chan board edit ADDRESS`
 
@@ -12886,7 +12904,7 @@ EXAMPLES
   $ 5chan board edit random.bso -i
 ```
 
-_See code: [src/commands/board/edit.ts](https://github.com/bitsocialnet/5chan-board-manager/blob/v0.2.36/src/commands/board/edit.ts)_
+_See code: [src/commands/board/edit.ts](https://github.com/bitsocialnet/5chan-board-manager/blob/v0.2.37/src/commands/board/edit.ts)_
 
 ## `5chan board list`
 
@@ -12903,7 +12921,7 @@ EXAMPLES
   $ 5chan board list
 ```
 
-_See code: [src/commands/board/list.ts](https://github.com/bitsocialnet/5chan-board-manager/blob/v0.2.36/src/commands/board/list.ts)_
+_See code: [src/commands/board/list.ts](https://github.com/bitsocialnet/5chan-board-manager/blob/v0.2.37/src/commands/board/list.ts)_
 
 ## `5chan board remove ADDRESS`
 
@@ -12923,7 +12941,7 @@ EXAMPLES
   $ 5chan board remove random.bso
 ```
 
-_See code: [src/commands/board/remove.ts](https://github.com/bitsocialnet/5chan-board-manager/blob/v0.2.36/src/commands/board/remove.ts)_
+_See code: [src/commands/board/remove.ts](https://github.com/bitsocialnet/5chan-board-manager/blob/v0.2.37/src/commands/board/remove.ts)_
 
 ## `5chan defaults set`
 
@@ -12963,7 +12981,7 @@ EXAMPLES
   $ 5chan defaults set -i
 ```
 
-_See code: [src/commands/defaults/set.ts](https://github.com/bitsocialnet/5chan-board-manager/blob/v0.2.36/src/commands/defaults/set.ts)_
+_See code: [src/commands/defaults/set.ts](https://github.com/bitsocialnet/5chan-board-manager/blob/v0.2.37/src/commands/defaults/set.ts)_
 
 ## `5chan help [COMMAND]`
 
@@ -13027,7 +13045,7 @@ EXAMPLES
   $ 5chan logs --stdout -f
 ```
 
-_See code: [src/commands/logs.ts](https://github.com/bitsocialnet/5chan-board-manager/blob/v0.2.36/src/commands/logs.ts)_
+_See code: [src/commands/logs.ts](https://github.com/bitsocialnet/5chan-board-manager/blob/v0.2.37/src/commands/logs.ts)_
 
 ## `5chan start`
 
@@ -13065,7 +13083,7 @@ EXAMPLES
   $ 5chan start --log-path /var/log/5chan
 ```
 
-_See code: [src/commands/start.ts](https://github.com/bitsocialnet/5chan-board-manager/blob/v0.2.36/src/commands/start.ts)_
+_See code: [src/commands/start.ts](https://github.com/bitsocialnet/5chan-board-manager/blob/v0.2.37/src/commands/start.ts)_
 
 ## Config Hot-Reload
 
@@ -13854,15 +13872,42 @@ Before this is buildable, the network needs:
 
 Repository: bitsocialnet/modelswarm
 Source: https://github.com/bitsocialnet/modelswarm#readme
-Description: ModelSwarm is an idea for a hub of open weight AI models that nobody owns. The name means models distributed by a swarm of peers, as in a BitTorrent swarm, so no company has to host them. Publishers sign their releases from their own Bitsocial profile, and every piece of every file is checked against the signed release as it downloads. No company decides which models are listed, which stay available or what can be said about them.
+Description: Find, download and seed open weight AI models from a catalogue you can run yourself. The name comes from BitTorrent swarms, where peers share the model files. ModelSwarm can list existing torrents by their original infohash, so people using different catalogues can still download from and seed to each other.
 
 # ModelSwarm
 
-**ModelSwarm is an idea for a hub of open-weight AI models that nobody owns.** The name means models distributed by a swarm of peers, as in a BitTorrent swarm, so no company has to host them. Publishers sign their releases from their own Bitsocial profile, and every piece of every file is checked against the signed release as it downloads. No company decides which models are listed, which stay available or what can be said about them.
+**Find, download and seed open-weight AI models from a catalogue you can run yourself.** The name comes from BitTorrent swarms, where peers share the model files. ModelSwarm can list existing torrents by their original infohash, so people using different catalogues can still download from and seed to each other.
 
-> **Status: experimental CLI.** The landing page, [download-engine prototype](https://github.com/bitsocialnet/modelswarm/blob/HEAD/prototypes/download-engine/README.md), and [manifest/CLI milestone](https://github.com/bitsocialnet/modelswarm/blob/HEAD/cli/README.md) exist. `make`, `verify` and `pull` work with unsigned local manifests, v2 peers/HTTP, format checks, checkpoint recovery and verified cache snapshots. The [local Hugging Face endpoint](https://github.com/bitsocialnet/modelswarm/blob/HEAD/cli/ENDPOINT.md) serves these manifests and verified public upstream fallback, tested with the SDK. The [signed release prototype](https://github.com/bitsocialnet/modelswarm/blob/HEAD/cli/RELEASES.md) adds local keys, publisher profile setup, publishing, profile/CID pulls and endpoint registration, tested with an isolated real PKC node. Hosted defaults, public-network operation, search and desktop client remain; [roadmap.md](https://github.com/bitsocialnet/modelswarm/blob/HEAD/roadmap.md) tracks the remaining work. It fits [Phase 5 of the Bitsocial master plan](https://bitsocial.net/#master-plan-phase-5), the long tail of Bitsocial clients. Most of it needs only what Bitsocial and BitTorrent already ship, so the first milestones are not blocked by earlier phases.
+The catalogue can grow through Bitsocial. Publishers sign releases from their own profiles. Communities choose what to feature and host the discussion, and each catalogue operator chooses which communities to follow. The website, index and Bitsocial node can all run on your own infrastructure.
+
+> **Status.** The [web catalogue](https://modelswarm.org/catalogue.html) has the signed Qwen demo and an attributed preview of public Pirate Face torrents. The [self-hosting guide](https://github.com/bitsocialnet/modelswarm/blob/HEAD/catalogue/README.md) covers local snapshots and community releases. The [experimental CLI](https://github.com/bitsocialnet/modelswarm/blob/HEAD/cli/README.md) verifies signed releases piece by piece and has a [local Hugging Face endpoint](https://github.com/bitsocialnet/modelswarm/blob/HEAD/cli/ENDPOINT.md) tested with the SDK. See the [roadmap](https://github.com/bitsocialnet/modelswarm/blob/HEAD/roadmap.md) for remaining work.
 
 > **Credit.** ModelSwarm builds on [HuggingSocial](https://github.com/Rinse12/huggingsocial) ([huggingsocial.co](https://huggingsocial.co/)), the original design by Bitsocial developer [Rinse12](https://github.com/Rinse12). Most of the architecture comes from it: Bitsocial for releases and discussion, BitTorrent and HTTP mirrors for the weights, signed manifests checked on the reader's machine, hubs, indexers, the command line and the local Hugging Face endpoint. ModelSwarm changes where releases live, how downloads are verified, how formats that can run code are handled and how models that are only on Hugging Face are covered; see [Prior Art](#prior-art).
+
+## Getting started
+
+1. Open the [model catalogue](https://modelswarm.org/catalogue.html) and search for a model. Choose **Open in torrent client** or **Download .torrent**, then open the file in a BitTorrent client. The [signed Qwen demo](https://modelswarm.org/release.html) also has a direct HTTPS download.
+2. Already seeding an imported torrent? Keep it running in your existing client. The matching infohash puts ModelSwarm users in the same swarm.
+3. To browse from your own domain or localhost, [build a local catalogue](https://github.com/bitsocialnet/modelswarm/blob/HEAD/catalogue/README.md) from a saved export and the Bitsocial communities you choose.
+
+### Verify the demo from the CLI
+
+Download and verify Qwen2.5-0.5B-Instruct in Q4_K_M GGUF format (491 MB, Apache-2.0). This quickstart uses a pinned Hugging Face mirror and requires Git, [uv](https://docs.astral.sh/uv/getting-started/installation/), and at least 2 GB of free disk space. It needs no account or RPC connection.
+
+```sh
+git clone https://github.com/bitsocialnet/modelswarm.git
+cd modelswarm
+uv venv --python 3.11 cli/.venv
+uv pip install --python cli/.venv/bin/python -e cli
+
+cli/.venv/bin/modelswarm pull public/demo/qwen-q4-k-m.json \
+  --manifest-sha256 3f68e711527da88dd2fac91b32b5bb22218f69590c46d3dfef41b17bd3ee8ac1 \
+  --no-discovery --timeout 900
+```
+
+On a terminal the CLI draws each piece as it is verified and ends with the verified `snapshot` directory; with stdout redirected it prints a JSON result containing `snapshot` instead. The GGUF file and its license are inside that directory. The CLI checks each piece and the full file hash before placing the files there. Rerun the same pull to resume an interrupted download.
+
+Source installation has been verified on Apple Silicon macOS. See the [CLI guide](https://github.com/bitsocialnet/modelswarm/blob/HEAD/cli/README.md) for cache controls and [signed releases](https://github.com/bitsocialnet/modelswarm/blob/HEAD/cli/RELEASES.md) for publisher verification. [Upstream Qwen model card](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/tree/9217f5db79a29953eb74d5343926648285ec7e67).
 
 ## The Thesis
 
@@ -13905,7 +13950,7 @@ ModelSwarm has no such party, because its list and its discussion are [Bitsocial
 
 A project that only moves files cannot add these two without first building a peer-to-peer social network. Bitsocial is that network. [Radicle](https://radicle.xyz/), which is peer-to-peer Git, is the nearest: it has no central list either, and has announced but not shipped support for model weights.
 
-The dependency runs both ways. ModelSwarm is an experimental CLI with no public network yet, and these two properties are worth only as much as the publishers and communities that are on Bitsocial. ModelSwarm grows with Bitsocial, not ahead of it.
+An independent catalogue can start with existing public swarms. For ongoing discovery and discussion it can read the communities its operator follows. Each hub can moderate its own listings, while the underlying signed releases remain independently addressable by CID.
 
 ## Checked While It Downloads
 
@@ -13915,7 +13960,7 @@ ModelSwarm releases carry what [BitTorrent v2](https://www.bittorrent.org/beps/b
 
 - every piece is verified when it arrives, and a bad one is thrown away and fetched again from another source;
 - the check is the same whether the piece came from a torrent peer or an HTTP mirror, so Hugging Face or any other mirror can serve the bytes without being trusted;
-- the same file always has the same root, in any torrent and any release, so identical files share seeders.
+- the same file always has the same root, in any torrent and any release, so clients can recognise identical files across releases. Standard BitTorrent clients share seeders when the torrent infohash matches.
 
 See [how-it-could-work.md](https://github.com/bitsocialnet/modelswarm/blob/HEAD/how-it-could-work.md#verification).
 
@@ -13944,7 +13989,7 @@ RPC revenue from ModelSwarm is speculative, not a strong monetization pitch. RPC
 
 ## What It Is Not
 
-- **Not a host.** The project would publish a client and tooling. It would run no hub, no index and no seedbox that others depend on.
+- **Client and developer tools.** The project operates a seeder for the public demo. Publishers and communities can run their own nodes and seeders.
 - **Not a tracker site.** There is no website whose removal takes the list of models with it.
 - **Not a replacement for Hugging Face's compute.** No hosted inference, no Spaces.
 - **Not a blockchain.** Releases and discussion are signed Bitsocial records; files are torrents. [Bitsocial Chain](https://chain.bitsocial.net) would only be used for `.bso` publisher names and tips.
@@ -13992,7 +14037,7 @@ Bitsocial discussion is currently split across Telegram, Twitter and GitHub. The
 
 ## How sections work
 
-The forum is not one community. Each section (`/s/bso`, `/s/pkc`, `/s/5chan`, ...) is a [directory](https://docs.bitsocial.net/directories): a topic name that communities compete for. A section opens whichever community currently ranks first for it, and that community's own moderators run it. If a section's community goes away or is run badly, another community can take the section over without anyone's permission, the same way Seedit's and 5chan's directories work.
+The forum is not one community. Each section (`/bso`, `/pkc`, `/5chan`, ...) is a [directory](https://docs.bitsocial.net/directories): a topic name that communities compete for. A section opens whichever community currently ranks first for it, and that community's own moderators run it. If a section's community goes away or is run badly, another community can take the section over without anyone's permission, the same way Seedit's and 5chan's directories work.
 
 - The client decides which sections exist. The draft list is in [docs/sections.md](https://github.com/bitsocialnet/bitsocial-forum/blob/HEAD/docs/sections.md).
 - Communities decide what happens inside a section. Flairs label topics by project and type.

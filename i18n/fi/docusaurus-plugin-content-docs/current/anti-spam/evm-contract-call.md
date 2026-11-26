@@ -39,4 +39,4 @@ EVM Contract Call Challenge sopii erinomaisesti seuraaviin:
 - **NFT:llä rajattu pääsy**, jossa vaaditaan tietyn NFT:n omistusta.
 - **DAO-hallintotilat**, joissa osallistuminen on rajattu hallintotokenin haltijoihin.
 
-Jos yhteisö ei nojaa ketjussa olevaan identiteettiin, harkitse sen sijaan vaihtoehtoja [Roskapostin esto](./spam-blocker.md) tai [Voucher Challenge](./voucher-challenge.md).
+Jos yhteisö ei nojaa ketjussa olevaan identiteettiin, harkitse sen sijaan vaihtoehtoja [Roskapostin esto](./spamblocker.md) tai [Voucher Challenge](./voucher-challenge.md).

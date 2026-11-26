@@ -39,4 +39,4 @@ EVM Contract Call Challenge వీటికి అనువైనది:
 - **NFT-గేటెడ్ యాక్సెస్**, ఇక్కడ ఒక నిర్దిష్ట NFT యాజమాన్యం తప్పనిసరి.
 - **DAO గవర్నెన్స్ స్థలాలు**, ఇక్కడ పాల్గొనడం గవర్నెన్స్ టోకెన్ హోల్డర్లకే పరిమితం.
 
-ఆన్-చెయిన్ గుర్తింపుపై ఆధారపడని కమ్యూనిటీలు దీనికి బదులుగా [Spam Blocker](./spam-blocker.md) లేదా [Voucher Challenge](./voucher-challenge.md) పరిశీలించవచ్చు.
+ఆన్-చెయిన్ గుర్తింపుపై ఆధారపడని కమ్యూనిటీలు దీనికి బదులుగా [SpamBlocker](./spamblocker.md) లేదా [Voucher Challenge](./voucher-challenge.md) పరిశీలించవచ్చు.

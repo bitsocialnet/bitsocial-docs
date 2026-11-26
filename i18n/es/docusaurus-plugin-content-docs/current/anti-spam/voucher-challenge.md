@@ -42,4 +42,4 @@ El desafío de vales encaja mejor en:
 - **Espacios seleccionados**, donde quien es dueño revisa personalmente a cada participante.
 - **Entornos de mucha confianza**, donde la puntuación automática de spam es innecesaria o poco deseable.
 
-Como exige repartir los códigos a mano, no funciona bien en comunidades abiertas y grandes. Para esos casos, considera [Bloqueador de spam](./spam-blocker.md) o el [Desafío de llamada a contrato EVM](./evm-contract-call.md) en su lugar.
+Como exige repartir los códigos a mano, no funciona bien en comunidades abiertas y grandes. Para esos casos, considera [Bloqueador de spam](./spamblocker.md) o el [Desafío de llamada a contrato EVM](./evm-contract-call.md) en su lugar.

@@ -39,4 +39,4 @@ Sfida e thirrjes së kontratës EVM është ideale për:
 - **Akses sipas NFT-së** ku kërkohet pronësia e një NFT-je të caktuar.
 - **Hapësira qeverisjeje DAO** ku pjesëmarrja kufizohet te mbajtësit e tokenit të qeverisjes.
 
-Për komunitetet që nuk mbështeten te identiteti në zinxhir, shqyrtoni në vend të saj [Spam Blocker](./spam-blocker.md) ose [Sfidën Voucher](./voucher-challenge.md).
+Për komunitetet që nuk mbështeten te identiteti në zinxhir, shqyrtoni në vend të saj [SpamBlocker](./spamblocker.md) ose [Sfidën Voucher](./voucher-challenge.md).

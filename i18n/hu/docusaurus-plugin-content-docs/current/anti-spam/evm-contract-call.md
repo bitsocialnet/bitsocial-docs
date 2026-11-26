@@ -39,4 +39,4 @@ Az EVM Contract Call Challenge a következő esetekben ideális:
 - **NFT-hez kötött hozzáférés**, ahol egy adott NFT tulajdonlása kötelező.
 - **DAO kormányzási terek**, ahol a részvétel a kormányzási token tulajdonosaira korlátozódik.
 
-Azoknak a közösségeknek, amelyek nem támaszkodnak láncon lévő identitásra, inkább a [Spam Blocker](./spam-blocker.md) vagy a [Voucher Challenge](./voucher-challenge.md) ajánlott.
+Azoknak a közösségeknek, amelyek nem támaszkodnak láncon lévő identitásra, inkább a [SpamBlocker](./spamblocker.md) vagy a [Voucher Challenge](./voucher-challenge.md) ajánlott.

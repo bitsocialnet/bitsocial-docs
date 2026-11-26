@@ -39,4 +39,4 @@ EVM 合约调用挑战特别适合：
 - **NFT 门槛访问**，需要持有特定 NFT 才能参与。
 - **DAO 治理空间**，参与资格仅限治理代币持有者。
 
-对于不依赖链上身份的社区，可以考虑 [Spam Blocker](./spam-blocker.md) 或[兑换码挑战](./voucher-challenge.md)。
+对于不依赖链上身份的社区，可以考虑 [SpamBlocker](./spamblocker.md) 或[兑换码挑战](./voucher-challenge.md)。

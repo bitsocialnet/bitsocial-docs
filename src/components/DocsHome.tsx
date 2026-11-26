@@ -197,21 +197,21 @@ const developerToolCards = [
 
 const antiSpamCards = [
   {
-    to: "/anti-spam/spam-blocker/",
+    to: "/anti-spam/spamblocker/",
     eyebrow: tr(
       "docs.home.antispam.card.spamBlocker.eyebrow",
       "Risk scoring",
-      "Anti-spam card eyebrow for Spam Blocker.",
+      "Anti-spam card eyebrow for SpamBlocker.",
     ),
     title: tr(
       "docs.home.antispam.card.spamBlocker.title",
-      "Spam Blocker",
-      "Anti-spam card title for Spam Blocker.",
+      "SpamBlocker",
+      "Anti-spam card title for SpamBlocker.",
     ),
     body: tr(
       "docs.home.antispam.card.spamBlocker.body",
       "A centralized risk-scoring service with OAuth and CAPTCHA challenges, dynamic rate limiting, and a network indexer.",
-      "Anti-spam card description for Spam Blocker.",
+      "Anti-spam card description for SpamBlocker.",
     ),
   },
   {

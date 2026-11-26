@@ -39,4 +39,4 @@ EVM Contract Call Challenge phù hợp nhất cho:
 - **Quyền truy cập giới hạn theo NFT**, nơi bắt buộc phải sở hữu một NFT cụ thể.
 - **Không gian quản trị DAO**, nơi việc tham gia chỉ dành cho người nắm giữ token quản trị.
 
-Với những cộng đồng không dựa vào danh tính trên chuỗi, hãy cân nhắc [Spam Blocker](./spam-blocker.md) hoặc [Voucher Challenge](./voucher-challenge.md) để thay thế.
+Với những cộng đồng không dựa vào danh tính trên chuỗi, hãy cân nhắc [SpamBlocker](./spamblocker.md) hoặc [Voucher Challenge](./voucher-challenge.md) để thay thế.

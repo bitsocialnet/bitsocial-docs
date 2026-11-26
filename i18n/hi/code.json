@@ -516,15 +516,15 @@
   },
   "docs.home.antispam.card.spamBlocker.eyebrow": {
     "message": "जोखिम स्कोरिंग",
-    "description": "Anti-spam card eyebrow for Spam Blocker."
+    "description": "Anti-spam card eyebrow for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.title": {
     "message": "स्पैम अवरोधक",
-    "description": "Anti-spam card title for Spam Blocker."
+    "description": "Anti-spam card title for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.body": {
     "message": "OAuth और CAPTCHA चुनौतियों, गतिशील दर सीमित करने और एक नेटवर्क इंडेक्सर के साथ एक केंद्रीकृत जोखिम-स्कोरिंग सेवा।",
-    "description": "Anti-spam card description for Spam Blocker."
+    "description": "Anti-spam card description for SpamBlocker."
   },
   "docs.home.antispam.card.captcha.eyebrow": {
     "message": "छवि कैप्चा",

@@ -516,15 +516,15 @@
   },
   "docs.home.antispam.card.spamBlocker.eyebrow": {
     "message": "Βαθμολογία κινδύνου",
-    "description": "Anti-spam card eyebrow for Spam Blocker."
+    "description": "Anti-spam card eyebrow for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.title": {
     "message": "Αποκλεισμός ανεπιθύμητης αλληλογραφίας",
-    "description": "Anti-spam card title for Spam Blocker."
+    "description": "Anti-spam card title for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.body": {
     "message": "Μια κεντρική υπηρεσία βαθμολόγησης κινδύνου με προκλήσεις OAuth και CAPTCHA, δυναμικό περιορισμό ρυθμών και ευρετήριο δικτύου.",
-    "description": "Anti-spam card description for Spam Blocker."
+    "description": "Anti-spam card description for SpamBlocker."
   },
   "docs.home.antispam.card.captcha.eyebrow": {
     "message": "Captcha εικόνας",

@@ -42,4 +42,4 @@ npm install @bitsocial/voucher-challenge
 - **精选空间**，由所有者亲自审核每一位参与者。
 - **高信任环境**，自动化的垃圾内容评分没有必要，甚至并不受欢迎。
 
-由于需要人工分发兑换码，它无法扩展到大型开放社区。那类场景可以考虑 [Spam Blocker](./spam-blocker.md) 或 [EVM 合约调用挑战](./evm-contract-call.md)。
+由于需要人工分发兑换码，它无法扩展到大型开放社区。那类场景可以考虑 [SpamBlocker](./spamblocker.md) 或 [EVM 合约调用挑战](./evm-contract-call.md)。

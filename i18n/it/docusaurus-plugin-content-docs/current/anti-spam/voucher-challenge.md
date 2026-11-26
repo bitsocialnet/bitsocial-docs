@@ -42,4 +42,4 @@ Voucher Challenge è particolarmente adatta a:
 - **Spazi curati**, dove il proprietario valuta personalmente ogni partecipante.
 - **Ambienti ad alta fiducia**, dove un punteggio anti-spam automatico è superfluo o indesiderato.
 
-Poiché richiede la distribuzione manuale dei codici, non scala a grandi comunità aperte. Per quegli scenari, valuta invece [Spam Blocker](./spam-blocker.md) o [EVM Contract Call Challenge](./evm-contract-call.md).
+Poiché richiede la distribuzione manuale dei codici, non scala a grandi comunità aperte. Per quegli scenari, valuta invece [SpamBlocker](./spamblocker.md) o [EVM Contract Call Challenge](./evm-contract-call.md).

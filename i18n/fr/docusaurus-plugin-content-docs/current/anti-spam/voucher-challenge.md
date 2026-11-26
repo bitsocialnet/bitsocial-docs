@@ -42,4 +42,4 @@ Voucher Challenge convient particulièrement aux :
 - **Espaces curatés**, où le propriétaire valide personnellement chaque participant.
 - **Environnements de forte confiance**, où une notation automatisée du spam est inutile ou indésirable.
 
-Parce qu'il exige une distribution manuelle des codes, il ne passe pas à l'échelle des grandes communautés ouvertes. Dans ces cas-là, envisagez plutôt [Spam Blocker](./spam-blocker.md) ou le [Défi d'appel de contrat EVM](./evm-contract-call.md).
+Parce qu'il exige une distribution manuelle des codes, il ne passe pas à l'échelle des grandes communautés ouvertes. Dans ces cas-là, envisagez plutôt [SpamBlocker](./spamblocker.md) ou le [Défi d'appel de contrat EVM](./evm-contract-call.md).

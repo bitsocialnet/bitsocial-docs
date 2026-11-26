@@ -42,4 +42,4 @@ Výzva s voucherem se nejlépe hodí pro:
 - **Kurátorované prostory**, kde vlastník osobně prověřuje každého účastníka.
 - **Prostředí s vysokou mírou důvěry**, kde je automatické hodnocení spamu zbytečné nebo nežádoucí.
 
-Protože vyžaduje ruční rozdávání kódů, neškáluje se na velké otevřené komunity. Pro takové situace zvažte místo toho [Blokátor spamu](./spam-blocker.md) nebo [Výzvu voláním EVM kontraktu](./evm-contract-call.md).
+Protože vyžaduje ruční rozdávání kódů, neškáluje se na velké otevřené komunity. Pro takové situace zvažte místo toho [Blokátor spamu](./spamblocker.md) nebo [Výzvu voláním EVM kontraktu](./evm-contract-call.md).

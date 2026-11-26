@@ -39,4 +39,4 @@ EVM Contract Call Challenge est idéal pour :
 - **L'accès conditionné par un NFT**, lorsque la détention d'un NFT précis est requise.
 - **Les espaces de gouvernance DAO**, où la participation est réservée aux détenteurs du token de gouvernance.
 
-Pour les communautés qui ne reposent pas sur une identité on-chain, envisagez plutôt [Spam Blocker](./spam-blocker.md) ou le [Défi Voucher](./voucher-challenge.md).
+Pour les communautés qui ne reposent pas sur une identité on-chain, envisagez plutôt [SpamBlocker](./spamblocker.md) ou le [Défi Voucher](./voucher-challenge.md).

@@ -42,4 +42,4 @@ Voucher Challenge najlepiej nadaje się do:
 - **Przestrzeni kuratorowanych**, w których właściciel osobiście sprawdza każdego uczestnika.
 - **Środowisk o wysokim zaufaniu**, w których automatyczna ocena spamu jest zbędna lub niepożądana.
 
-Ponieważ wymaga ręcznego rozdawania kodów, nie skaluje się do dużych, otwartych społeczności. W takich scenariuszach rozważ zamiast tego [Spam Blocker](./spam-blocker.md) lub [EVM Contract Call Challenge](./evm-contract-call.md).
+Ponieważ wymaga ręcznego rozdawania kodów, nie skaluje się do dużych, otwartych społeczności. W takich scenariuszach rozważ zamiast tego [SpamBlocker](./spamblocker.md) lub [EVM Contract Call Challenge](./evm-contract-call.md).

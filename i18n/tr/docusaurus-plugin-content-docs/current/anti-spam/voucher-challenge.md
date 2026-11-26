@@ -42,4 +42,4 @@ Voucher Challenge en çok şunlara uygundur:
 - Sahibinin her katılımcıyı bizzat elediği **özenle derlenmiş alanlar**.
 - Otomatik spam puanlamasının gereksiz ya da istenmeyen olduğu **yüksek güven gerektiren ortamlar**.
 
-Manuel kod dağıtımı gerektirdiği için büyük ve açık topluluklara ölçeklenmez. Bu senaryolarda bunun yerine [Spam Blocker](./spam-blocker.md) veya [EVM Contract Call Challenge](./evm-contract-call.md) seçeneklerini değerlendirin.
+Manuel kod dağıtımı gerektirdiği için büyük ve açık topluluklara ölçeklenmez. Bu senaryolarda bunun yerine [SpamBlocker](./spamblocker.md) veya [EVM Contract Call Challenge](./evm-contract-call.md) seçeneklerini değerlendirin.

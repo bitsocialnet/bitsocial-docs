@@ -10,5 +10,27 @@
         }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/anti-spam/spam-blocker",
+      "destination": "/anti-spam/spamblocker/",
+      "permanent": true
+    },
+    {
+      "source": "/anti-spam/spam-blocker/",
+      "destination": "/anti-spam/spamblocker/",
+      "permanent": true
+    },
+    {
+      "source": "/:locale/anti-spam/spam-blocker",
+      "destination": "/:locale/anti-spam/spamblocker/",
+      "permanent": true
+    },
+    {
+      "source": "/:locale/anti-spam/spam-blocker/",
+      "destination": "/:locale/anti-spam/spamblocker/",
+      "permanent": true
+    }
   ]
 }

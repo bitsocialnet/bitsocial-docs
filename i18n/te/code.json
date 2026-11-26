@@ -516,15 +516,15 @@
   },
   "docs.home.antispam.card.spamBlocker.eyebrow": {
     "message": "రిస్క్ స్కోరింగ్",
-    "description": "Anti-spam card eyebrow for Spam Blocker."
+    "description": "Anti-spam card eyebrow for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.title": {
     "message": "స్పామ్ బ్లాకర్",
-    "description": "Anti-spam card title for Spam Blocker."
+    "description": "Anti-spam card title for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.body": {
     "message": "OAuth మరియు CAPTCHA సవాళ్లు, డైనమిక్ రేట్ పరిమితి మరియు నెట్‌వర్క్ ఇండెక్సర్‌తో కూడిన కేంద్రీకృత రిస్క్-స్కోరింగ్ సేవ.",
-    "description": "Anti-spam card description for Spam Blocker."
+    "description": "Anti-spam card description for SpamBlocker."
   },
   "docs.home.antispam.card.captcha.eyebrow": {
     "message": "చిత్రం క్యాప్చా",

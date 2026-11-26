@@ -39,4 +39,4 @@ Výzva voláním EVM kontraktu je ideální pro:
 - **Přístup podle NFT**, kde je vyžadováno vlastnictví konkrétního NFT.
 - **Prostory pro správu DAO**, kde je účast omezena na držitele governance tokenu.
 
-Pro komunity, které se na on-chain identitu nespoléhají, zvažte místo toho [Blokátor spamu](./spam-blocker.md) nebo [Výzvu s voucherem](./voucher-challenge.md).
+Pro komunity, které se na on-chain identitu nespoléhají, zvažte místo toho [Blokátor spamu](./spamblocker.md) nebo [Výzvu s voucherem](./voucher-challenge.md).

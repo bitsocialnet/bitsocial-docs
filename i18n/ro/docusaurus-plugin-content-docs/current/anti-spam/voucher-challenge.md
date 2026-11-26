@@ -42,4 +42,4 @@ Voucher Challenge este cea mai potrivită pentru:
 - **Spații curatoriate**, unde proprietarul verifică personal fiecare participant.
 - **Medii cu grad ridicat de încredere**, unde punctarea automată a spamului este inutilă sau nedorită.
 
-Pentru că necesită distribuirea manuală a codurilor, nu se scalează la comunități mari și deschise. Pentru acele scenarii, ia în calcul în schimb [Spam Blocker](./spam-blocker.md) sau [EVM Contract Call Challenge](./evm-contract-call.md).
+Pentru că necesită distribuirea manuală a codurilor, nu se scalează la comunități mari și deschise. Pentru acele scenarii, ia în calcul în schimb [SpamBlocker](./spamblocker.md) sau [EVM Contract Call Challenge](./evm-contract-call.md).

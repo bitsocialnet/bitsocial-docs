@@ -42,4 +42,4 @@ Voucher Challenge phù hợp nhất với:
 - **Không gian được tuyển chọn**, nơi chủ sở hữu đích thân xét duyệt từng người tham gia.
 - **Môi trường tin cậy cao**, nơi việc chấm điểm thư rác tự động là không cần thiết hoặc không mong muốn.
 
-Vì cần phân phát mã thủ công, cách này không mở rộng được cho các cộng đồng mở quy mô lớn. Với những tình huống đó, hãy cân nhắc [Spam Blocker](./spam-blocker.md) hoặc [EVM Contract Call Challenge](./evm-contract-call.md) để thay thế.
+Vì cần phân phát mã thủ công, cách này không mở rộng được cho các cộng đồng mở quy mô lớn. Với những tình huống đó, hãy cân nhắc [SpamBlocker](./spamblocker.md) hoặc [EVM Contract Call Challenge](./evm-contract-call.md) để thay thế.

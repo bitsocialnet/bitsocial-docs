@@ -39,4 +39,4 @@ EVM Contract Call Challenge ان کے لیے بہترین ہے:
 - **NFT گیٹڈ رسائی** جہاں کسی مخصوص NFT کی ملکیت لازمی ہو۔
 - **DAO گورننس کی جگہیں** جہاں شرکت صرف گورننس ٹوکن رکھنے والوں تک محدود ہو۔
 
-ایسی کمیونٹیز کے لیے جو آن چین شناخت پر انحصار نہیں کرتیں، اس کے بجائے [Spam Blocker](./spam-blocker.md) یا [Voucher Challenge](./voucher-challenge.md) پر غور کریں۔
+ایسی کمیونٹیز کے لیے جو آن چین شناخت پر انحصار نہیں کرتیں، اس کے بجائے [SpamBlocker](./spamblocker.md) یا [Voucher Challenge](./voucher-challenge.md) پر غور کریں۔
