@@ -42,4 +42,4 @@ Voucher Challenge sopii parhaiten seuraaviin:
 - **Kuratoidut tilat**, joissa omistaja tarkastaa jokaisen osallistujan henkilökohtaisesti.
 - **Korkean luottamuksen ympäristöt**, joissa automaattinen roskapostipisteytys on tarpeetonta tai ei-toivottua.
 
-Koska koodit on jaettava käsin, malli ei skaalaudu suuriin avoimiin yhteisöihin. Niitä varten harkitse sen sijaan vaihtoehtoja [Roskapostin esto](./spam-blocker.md) tai [EVM Contract Call Challenge](./evm-contract-call.md).
+Koska koodit on jaettava käsin, malli ei skaalaudu suuriin avoimiin yhteisöihin. Niitä varten harkitse sen sijaan vaihtoehtoja [Roskapostin esto](./spamblocker.md) tai [EVM Contract Call Challenge](./evm-contract-call.md).

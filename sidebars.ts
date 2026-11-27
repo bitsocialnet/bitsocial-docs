@@ -64,7 +64,7 @@ const sidebars: SidebarsConfig = {
       label: "Anti-spam challenges",
       items: [
         "custom-challenges",
-        "anti-spam/spam-blocker",
+        "anti-spam/spamblocker",
         "anti-spam/captcha-canvas-challenge",
         "anti-spam/voucher-challenge",
         "anti-spam/evm-contract-call",

@@ -42,4 +42,4 @@ Voucher Challenge egner sig bedst til:
 - **Kuraterede rum**, hvor ejeren personligt godkender hver enkelt deltager.
 - **Miljøer med høj tillid**, hvor automatisk spamscoring er unødvendig eller uønsket.
 
-Fordi koderne skal uddeles manuelt, skalerer den ikke til store åbne fællesskaber. I de tilfælde kan du i stedet overveje [Spam Blocker](./spam-blocker.md) eller [EVM Contract Call Challenge](./evm-contract-call.md).
+Fordi koderne skal uddeles manuelt, skalerer den ikke til store åbne fællesskaber. I de tilfælde kan du i stedet overveje [SpamBlocker](./spamblocker.md) eller [EVM Contract Call Challenge](./evm-contract-call.md).

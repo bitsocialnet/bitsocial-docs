@@ -39,4 +39,4 @@ El desafío de llamada a contrato EVM es ideal para:
 - **Acceso con NFT**, donde hace falta ser dueño de un NFT concreto.
 - **Espacios de gobernanza de una DAO** donde la participación se limita a quienes tienen el token de gobernanza.
 
-Para comunidades que no dependen de la identidad en cadena, considera [Bloqueador de spam](./spam-blocker.md) o el [Desafío de vales](./voucher-challenge.md) en su lugar.
+Para comunidades que no dependen de la identidad en cadena, considera [Bloqueador de spam](./spamblocker.md) o el [Desafío de vales](./voucher-challenge.md) en su lugar.

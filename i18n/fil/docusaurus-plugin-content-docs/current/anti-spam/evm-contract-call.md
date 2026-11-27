@@ -39,4 +39,4 @@ Angkop ang EVM Contract Call Challenge para sa:
 - **Access na naka-gate sa NFT** kung saan kinakailangan ang pagmamay-ari ng isang partikular na NFT.
 - **Mga espasyo ng pamamahala ng DAO** kung saan limitado ang paglahok sa mga may hawak ng governance token.
 
-Para sa mga komunidad na hindi umaasa sa on-chain na pagkakakilanlan, isaalang-alang ang [Spam Blocker](./spam-blocker.md) o [Voucher Challenge](./voucher-challenge.md) sa halip.
+Para sa mga komunidad na hindi umaasa sa on-chain na pagkakakilanlan, isaalang-alang ang [SpamBlocker](./spamblocker.md) o [Voucher Challenge](./voucher-challenge.md) sa halip.

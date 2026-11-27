@@ -42,4 +42,4 @@ Voucher Challenge passar bäst för:
 - **Kurerade utrymmen** där ägaren personligen granskar varje deltagare.
 - **Miljöer med högt förtroende** där automatisk spampoängsättning är onödig eller oönskad.
 
-Eftersom den kräver manuell distribution av koder skalar den inte till stora öppna communities. För sådana scenarier, överväg [Spam Blocker](./spam-blocker.md) eller [EVM Contract Call Challenge](./evm-contract-call.md) i stället.
+Eftersom den kräver manuell distribution av koder skalar den inte till stora öppna communities. För sådana scenarier, överväg [SpamBlocker](./spamblocker.md) eller [EVM Contract Call Challenge](./evm-contract-call.md) i stället.

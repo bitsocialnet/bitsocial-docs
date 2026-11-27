@@ -42,4 +42,4 @@ Voucher Challenge is best suited for:
 - **Curated spaces** where the owner personally vets every participant.
 - **High-trust environments** where automated spam scoring is unnecessary or undesirable.
 
-Because it requires manual code distribution, it does not scale to large open communities. For those scenarios, consider [Spam Blocker](./spam-blocker.md) or [EVM Contract Call Challenge](./evm-contract-call.md) instead.
+Because it requires manual code distribution, it does not scale to large open communities. For those scenarios, consider [SpamBlocker](./spamblocker.md) or [EVM Contract Call Challenge](./evm-contract-call.md) instead.

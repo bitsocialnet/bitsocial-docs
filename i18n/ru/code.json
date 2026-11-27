@@ -516,15 +516,15 @@
   },
   "docs.home.antispam.card.spamBlocker.eyebrow": {
     "message": "Оценка риска",
-    "description": "Anti-spam card eyebrow for Spam Blocker."
+    "description": "Anti-spam card eyebrow for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.title": {
-    "message": "Блокировщик спама",
-    "description": "Anti-spam card title for Spam Blocker."
+    "message": "SpamBlocker",
+    "description": "Anti-spam card title for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.body": {
     "message": "Централизованная служба оценки рисков с проблемами OAuth и CAPTCHA, динамическим ограничением скорости и сетевым индексатором.",
-    "description": "Anti-spam card description for Spam Blocker."
+    "description": "Anti-spam card description for SpamBlocker."
   },
   "docs.home.antispam.card.captcha.eyebrow": {
     "message": "Изображение капчи",

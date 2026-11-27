@@ -42,4 +42,4 @@ Tantangan Voucher paling cocok untuk:
 - **Ruang terkurasi** yang setiap pesertanya diseleksi langsung oleh pemiliknya.
 - **Lingkungan berkepercayaan tinggi** yang tidak memerlukan atau tidak menginginkan penilaian spam otomatis.
 
-Karena menuntut distribusi kode secara manual, pendekatan ini tidak bisa diperbesar skalanya untuk komunitas terbuka yang besar. Untuk skenario semacam itu, pertimbangkan [Pemblokir Spam](./spam-blocker.md) atau [Tantangan Panggilan Kontrak EVM](./evm-contract-call.md).
+Karena menuntut distribusi kode secara manual, pendekatan ini tidak bisa diperbesar skalanya untuk komunitas terbuka yang besar. Untuk skenario semacam itu, pertimbangkan [Pemblokir Spam](./spamblocker.md) atau [Tantangan Panggilan Kontrak EVM](./evm-contract-call.md).

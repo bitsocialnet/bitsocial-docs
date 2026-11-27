@@ -39,4 +39,4 @@ EVM Contract Call Challenge เหมาะอย่างยิ่งกับ:
 - **การเข้าถึงที่กั้นด้วย NFT** ซึ่งต้องถือครอง NFT ที่กำหนดไว้
 - **พื้นที่กำกับดูแลของ DAO** ซึ่งจำกัดการเข้าร่วมไว้เฉพาะผู้ถือโทเค็นกำกับดูแล
 
-สำหรับชุมชนที่ไม่ได้พึ่งพาอัตลักษณ์บนเชน ให้พิจารณา [Spam Blocker](./spam-blocker.md) หรือ [Voucher Challenge](./voucher-challenge.md) แทน
+สำหรับชุมชนที่ไม่ได้พึ่งพาอัตลักษณ์บนเชน ให้พิจารณา [SpamBlocker](./spamblocker.md) หรือ [Voucher Challenge](./voucher-challenge.md) แทน

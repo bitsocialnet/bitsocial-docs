@@ -42,4 +42,4 @@ Voucher Challenge és especialment adequat per a:
 - **Espais curats**, on el propietari valida personalment cada participant.
 - **Entorns d'alta confiança**, on la puntuació automàtica de correu brossa és innecessària o poc desitjable.
 
-Com que requereix distribuir els codis manualment, no escala a comunitats obertes i grans. Per a aquests casos, valoreu com a alternativa [Bloquejador de correu brossa](./spam-blocker.md) o [EVM Contract Call Challenge](./evm-contract-call.md).
+Com que requereix distribuir els codis manualment, no escala a comunitats obertes i grans. Per a aquests casos, valoreu com a alternativa [Bloquejador de correu brossa](./spamblocker.md) o [EVM Contract Call Challenge](./evm-contract-call.md).

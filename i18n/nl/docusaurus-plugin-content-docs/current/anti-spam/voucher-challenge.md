@@ -42,4 +42,4 @@ Voucher Challenge past het best bij:
 - **Zorgvuldig samengestelde ruimtes** waar de eigenaar elke deelnemer persoonlijk beoordeelt.
 - **Omgevingen met veel onderling vertrouwen** waar geautomatiseerde spamscores overbodig of ongewenst zijn.
 
-Omdat codes handmatig verspreid moeten worden, schaalt het niet naar grote, open community's. Overweeg voor die situaties [Spam Blocker](./spam-blocker.md) of [EVM Contract Call Challenge](./evm-contract-call.md).
+Omdat codes handmatig verspreid moeten worden, schaalt het niet naar grote, open community's. Overweeg voor die situaties [SpamBlocker](./spamblocker.md) of [EVM Contract Call Challenge](./evm-contract-call.md).

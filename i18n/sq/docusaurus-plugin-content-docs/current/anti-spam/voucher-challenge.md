@@ -42,4 +42,4 @@ Sfida Voucher është më e përshtatshme për:
 - **Hapësira të kuruara** ku pronari verifikon personalisht çdo pjesëmarrës.
 - **Mjedise me besim të lartë** ku vlerësimi i automatizuar i spamit është i panevojshëm ose i padëshiruar.
 
-Meqë kërkon shpërndarje manuale kodesh, nuk shkallëzohet për komunitete të mëdha e të hapura. Për ato skenarë, shqyrtoni në vend të saj [Spam Blocker](./spam-blocker.md) ose [Sfidën e thirrjes së kontratës EVM](./evm-contract-call.md).
+Meqë kërkon shpërndarje manuale kodesh, nuk shkallëzohet për komunitete të mëdha e të hapura. Për ato skenarë, shqyrtoni në vend të saj [SpamBlocker](./spamblocker.md) ose [Sfidën e thirrjes së kontratës EVM](./evm-contract-call.md).

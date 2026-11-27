@@ -39,4 +39,4 @@ EVM-kontraktkallutfordringen passer godt for:
 - **NFT-avgrenset tilgang** der eierskap til en bestemt NFT kreves.
 - **DAO-styringsrom** der deltakelse er begrenset til dem som eier styringstokener.
 
-For fellesskap som ikke baserer seg på identitet på kjeden, kan du i stedet vurdere [Spam Blocker](./spam-blocker.md) eller [Voucher-utfordringen](./voucher-challenge.md).
+For fellesskap som ikke baserer seg på identitet på kjeden, kan du i stedet vurdere [SpamBlocker](./spamblocker.md) eller [Voucher-utfordringen](./voucher-challenge.md).

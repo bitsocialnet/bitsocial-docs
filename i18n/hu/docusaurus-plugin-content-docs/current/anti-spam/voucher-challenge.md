@@ -42,4 +42,4 @@ A Voucher Challenge a következő esetekben válik be a legjobban:
 - **Kurált terek**, ahol a tulajdonos személyesen ellenőriz minden résztvevőt.
 - **Magas bizalmi szintű környezetek**, ahol az automatikus spampontozás szükségtelen vagy nem kívánatos.
 
-Mivel kézi kódkiosztást igényel, nagy, nyitott közösségekre nem skálázódik. Ilyen esetekben inkább a [Spam Blocker](./spam-blocker.md) vagy az [EVM Contract Call Challenge](./evm-contract-call.md) jöhet szóba.
+Mivel kézi kódkiosztást igényel, nagy, nyitott közösségekre nem skálázódik. Ilyen esetekben inkább a [SpamBlocker](./spamblocker.md) vagy az [EVM Contract Call Challenge](./evm-contract-call.md) jöhet szóba.

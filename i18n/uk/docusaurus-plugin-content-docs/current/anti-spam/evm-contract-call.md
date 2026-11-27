@@ -39,4 +39,4 @@ EVM Contract Call Challenge найкраще підходить для:
 - **Доступу за NFT**, коли потрібне володіння конкретним NFT.
 - **Просторів управління DAO**, де участь обмежена власниками токена управління.
 
-Для спільнот, які не покладаються на ончейн-ідентичність, розгляньте натомість [Spam Blocker](./spam-blocker.md) або [Voucher Challenge](./voucher-challenge.md).
+Для спільнот, які не покладаються на ончейн-ідентичність, розгляньте натомість [SpamBlocker](./spamblocker.md) або [Voucher Challenge](./voucher-challenge.md).

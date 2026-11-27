@@ -39,4 +39,4 @@ EVM Contract Call Challenge passar utmärkt för:
 - **NFT-baserad åtkomst** där innehav av en specifik NFT krävs.
 - **DAO-styrda utrymmen** där deltagandet är begränsat till innehavare av styrningstoken.
 
-För communities som inte bygger på identitet on-chain, överväg [Spam Blocker](./spam-blocker.md) eller [Voucher Challenge](./voucher-challenge.md) i stället.
+För communities som inte bygger på identitet on-chain, överväg [SpamBlocker](./spamblocker.md) eller [Voucher Challenge](./voucher-challenge.md) i stället.

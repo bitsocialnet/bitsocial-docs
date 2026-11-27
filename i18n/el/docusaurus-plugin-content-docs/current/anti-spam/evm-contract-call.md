@@ -39,4 +39,4 @@ npm install @bitsocial/evm-contract-challenge
 - **Πρόσβαση βάσει NFT**, όπου απαιτείται η κατοχή ενός συγκεκριμένου NFT.
 - **Χώρους διακυβέρνησης DAO**, όπου η συμμετοχή περιορίζεται στους κατόχους token διακυβέρνησης.
 
-Για κοινότητες που δεν βασίζονται σε on-chain ταυτότητα, εξετάστε αντ' αυτού το [Spam Blocker](./spam-blocker.md) ή την [Πρόκληση Voucher](./voucher-challenge.md).
+Για κοινότητες που δεν βασίζονται σε on-chain ταυτότητα, εξετάστε αντ' αυτού το [SpamBlocker](./spamblocker.md) ή την [Πρόκληση Voucher](./voucher-challenge.md).

@@ -508,15 +508,15 @@
   },
   "docs.home.antispam.card.spamBlocker.eyebrow": {
     "message": "ঝুঁকি স্কোরিং",
-    "description": "Anti-spam card eyebrow for Spam Blocker."
+    "description": "Anti-spam card eyebrow for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.title": {
-    "message": "স্প্যাম ব্লকার",
-    "description": "Anti-spam card title for Spam Blocker."
+    "message": "SpamBlocker",
+    "description": "Anti-spam card title for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.body": {
     "message": "OAuth এবং ক্যাপচা চ্যালেঞ্জ, গতিশীল হার সীমিতকরণ, এবং একটি নেটওয়ার্ক সূচক সহ একটি কেন্দ্রীভূত ঝুঁকি-স্কোরিং পরিষেবা।",
-    "description": "Anti-spam card description for Spam Blocker."
+    "description": "Anti-spam card description for SpamBlocker."
   },
   "docs.home.antispam.card.captcha.eyebrow": {
     "message": "ইমেজ ক্যাপচা",

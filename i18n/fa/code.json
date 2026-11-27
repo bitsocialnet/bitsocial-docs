@@ -516,15 +516,15 @@
   },
   "docs.home.antispam.card.spamBlocker.eyebrow": {
     "message": "امتیازدهی ریسک",
-    "description": "Anti-spam card eyebrow for Spam Blocker."
+    "description": "Anti-spam card eyebrow for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.title": {
-    "message": "مسدود کننده اسپم",
-    "description": "Anti-spam card title for Spam Blocker."
+    "message": "SpamBlocker",
+    "description": "Anti-spam card title for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.body": {
     "message": "یک سرویس امتیازدهی متمرکز ریسک با چالش‌های OAuth و CAPTCHA، محدود کردن نرخ پویا، و نمایه‌گر شبکه.",
-    "description": "Anti-spam card description for Spam Blocker."
+    "description": "Anti-spam card description for SpamBlocker."
   },
   "docs.home.antispam.card.captcha.eyebrow": {
     "message": "کپچای تصویر",

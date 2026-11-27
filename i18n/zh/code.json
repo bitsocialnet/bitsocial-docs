@@ -516,15 +516,15 @@
   },
   "docs.home.antispam.card.spamBlocker.eyebrow": {
     "message": "风险评分",
-    "description": "Anti-spam card eyebrow for Spam Blocker."
+    "description": "Anti-spam card eyebrow for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.title": {
-    "message": "垃圾邮件拦截器",
-    "description": "Anti-spam card title for Spam Blocker."
+    "message": "SpamBlocker",
+    "description": "Anti-spam card title for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.body": {
     "message": "具有 OAuth 和 CAPTCHA 挑战、动态速率限制和网络索引器的集中式风险评分服务。",
-    "description": "Anti-spam card description for Spam Blocker."
+    "description": "Anti-spam card description for SpamBlocker."
   },
   "docs.home.antispam.card.captcha.eyebrow": {
     "message": "图片验证码",

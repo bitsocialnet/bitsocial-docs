@@ -42,4 +42,4 @@ Voucher-utfordringen passer best for:
 - **Kuraterte rom** der eieren personlig vurderer hver eneste deltaker.
 - **Miljøer med høy tillit** der automatisk spam-poenggiving er unødvendig eller uønsket.
 
-Fordi den krever manuell utdeling av koder, skalerer den ikke til store åpne fellesskap. I slike tilfeller kan du i stedet vurdere [Spam Blocker](./spam-blocker.md) eller [EVM-kontraktkallutfordringen](./evm-contract-call.md).
+Fordi den krever manuell utdeling av koder, skalerer den ikke til store åpne fellesskap. I slike tilfeller kan du i stedet vurdere [SpamBlocker](./spamblocker.md) eller [EVM-kontraktkallutfordringen](./evm-contract-call.md).

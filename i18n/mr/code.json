@@ -516,15 +516,15 @@
   },
   "docs.home.antispam.card.spamBlocker.eyebrow": {
     "message": "जोखीम स्कोअरिंग",
-    "description": "Anti-spam card eyebrow for Spam Blocker."
+    "description": "Anti-spam card eyebrow for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.title": {
-    "message": "स्पॅम ब्लॉकर",
-    "description": "Anti-spam card title for Spam Blocker."
+    "message": "SpamBlocker",
+    "description": "Anti-spam card title for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.body": {
     "message": "OAuth आणि कॅप्चा आव्हाने, डायनॅमिक रेट लिमिटिंग आणि नेटवर्क इंडेक्सरसह केंद्रीकृत जोखीम-स्कोअरिंग सेवा.",
-    "description": "Anti-spam card description for Spam Blocker."
+    "description": "Anti-spam card description for SpamBlocker."
   },
   "docs.home.antispam.card.captcha.eyebrow": {
     "message": "इमेज कॅप्चा",

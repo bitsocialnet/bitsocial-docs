@@ -39,4 +39,4 @@ Tantangan Panggilan Kontrak EVM sangat cocok untuk:
 - **Akses berbasis NFT** yang mensyaratkan kepemilikan NFT tertentu.
 - **Ruang tata kelola DAO** yang partisipasinya terbatas bagi pemegang token tata kelola.
 
-Untuk komunitas yang tidak bergantung pada identitas on-chain, pertimbangkan [Pemblokir Spam](./spam-blocker.md) atau [Tantangan Voucher](./voucher-challenge.md).
+Untuk komunitas yang tidak bergantung pada identitas on-chain, pertimbangkan [Pemblokir Spam](./spamblocker.md) atau [Tantangan Voucher](./voucher-challenge.md).

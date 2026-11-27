@@ -484,15 +484,15 @@
   },
   "docs.home.antispam.card.spamBlocker.eyebrow": {
     "message": "Valutazione del rischio",
-    "description": "Anti-spam card eyebrow for Spam Blocker."
+    "description": "Anti-spam card eyebrow for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.title": {
-    "message": "Spam Blocker",
-    "description": "Anti-spam card title for Spam Blocker."
+    "message": "SpamBlocker",
+    "description": "Anti-spam card title for SpamBlocker."
   },
   "docs.home.antispam.card.spamBlocker.body": {
     "message": "Un servizio centralizzato di valutazione del rischio con sfide OAuth e CAPTCHA, rate limiting dinamico e un indicizzatore di rete.",
-    "description": "Anti-spam card description for Spam Blocker."
+    "description": "Anti-spam card description for SpamBlocker."
   },
   "docs.home.antispam.card.captcha.eyebrow": {
     "message": "Captcha immagine",

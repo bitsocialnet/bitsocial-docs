@@ -42,4 +42,4 @@ Pinakaangkop ang Voucher Challenge para sa:
 - **Mga piling espasyo** kung saan personal na sinusuri ng may-ari ang bawat kalahok.
 - **Mga kapaligirang mataas ang tiwala** kung saan hindi kailangan o hindi kanais-nais ang awtomatikong pagmamarka ng spam.
 
-Dahil nangangailangan ito ng manwal na pamamahagi ng code, hindi ito angkop sa malalaki at bukas na komunidad. Para sa mga ganoong sitwasyon, isaalang-alang ang [Spam Blocker](./spam-blocker.md) o [EVM Contract Call Challenge](./evm-contract-call.md) sa halip.
+Dahil nangangailangan ito ng manwal na pamamahagi ng code, hindi ito angkop sa malalaki at bukas na komunidad. Para sa mga ganoong sitwasyon, isaalang-alang ang [SpamBlocker](./spamblocker.md) o [EVM Contract Call Challenge](./evm-contract-call.md) sa halip.

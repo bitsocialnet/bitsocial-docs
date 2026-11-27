@@ -39,4 +39,4 @@ EVM Contract Call Challenge şunlar için idealdir:
 - Belirli bir NFT'ye sahip olmanın zorunlu tutulduğu **NFT kapılı erişim**.
 - Katılımın yönetişim tokeni sahipleriyle sınırlandığı **DAO yönetişim alanları**.
 
-Zincir üzerindeki kimliğe dayanmayan topluluklar için bunun yerine [Spam Blocker](./spam-blocker.md) veya [Voucher Challenge](./voucher-challenge.md) seçeneklerini değerlendirin.
+Zincir üzerindeki kimliğe dayanmayan topluluklar için bunun yerine [SpamBlocker](./spamblocker.md) veya [Voucher Challenge](./voucher-challenge.md) seçeneklerini değerlendirin.
